@@ -55,11 +55,11 @@ RENDERS: dict[str, str] = {
         elev.SetHighPoint(0, b[3], 0)
         elev.Update()
 
-        cam = CameraConfig(position=(0.15, 0.18, 0.15), focal_point=(0, 0.15, -0.04), view_up=(0, 1, 0))
+        cam = CameraConfig(position=(0.12, 0.22, 0.20), focal_point=(-0.02, 0.12, -0.04), view_up=(0, 1, 0))
         cfg = RenderConfig(
             width=1920, height=1080, background=(0.04, 0.04, 0.06),
             colormap='plasma', array_name='Elevation',
-            show_scalar_bar=True, scalar_bar_title='Elevation',
+            show_scalar_bar=False,
         )
         PNG = render_to_png(elev.GetOutput(), cfg, cam)
     """),
