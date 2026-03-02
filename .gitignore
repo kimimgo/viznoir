@@ -7,6 +7,7 @@ build/
 .env
 *.png
 !www/public/showcase/*.png
+!www/public/og-image.png
 *.mp4
 *.gif
 /tmp/
