@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    import numpy as np
     import vtk
 
 __all__ = [
@@ -455,7 +454,7 @@ def _all_array_names(ds: vtk.vtkDataSet) -> list[str]:
 def _get_numpy_array(
     ds: vtk.vtkDataSet,
     name: str,
-) -> tuple[np.ndarray | None, str]:
+) -> tuple[Any, str]:
     """Get a field as numpy array, trying point data then cell data.
 
     Returns:
@@ -479,7 +478,7 @@ def _get_numpy_array(
     return None, "point"
 
 
-def _get_coordinates(ds: vtk.vtkDataSet) -> np.ndarray | None:
+def _get_coordinates(ds: vtk.vtkDataSet) -> Any:
     """Get point coordinates as Nx3 numpy array."""
     from vtk.util.numpy_support import vtk_to_numpy
 
@@ -487,7 +486,7 @@ def _get_coordinates(ds: vtk.vtkDataSet) -> np.ndarray | None:
     if points is None:
         return None
 
-    return vtk_to_numpy(points.GetData())  # type: ignore[no-any-return]
+    return vtk_to_numpy(points.GetData())
 
 
 def supported_export_formats() -> list[str]:
