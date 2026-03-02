@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+*.png
+*.mp4
+*.gif
+/tmp/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

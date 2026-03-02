@@ -1,0 +1,59 @@
+[project]
+name = "mcp-server-mechkit"
+version = "0.1.0"
+description = "Headless ParaView post-processing MCP server for CFD/CAE simulations"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Imgyu Kim", email = "kimimgo@gmail.com" }
+]
+keywords = ["mcp", "paraview", "cfd", "cae", "post-processing", "simulation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+
+dependencies = [
+    "fastmcp>=2.0.0",
+    "jinja2>=3.1",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+mesh = ["meshio>=5.0", "trimesh>=4.0"]
+composite = ["pillow>=10.0", "matplotlib>=3.8"]
+all = ["mcp-server-mechkit[mesh,composite]"]
+
+[project.scripts]
+mcp-server-mechkit = "mechkit.server:main"
+
+[project.urls]
+Homepage = "https://github.com/kimimgo/mechkit"
+Repository = "https://github.com/kimimgo/mechkit"
+Issues = "https://github.com/kimimgo/mechkit/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mechkit"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

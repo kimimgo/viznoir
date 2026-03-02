@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mechkit": {
+      "command": "mcp-server-mechkit",
+      "env": {
+        "PV_PYTHON_BIN": "",
+        "PV_RENDER_BACKEND": "auto",
+        "PV_WORK_DIR": "/tmp/mechkit"
+      }
+    }
+  }
+}
