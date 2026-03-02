@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler, PipelineResult
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 from parapilot.pipeline.engine import execute_pipeline
 from parapilot.pipeline.models import (
     CameraDef,
@@ -19,7 +19,7 @@ from parapilot.pipeline.models import (
 async def slice_impl(
     file_path: str,
     field_name: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     origin: list[float] | None = None,
     normal: list[float] | None = None,
     colormap: str = "Cool to Warm",
@@ -61,7 +61,7 @@ async def contour_impl(
     file_path: str,
     field_name: str,
     isovalues: list[float],
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
     width: int = 1920,
@@ -96,7 +96,7 @@ async def contour_impl(
 async def clip_impl(
     file_path: str,
     field_name: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     origin: list[float] | None = None,
     normal: list[float] | None = None,
     invert: bool = False,
@@ -135,7 +135,7 @@ async def clip_impl(
 async def streamlines_impl(
     file_path: str,
     vector_field: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     seed_point1: list[float] | None = None,
     seed_point2: list[float] | None = None,
     seed_resolution: int = 20,

@@ -1,1 +1,1 @@
-"""Layer 2: Pipeline Engine — JSON DSL to pvpython script compilation and execution."""
+"""Layer 2: Pipeline Engine — JSON DSL to VTK script script compilation and execution."""

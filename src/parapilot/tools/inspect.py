@@ -6,12 +6,12 @@ from typing import Any
 
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 
 
 async def inspect_data_impl(
     file_path: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
 ) -> dict[str, Any]:
     """Inspect a simulation file and return metadata (bounds, arrays, timesteps, blocks)."""
     compiler = ScriptCompiler()

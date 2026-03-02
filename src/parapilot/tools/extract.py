@@ -6,7 +6,7 @@ from typing import Any
 
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 from parapilot.pipeline.engine import execute_pipeline
 from parapilot.pipeline.models import (
     DataOutputDef,
@@ -22,7 +22,7 @@ async def plot_over_line_impl(
     field_name: str,
     point1: list[float],
     point2: list[float],
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     resolution: int = 100,
     timestep: float | str | None = None,
 ) -> dict[str, Any]:
@@ -54,7 +54,7 @@ async def plot_over_line_impl(
 async def extract_stats_impl(
     file_path: str,
     fields: list[str],
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     timestep: float | str | None = None,
     blocks: list[str] | None = None,
 ) -> dict[str, Any]:
@@ -77,7 +77,7 @@ async def extract_stats_impl(
 async def integrate_surface_impl(
     file_path: str,
     field_name: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     boundary: str | None = None,
     timestep: float | str | None = None,
 ) -> dict[str, Any]:

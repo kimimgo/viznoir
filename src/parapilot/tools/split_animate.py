@@ -6,7 +6,7 @@ from typing import Any
 
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler, PipelineResult
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 from parapilot.pipeline.engine import execute_split_animation
 from parapilot.pipeline.models import (
     OutputDef,
@@ -19,7 +19,7 @@ from parapilot.pipeline.models import (
 async def split_animate_impl(
     file_path: str,
     panes: list[dict[str, Any]],
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     layout: dict[str, Any] | None = None,
     fps: int = 24,
     time_range: list[float] | None = None,

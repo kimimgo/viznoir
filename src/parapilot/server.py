@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 from fastmcp.utilities.types import Image
 
 from parapilot.config import PVConfig
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 
 mcp = FastMCP(
     "parapilot",
@@ -35,7 +35,7 @@ mcp = FastMCP(
 
 # Shared instances (created once, reused across requests)
 _config = PVConfig()
-_runner = ParaViewRunner(config=_config)
+_runner = VTKRunner(config=_config)
 
 
 def _validate_file_path(file_path: str) -> str:
@@ -612,7 +612,7 @@ def main() -> None:
     import asyncio
     import sys
 
-    from parapilot.core.runner import ParaViewRunner
+    from parapilot.core.runner import VTKRunner
 
     # Protect MCP JSON-RPC stream from VTK binary stdout pollution
     _protect_stdout()
@@ -620,7 +620,7 @@ def main() -> None:
     # Clean up any orphaned parapilot_* Docker containers from previous crashes
     try:
         removed = asyncio.get_event_loop().run_until_complete(
-            ParaViewRunner.cleanup_orphaned_containers()
+            VTKRunner.cleanup_orphaned_containers()
         )
         if removed:
             print(f"parapilot: cleaned up {removed} orphaned container(s)", file=sys.stderr)

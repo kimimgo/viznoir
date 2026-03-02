@@ -11,7 +11,7 @@ from pathlib import Path
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler, PipelineResult
 from parapilot.core.registry import get_filter, get_reader
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 from parapilot.pipeline.models import PipelineDefinition
 
 # ProgrammableFilter is disabled by default (arbitrary code execution risk).
@@ -81,13 +81,13 @@ def validate_pipeline(pipeline: PipelineDefinition) -> list[str]:
 
 async def execute_split_animation(
     definition: PipelineDefinition,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     compiler: ScriptCompiler | None = None,
     output_handler: OutputHandler | None = None,
 ) -> PipelineResult:
     """Execute a split-pane animation pipeline (two-phase).
 
-    Phase 1: pvpython renders individual pane frames + extracts stats.
+    Phase 1: VTK script renders individual pane frames + extracts stats.
     Phase 2: Compositor composes frames and generates GIF.
     """
     import json as _json
@@ -106,7 +106,7 @@ async def execute_split_animation(
     if split_anim is None:
         raise ValueError("split_animation definition is required")
 
-    # 2. Compile & Execute (Phase 1 — pvpython)
+    # 2. Compile & Execute (Phase 1 — VTK script)
     script = compiler.compile(definition)
     run_result = await runner.execute(script)
     run_result.raise_on_error()
@@ -242,15 +242,15 @@ async def compile_video(
 
 async def execute_pipeline(
     definition: PipelineDefinition,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     compiler: ScriptCompiler | None = None,
     output_handler: OutputHandler | None = None,
 ) -> PipelineResult:
     """Full pipeline execution with optional video compilation.
 
     1. Validate the definition
-    2. Compile to pvpython script
-    3. Execute via ParaViewRunner
+    2. Compile to VTK script script
+    3. Execute via VTKRunner
     4. Parse results via OutputHandler
     5. (Optional) Compile video from animation frames
     """

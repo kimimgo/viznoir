@@ -1,4 +1,4 @@
-"""OutputHandler — parse pvpython execution results into structured responses."""
+"""OutputHandler — parse VTK script execution results into structured responses."""
 
 from __future__ import annotations
 

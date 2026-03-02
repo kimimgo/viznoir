@@ -197,15 +197,14 @@ class TestSplitAnimationValidation:
 
 class TestSplitAnimationCompilation:
     def test_compile_basic(self) -> None:
-        """split_animation should compile to a valid pvpython script."""
+        """split_animation should compile to a valid VTK engine script."""
         compiler = ScriptCompiler()
         pipeline = _make_split_pipeline()
         script = compiler.compile(pipeline)
 
-        assert "CreateRenderView" in script
-        assert "SaveScreenshot" in script
-        assert "pane_0_frame_" in script
-        assert "pane_1_frame_" in script
+        assert "render_to_png" in script
+        assert "pane" in script.lower()
+        assert "frame_" in script
         assert "stats.json" in script
         assert "result.json" in script
 
@@ -225,9 +224,9 @@ class TestSplitAnimationCompilation:
         script = compiler.compile(pipeline)
 
         # stat_fields should include both p and U
-        assert '"U"' in script
-        assert '"p"' in script
-        assert "vtk_to_numpy" in script
+        assert "'U'" in script
+        assert "'p'" in script
+        assert "extract_stats" in script
 
     def test_compile_speed_factor(self) -> None:
         """speed_factor should be passed to template."""
@@ -241,5 +240,5 @@ class TestSplitAnimationCompilation:
         compiler = ScriptCompiler()
         pipeline = _make_split_pipeline()
         script = compiler.compile(pipeline)
-        assert 'ApplyPreset("Cool to Warm", True)' in script
-        assert 'ApplyPreset("Viridis", True)' in script
+        assert '"colormap": "cool to warm"' in script
+        assert '"colormap": "viridis"' in script

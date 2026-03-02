@@ -1,4 +1,4 @@
-"""ParaViewRunner — execute pvpython scripts and collect results."""
+"""VTKRunner — execute Python/VTK scripts and collect results."""
 
 from __future__ import annotations
 
@@ -13,10 +13,12 @@ from typing import Any
 
 from parapilot.config import PVConfig
 
+__all__ = ["RunResult", "VTKRunner"]
+
 
 @dataclass
 class RunResult:
-    """Result of a pvpython script execution."""
+    """Result of a VTK script execution."""
 
     stdout: str
     stderr: str
@@ -31,7 +33,7 @@ class RunResult:
 
     @property
     def is_cleanup_crash(self) -> bool:
-        """Detect VisRTX/VTK cleanup crash (rendering succeeded but exit crashed).
+        """Detect VTK cleanup crash (rendering succeeded but exit crashed).
 
         Pattern: non-zero exit + output files exist + known crash signatures in stderr.
         """
@@ -46,20 +48,20 @@ class RunResult:
     def raise_on_error(self) -> None:
         if not self.ok and not self.is_cleanup_crash:
             raise RuntimeError(
-                f"pvpython exited with code {self.exit_code}.\nstderr: {self.stderr}"
+                f"VTK script exited with code {self.exit_code}.\nstderr: {self.stderr}"
             )
 
 
-class ParaViewRunner:
-    """Execute pvpython scripts locally or via Docker (GPU EGL / CPU OSMesa)."""
+class VTKRunner:
+    """Execute Python/VTK scripts locally or via Docker (GPU EGL / CPU OSMesa)."""
 
     def __init__(self, config: PVConfig | None = None, mode: str = "auto"):
         self.config = config or PVConfig()
         self.mode = self._detect_mode() if mode == "auto" else mode
 
     def _detect_mode(self) -> str:
-        """'local' if pvpython is available, otherwise 'docker'."""
-        if shutil.which(self.config.pvpython_bin):
+        """'local' if python_bin is available, otherwise 'docker'."""
+        if shutil.which(self.config.python_bin):
             return "local"
         return "docker"
 
@@ -70,7 +72,7 @@ class ParaViewRunner:
         extra_files: dict[str, bytes] | None = None,
         extra_mounts: list[str] | None = None,
     ) -> RunResult:
-        """Run a pvpython script and return the result.
+        """Run a VTK script and return the result.
 
         Args:
             extra_mounts: Additional host directories to mount read-only
@@ -123,7 +125,7 @@ class ParaViewRunner:
     async def _run_local(
         self, script_path: Path, output_dir: Path, timeout: float
     ) -> RunResult:
-        """Execute pvpython directly via subprocess (GPU EGL or CPU OSMesa)."""
+        """Execute Python/VTK script directly via subprocess."""
         import os
 
         env = {
@@ -132,18 +134,21 @@ class ParaViewRunner:
             "PARAPILOT_DATA_DIR": str(self.config.data_dir),
         }
 
-        # Force offscreen rendering — prevent VTK X11 cleanup crash
-        env["VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN"] = "1"
+        # Set VTK offscreen rendering window based on vtk_backend config
+        vtk_backend = self.config.vtk_backend
+        if vtk_backend == "auto":
+            vtk_backend = "egl" if self.config.use_gpu else "osmesa"
 
-        # GPU (EGL) rendering: set device index for headless EGL
-        if self.config.use_gpu:
+        if vtk_backend == "egl":
+            env["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkEGLRenderWindow"
             env["VTK_DEFAULT_EGL_DEVICE_INDEX"] = str(self.config.gpu_device)
             # Remove DISPLAY to avoid GLX attempts — force EGL path
             env.pop("DISPLAY", None)
+        elif vtk_backend == "osmesa":
+            env["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkOSOpenGLRenderWindow"
 
         proc = await asyncio.create_subprocess_exec(
-            self.config.pvpython_bin,
-            "--force-offscreen-rendering",
+            self.config.python_bin,
             str(script_path),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
@@ -156,7 +161,7 @@ class ParaViewRunner:
         except asyncio.TimeoutError:
             proc.kill()
             await proc.communicate()
-            return RunResult(stdout="", stderr=f"pvpython timed out after {timeout}s", exit_code=-1)
+            return RunResult(stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1)
 
         return RunResult(
             stdout=stdout_bytes.decode("utf-8", errors="replace"),
@@ -171,7 +176,7 @@ class ParaViewRunner:
         timeout: float,
         extra_mounts: list[str] | None = None,
     ) -> RunResult:
-        """Execute pvpython inside a Docker container (GPU EGL or CPU OSMesa)."""
+        """Execute Python/VTK script inside a Docker container."""
         import os
 
         tmpdir = script_path.parent
@@ -187,8 +192,11 @@ class ParaViewRunner:
         if self.config.use_gpu:
             args.extend(["--gpus", "all"])
             args.extend(["-e", f"VTK_DEFAULT_EGL_DEVICE_INDEX={self.config.gpu_device}"])
+            args.extend(["-e", "VTK_DEFAULT_OPENGL_WINDOW=vtkEGLRenderWindow"])
             args.extend(["-e", "NVIDIA_VISIBLE_DEVICES=all"])
             args.extend(["-e", "NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics"])
+        else:
+            args.extend(["-e", "VTK_DEFAULT_OPENGL_WINDOW=vtkOSOpenGLRenderWindow"])
 
         args.extend([
             "-v", f"{tmpdir}:/work:ro",
@@ -202,7 +210,7 @@ class ParaViewRunner:
             args.extend(["-v", f"{mount_dir}:{mount_dir}:ro"])
         args.extend([
             self.config.docker_image,
-            self.config.pvpython_bin, "--force-offscreen-rendering", "/work/pipeline.py",
+            "python", "/work/pipeline.py",
         ])
 
         proc = await asyncio.create_subprocess_exec(
@@ -220,7 +228,7 @@ class ParaViewRunner:
             # Kill the actual Docker container (proc.kill only kills the CLI)
             await self._stop_container(container_name)
             return RunResult(
-                stdout="", stderr=f"Docker pvpython timed out after {timeout}s", exit_code=-1
+                stdout="", stderr=f"Docker VTK script timed out after {timeout}s", exit_code=-1
             )
 
         return RunResult(
@@ -268,3 +276,7 @@ class ParaViewRunner:
         except (asyncio.TimeoutError, OSError):
             pass
         return len(ids)
+
+
+# Backwards-compatible alias
+ParaViewRunner = VTKRunner

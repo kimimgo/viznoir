@@ -6,7 +6,7 @@ from typing import Literal
 
 from parapilot.core.compiler import ScriptCompiler
 from parapilot.core.output import OutputHandler, PipelineResult
-from parapilot.core.runner import ParaViewRunner
+from parapilot.core.runner import VTKRunner
 from parapilot.pipeline.engine import execute_pipeline
 from parapilot.pipeline.models import (
     CameraDef,
@@ -20,7 +20,7 @@ from parapilot.pipeline.models import (
 async def render_impl(
     file_path: str,
     field_name: str,
-    runner: ParaViewRunner,
+    runner: VTKRunner,
     association: Literal["POINTS", "CELLS"] = "POINTS",
     colormap: str = "Cool to Warm",
     camera: str = "isometric",

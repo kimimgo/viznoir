@@ -1,74 +1,53 @@
-"""ScriptCompiler — compile PipelineDefinition into pvpython scripts via Jinja2 templates."""
+"""ScriptCompiler — compile PipelineDefinition into VTK engine scripts."""
 
 from __future__ import annotations
 
-from pathlib import Path
+import json
 from typing import TYPE_CHECKING, Any
 
-from jinja2 import Environment, FileSystemLoader
-
-from parapilot.core.registry import get_reader, validate_filter_params
+from parapilot.core.registry import validate_filter_params
 
 if TYPE_CHECKING:
     from parapilot.pipeline.models import PipelineDefinition
 
-TEMPLATES_DIR = Path(__file__).parent.parent / "pipeline" / "templates"
+__all__ = ["ScriptCompiler"]
 
 
 class ScriptCompiler:
-    """Compile a PipelineDefinition into a pvpython script string."""
+    """Compile a PipelineDefinition into a Python/VTK script string.
 
-    def __init__(self) -> None:
-        import base64
-
-        self.env = Environment(
-            loader=FileSystemLoader(str(TEMPLATES_DIR)),
-            keep_trailing_newline=True,
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
-        self.env.filters["b64encode"] = lambda s: base64.b64encode(s.encode()).decode()
+    Generated scripts import from ``parapilot.engine`` and write results
+    to ``PARAPILOT_OUTPUT_DIR``.  No Jinja2 or ParaView dependency.
+    """
 
     def compile(self, pipeline: PipelineDefinition) -> str:
-        """Convert a PipelineDefinition to a complete pvpython script."""
-        parts: list[str] = []
+        """Convert a PipelineDefinition to a Python/VTK script."""
+        lines: list[str] = []
+        lines.append(self._header())
+        lines.append(self._read_source(pipeline))
 
-        # 1. Base: imports + reader
-        parts.append(self._compile_base(pipeline))
-
-        # 2. Filter chain
         if pipeline.pipeline:
-            parts.append(self._compile_filters(pipeline))
+            lines.append(self._apply_filters(pipeline))
 
-        # 3. Output
-        parts.append(self._compile_output(pipeline))
-
-        return "\n".join(parts)
+        lines.append(self._output(pipeline))
+        return "\n".join(lines)
 
     def compile_inspect(self, source_file: str, reader: str | None = None) -> str:
-        """Compile a metadata inspection script (no pipeline, no output spec needed)."""
-        if reader is None:
-            reader = get_reader(source_file)
+        """Compile a metadata inspection script."""
+        _ = reader  # reader auto-detected inside engine
+        return _INSPECT_TEMPLATE.format(source_file=_py_str(source_file))
 
-        template = self.env.get_template("base.py.j2")
-        base = template.render(
-            source_file=source_file,
-            reader=reader,
-            timestep=None,
-            blocks=None,
-        )
+    # ------------------------------------------------------------------
+    # Private — code generation helpers
+    # ------------------------------------------------------------------
 
-        inspect_template = self.env.get_template("inspect.py.j2")
-        inspect_code = inspect_template.render(source_file=source_file)
+    @staticmethod
+    def _header() -> str:
+        return _HEADER
 
-        return base + "\n" + inspect_code
-
-    def _compile_base(self, pipeline: PipelineDefinition) -> str:
-        """Render the base template (imports, reader, timestep selection)."""
+    def _read_source(self, pipeline: PipelineDefinition) -> str:
         source = pipeline.source
-        reader = get_reader(source.file)
 
-        # Resolve file series: explicit list or glob pattern
         source_files: list[str] | None = None
         if source.files:
             source_files = sorted(source.files)
@@ -77,153 +56,140 @@ class ScriptCompiler:
 
             source_files = sorted(_glob.glob(source.file_pattern))
             if not source_files:
-                raise ValueError(
-                    f"file_pattern '{source.file_pattern}' matched no files"
-                )
+                raise ValueError(f"file_pattern '{source.file_pattern}' matched no files")
 
-        template = self.env.get_template("base.py.j2")
-        return template.render(
-            source_file=source.file,
-            source_files=source_files,
-            reader=reader,
-            timestep=source.timestep,
-            blocks=source.blocks,
-            mesh_regions=source.blocks,
-        )
+        parts: list[str] = []
 
-    def _compile_filters(self, pipeline: PipelineDefinition) -> str:
-        """Render the filter chain template."""
-        filter_steps: list[dict[str, Any]] = []
-
-        for step in pipeline.pipeline:
-            validated_params = validate_filter_params(step.filter, step.params)
-            filter_steps.append({
-                "filter": step.filter,
-                "params": validated_params,
-                "name": step.name,
-            })
-
-        template = self.env.get_template("filters.py.j2")
-        return template.render(filter_steps=filter_steps)
-
-    def _compile_output(self, pipeline: PipelineDefinition) -> str:
-        """Render the appropriate output template."""
-        output = pipeline.output
-
-        if output.type == "image":
-            return self._compile_render(pipeline)
-        elif output.type in ("data", "csv"):
-            return self._compile_data(pipeline)
-        elif output.type == "animation":
-            return self._compile_animation(pipeline)
-        elif output.type == "split_animation":
-            return self._compile_split_animation(pipeline)
-        elif output.type == "export":
-            return self._compile_export(pipeline)
-        elif output.type == "multi":
-            # Multi: render + data
-            parts = []
-            if output.render:
-                parts.append(self._compile_render(pipeline))
-            if output.data:
-                parts.append(self._compile_data(pipeline))
-            return "\n".join(parts)
+        if source_files:
+            parts.append(f"_source_files = {source_files!r}")
+            parts.append(f"dataset = read_dataset({_py_str(source.file)}, source_files=_source_files)")
         else:
-            raise ValueError(f"Unknown output type: {output.type}")
+            ts = _py_repr(source.timestep)
+            blocks = _py_repr(source.blocks)
+            parts.append(f"dataset = read_dataset({_py_str(source.file)}, timestep={ts}, blocks={blocks})")
 
-    def _compile_render(self, pipeline: PipelineDefinition) -> str:
-        """Render the render output template."""
-        render = pipeline.output.render
-        if render is None:
+        return "\n".join(parts)
+
+    def _apply_filters(self, pipeline: PipelineDefinition) -> str:
+        steps: list[str] = []
+        for step in pipeline.pipeline:
+            params = validate_filter_params(step.filter, step.params)
+            params_str = ", ".join(f"{k}={_py_repr(v)}" for k, v in params.items())
+            steps.append(f"dataset = apply_filter(dataset, {_py_str(step.filter)}, {params_str})")
+        return "\n".join(steps)
+
+    def _output(self, pipeline: PipelineDefinition) -> str:
+        output = pipeline.output
+        if output.type == "image":
+            return self._gen_render(pipeline)
+        if output.type in ("data", "csv"):
+            return self._gen_data(pipeline)
+        if output.type == "animation":
+            return self._gen_animation(pipeline)
+        if output.type == "split_animation":
+            return self._gen_split_animation(pipeline)
+        if output.type == "export":
+            return self._gen_export(pipeline)
+        if output.type == "multi":
+            parts: list[str] = []
+            if output.render:
+                parts.append(self._gen_render(pipeline))
+            if output.data:
+                parts.append(self._gen_data(pipeline))
+            return "\n".join(parts)
+        raise ValueError(f"Unknown output type: {output.type}")
+
+    # --- render ---
+    def _gen_render(self, pipeline: PipelineDefinition) -> str:
+        r = pipeline.output.render
+        if r is None:
             raise ValueError("Render output requires 'render' definition")
 
-        template = self.env.get_template("render.py.j2")
-        return template.render(
-            field=render.field,
-            association=render.association,
-            colormap=render.colormap,
-            representation=render.representation,
-            scalar_bar=render.scalar_bar,
-            scalar_bar_config=render.scalar_bar_config,
-            scalar_range=render.scalar_range,
-            log_scale=render.log_scale,
-            above_range_color=render.above_range_color,
-            below_range_color=render.below_range_color,
-            camera_preset=render.camera.preset,
-            camera_position=render.camera.position,
-            camera_focal_point=render.camera.focal_point,
-            camera_view_up=render.camera.view_up,
-            zoom=render.camera.zoom,
-            orthographic=render.camera.orthographic,
-            resolution=list(render.resolution),
-            background=list(render.background),
-            transparent=render.transparent,
-            opacity=render.opacity,
-            point_size=render.point_size,
-            line_width=render.line_width,
-            specular=render.specular,
-            specular_power=render.specular_power,
-            output_filename=render.output_filename,
+        cam = r.camera
+        return _RENDER_TEMPLATE.format(
+            width=r.resolution[0],
+            height=r.resolution[1],
+            background=tuple(r.background),
+            colormap=r.colormap.lower(),
+            array_name=_py_repr(r.field),
+            component=-1,
+            representation=r.representation.lower(),
+            opacity=r.opacity,
+            show_scalar_bar=r.scalar_bar,
+            scalar_bar_title=_py_repr(r.scalar_bar_config.title if r.scalar_bar_config else None),
+            edge_visibility="True" if r.representation.lower() == "surface with edges" else "False",
+            point_size=r.point_size,
+            line_width=r.line_width,
+            log_scale=r.log_scale,
+            scalar_range=_py_repr(tuple(r.scalar_range) if r.scalar_range else None),
+            camera_preset=_py_repr(cam.preset),
+            camera_position=_py_repr(cam.position),
+            camera_focal_point=_py_repr(cam.focal_point),
+            camera_view_up=_py_repr(cam.view_up),
+            camera_zoom=cam.zoom,
+            camera_orthographic=cam.orthographic,
+            output_filename=r.output_filename,
         )
 
-    def _compile_data(self, pipeline: PipelineDefinition) -> str:
-        """Render the data extraction template."""
-        data_def = pipeline.output.data
-        if data_def is None:
-            # Create default data output
-            from parapilot.pipeline.models import DataOutputDef
-            data_def = DataOutputDef()
+    # --- data ---
+    def _gen_data(self, pipeline: PipelineDefinition) -> str:
+        from parapilot.pipeline.models import DataOutputDef
 
-        template = self.env.get_template("data.py.j2")
-        return template.render(
-            fields=data_def.fields,
-            format=data_def.format,
-            include_coordinates=data_def.include_coordinates,
-            statistics_only=data_def.statistics_only,
+        d = pipeline.output.data or DataOutputDef()
+        return _DATA_TEMPLATE.format(
+            fields=_py_repr(d.fields),
+            include_coordinates=d.include_coordinates,
+            statistics_only=d.statistics_only,
+            fmt=d.format,
         )
 
-    def _compile_animation(self, pipeline: PipelineDefinition) -> str:
-        """Render the animation output template."""
+    # --- animation ---
+    def _gen_animation(self, pipeline: PipelineDefinition) -> str:
         anim = pipeline.output.animation
         if anim is None:
             raise ValueError("Animation output requires 'animation' definition")
 
-        # Resolve source_files for per-file loading (Mesa-safe fallback)
         source = pipeline.source
         source_files: list[str] | None = None
         if source.files:
             source_files = sorted(source.files)
         elif source.file_pattern:
             import glob as _glob
-
             source_files = sorted(_glob.glob(source.file_pattern))
 
-        reader_type = get_reader(source.file)
+        r = anim.render
+        filter_lines = ""
+        if pipeline.pipeline:
+            filter_lines = self._apply_filters(pipeline)
 
-        template = self.env.get_template("animate.py.j2")
-        return template.render(
-            field=anim.render.field,
-            association=anim.render.association,
-            colormap=anim.render.colormap,
-            representation=anim.render.representation,
-            scalar_bar=anim.render.scalar_bar,
-            scalar_range=anim.render.scalar_range,
-            opacity=anim.render.opacity,
-            point_size=anim.render.point_size,
-            camera_preset=anim.render.camera.preset,
-            resolution=list(anim.render.resolution),
-            background=list(anim.render.background),
+        return _ANIMATION_TEMPLATE.format(
+            source_file=_py_str(source.file),
+            source_files=_py_repr(source_files),
+            timestep=_py_repr(source.timestep),
+            blocks=_py_repr(source.blocks),
+            filter_code=filter_lines,
+            width=r.resolution[0],
+            height=r.resolution[1],
+            background=tuple(r.background),
+            colormap=r.colormap.lower(),
+            array_name=_py_repr(r.field),
+            representation=r.representation.lower(),
+            opacity=r.opacity,
+            show_scalar_bar=r.scalar_bar,
+            log_scale=r.log_scale,
+            scalar_range=_py_repr(tuple(r.scalar_range) if r.scalar_range else None),
+            camera_preset=_py_repr(r.camera.preset),
+            camera_zoom=r.camera.zoom,
+            camera_orthographic=r.camera.orthographic,
             fps=anim.fps,
-            time_range=anim.time_range,
+            time_range=_py_repr(anim.time_range),
             speed_factor=anim.speed_factor,
             mode=anim.mode,
             orbit_duration=anim.orbit_duration,
-            source_files=source_files,
-            reader_type=reader_type,
         )
 
-    def _compile_split_animation(self, pipeline: PipelineDefinition) -> str:
-        """Render the split animation template (multi-view + stats)."""
+    # --- split animation ---
+    def _gen_split_animation(self, pipeline: PipelineDefinition) -> str:
         split_anim = pipeline.output.split_animation
         if split_anim is None:
             raise ValueError("Split animation output requires 'split_animation' definition")
@@ -234,34 +200,27 @@ class ScriptCompiler:
         cell_w = (total_w - gap * (layout.cols - 1)) // layout.cols
         cell_h = (total_h - gap * (layout.rows - 1)) // layout.rows
 
-        # Build render pane data for template
         render_panes: list[dict[str, Any]] = []
         stat_fields: set[str] = set()
 
         for i, pane in enumerate(split_anim.panes):
             if pane.type == "render" and pane.render_pane is not None:
                 r = pane.render_pane.render
-                # Compile per-pane filter steps
                 filter_steps: list[dict[str, Any]] = []
                 for step in pane.render_pane.pipeline:
-                    validated_params = validate_filter_params(step.filter, step.params)
-                    filter_steps.append({
-                        "filter": step.filter,
-                        "assignments": self._filter_assignments(step.filter, validated_params),
-                    })
+                    vp = validate_filter_params(step.filter, step.params)
+                    filter_steps.append({"filter": step.filter, "params": vp})
 
                 render_panes.append({
                     "index": i,
                     "width": cell_w,
                     "height": cell_h,
                     "field": r.field,
-                    "association": r.association,
-                    "colormap": r.colormap,
-                    "representation": r.representation,
+                    "colormap": r.colormap.lower(),
+                    "representation": r.representation.lower(),
                     "scalar_bar": r.scalar_bar,
-                    "scalar_range": r.scalar_range,
+                    "scalar_range": list(r.scalar_range) if r.scalar_range else None,
                     "opacity": r.opacity,
-                    "point_size": r.point_size,
                     "background": list(r.background),
                     "camera_preset": r.camera.preset or "isometric",
                     "filter_steps": filter_steps,
@@ -270,58 +229,314 @@ class ScriptCompiler:
                 for series in pane.graph_pane.series:
                     stat_fields.add(series.field)
 
-        # Resolve source_files for per-file loading (Mesa-safe fallback)
         source = pipeline.source
         source_files: list[str] | None = None
         if source.files:
             source_files = sorted(source.files)
         elif source.file_pattern:
             import glob as _glob
-
             source_files = sorted(_glob.glob(source.file_pattern))
 
-        reader_type = get_reader(source.file)
-
-        template = self.env.get_template("split_animate.py.j2")
-        return template.render(
-            render_panes=render_panes,
-            stat_fields=sorted(stat_fields),
+        return _SPLIT_ANIM_TEMPLATE.format(
+            source_file=_py_str(source.file),
+            source_files=_py_repr(source_files),
+            blocks=_py_repr(source.blocks),
+            render_panes_json=json.dumps(render_panes),
+            stat_fields=_py_repr(sorted(stat_fields)),
             fps=split_anim.fps,
             speed_factor=split_anim.speed_factor,
-            time_range=split_anim.time_range,
-            source_files=source_files,
-            reader_type=reader_type,
+            time_range=_py_repr(split_anim.time_range),
         )
 
-    @staticmethod
-    def _filter_assignments(filter_name: str, params: dict[str, Any]) -> dict[str, str]:
-        """Convert filter params to pvpython property assignments for simple filters."""
-        assignments: dict[str, str] = {}
-        if filter_name == "Slice":
-            assignments["SliceType"] = '"Plane"'
-            assignments["SliceType.Origin"] = str(params["origin"])
-            assignments["SliceType.Normal"] = str(params["normal"])
-        elif filter_name == "Clip":
-            assignments["ClipType"] = '"Plane"'
-            assignments["ClipType.Origin"] = str(params["origin"])
-            assignments["ClipType.Normal"] = str(params["normal"])
-            assignments["Invert"] = str(int(params.get("invert", False)))
-        elif filter_name == "Threshold":
-            assoc = params.get("association", "POINTS")
-            assignments["Scalars"] = f'["{assoc}", "{params["field"]}"]'
-            assignments["LowerThreshold"] = str(params["lower"])
-            assignments["UpperThreshold"] = str(params["upper"])
-            assignments["ThresholdMethod"] = f'"{params["method"]}"'
-        elif filter_name == "Calculator":
-            assignments["Function"] = f'"{params["expression"]}"'
-            assignments["ResultArrayName"] = f'"{params["result_name"]}"'
-        return assignments
-
-    def _compile_export(self, pipeline: PipelineDefinition) -> str:
-        """Render the export output template."""
+    # --- export ---
+    def _gen_export(self, pipeline: PipelineDefinition) -> str:
         fmt = pipeline.output.export_format
         if fmt is None:
             raise ValueError("Export output requires 'export_format'")
+        return _EXPORT_TEMPLATE.format(export_format=_py_str(fmt))
 
-        template = self.env.get_template("export.py.j2")
-        return template.render(export_format=fmt)
+
+# ======================================================================
+# Utility functions
+# ======================================================================
+
+def _py_str(s: str) -> str:
+    """Return a Python string literal."""
+    return repr(s)
+
+def _py_repr(v: Any) -> str:
+    """Return a Python repr for embedding in generated code."""
+    return repr(v)
+
+
+# ======================================================================
+# Script templates (f-string based, no Jinja2)
+# ======================================================================
+
+_HEADER = """\
+import os, sys, json
+OUTPUT_DIR = os.environ.get("PARAPILOT_OUTPUT_DIR", ".")
+DATA_DIR = os.environ.get("PARAPILOT_DATA_DIR", ".")
+from parapilot.engine.readers import read_dataset, get_timesteps
+from parapilot.engine.filters import apply_filter
+from parapilot.engine.renderer import VTKRenderer, RenderConfig, render_to_png
+from parapilot.engine.camera import preset_camera, custom_camera, CameraConfig
+from parapilot.engine.export import inspect_dataset, extract_stats, extract_data, export_file
+from parapilot.engine.colormaps import COLORMAP_REGISTRY
+"""
+
+_INSPECT_TEMPLATE = """\
+import os, sys, json
+OUTPUT_DIR = os.environ.get("PARAPILOT_OUTPUT_DIR", ".")
+from parapilot.engine.readers import read_dataset, get_timesteps, list_arrays, list_blocks
+from parapilot.engine.export import inspect_dataset
+
+dataset = read_dataset({source_file})
+info = inspect_dataset(dataset)
+info["timesteps"] = get_timesteps({source_file})
+info["arrays"] = list_arrays(dataset)
+info["blocks"] = list_blocks(dataset)
+
+result_path = os.path.join(OUTPUT_DIR, "result.json")
+with open(result_path, "w") as f:
+    json.dump(info, f, default=str)
+print(json.dumps(info, default=str))
+"""
+
+_RENDER_TEMPLATE = """\
+# --- Render ---
+_cfg = RenderConfig(
+    width={width},
+    height={height},
+    background={background},
+    colormap={colormap!r},
+    scalar_range={scalar_range},
+    log_scale={log_scale},
+    array_name={array_name},
+    component={component},
+    representation={representation!r},
+    opacity={opacity},
+    show_scalar_bar={show_scalar_bar},
+    scalar_bar_title={scalar_bar_title},
+    edge_visibility={edge_visibility},
+    point_size={point_size},
+    line_width={line_width},
+)
+
+if {camera_position} is not None:
+    _cam = custom_camera(
+        position={camera_position},
+        focal_point={camera_focal_point},
+        view_up={camera_view_up},
+        zoom={camera_zoom},
+        orthographic={camera_orthographic},
+    )
+elif {camera_preset} is not None:
+    _cam = preset_camera({camera_preset}, dataset.GetBounds(), zoom={camera_zoom}, orthographic={camera_orthographic})
+else:
+    _cam = None
+
+_png = render_to_png(dataset, _cfg, _cam)
+_out = os.path.join(OUTPUT_DIR, {output_filename!r})
+with open(_out, "wb") as f:
+    f.write(_png)
+"""
+
+_DATA_TEMPLATE = """\
+# --- Data extraction ---
+if {statistics_only}:
+    _result = extract_stats(dataset, fields={fields})
+else:
+    _result = extract_data(dataset, fields={fields}, include_coords={include_coordinates})
+
+if {fmt!r} == "csv":
+    _csv_path = os.path.join(OUTPUT_DIR, "data.csv")
+    export_file(dataset, _csv_path, file_format=".csv")
+    _result["csv_path"] = _csv_path
+
+_rpath = os.path.join(OUTPUT_DIR, "result.json")
+with open(_rpath, "w") as f:
+    json.dump(_result, f, default=str)
+print(json.dumps(_result, default=str))
+"""
+
+_ANIMATION_TEMPLATE = """\
+# --- Animation ---
+_timesteps = get_timesteps({source_file})
+_time_range = {time_range}
+if _time_range is not None:
+    _timesteps = [t for t in _timesteps if _time_range[0] <= t <= _time_range[1]]
+
+if not _timesteps:
+    _timesteps = [None]
+
+_mode = {mode!r}
+_fps = {fps}
+_speed_factor = {speed_factor}
+_orbit_duration = {orbit_duration}
+
+if _mode == "orbit":
+    _n_frames = int(_orbit_duration * _fps)
+    import math
+    for _fi in range(_n_frames):
+        _angle = 2 * math.pi * _fi / _n_frames
+        _bounds = dataset.GetBounds()
+        _cx = (_bounds[0] + _bounds[1]) / 2
+        _cy = (_bounds[2] + _bounds[3]) / 2
+        _cz = (_bounds[4] + _bounds[5]) / 2
+        _diag = ((_bounds[1]-_bounds[0])**2 + (_bounds[3]-_bounds[2])**2 + (_bounds[5]-_bounds[4])**2)**0.5
+        _r = _diag * 1.5
+        _pos = [_cx + _r * math.cos(_angle), _cy + _r * math.sin(_angle), _cz + _diag * 0.5]
+        _cam = custom_camera(position=_pos, focal_point=[_cx, _cy, _cz], view_up=[0, 0, 1])
+
+        _cfg = RenderConfig(
+            width={width}, height={height}, background={background},
+            colormap={colormap!r}, array_name={array_name},
+            representation={representation!r}, opacity={opacity},
+            show_scalar_bar={show_scalar_bar}, log_scale={log_scale},
+            scalar_range={scalar_range},
+        )
+        _png = render_to_png(dataset, _cfg, _cam)
+        _fname = os.path.join(OUTPUT_DIR, f"frame_{{_fi:06d}}.png")
+        with open(_fname, "wb") as f:
+            f.write(_png)
+
+    _meta = {{"frame_count": _n_frames, "fps": _fps, "mode": "orbit"}}
+else:
+    _phys_dur = (_timesteps[-1] - _timesteps[0]) if len(_timesteps) > 1 else 1.0
+    _anim_dur = max(_phys_dur / _speed_factor, 1.0 / _fps)
+    _target_frames = max(int(_anim_dur * _fps), 1)
+
+    import numpy as _np
+    _target_times = _np.linspace(_timesteps[0], _timesteps[-1], _target_frames)
+    _ts_arr = _np.array(_timesteps)
+
+    _frame_idx = 0
+    _source_files = {source_files}
+    for _ti, _tt in enumerate(_target_times):
+        _nearest_idx = int(_np.argmin(_np.abs(_ts_arr - _tt)))
+
+        if _source_files is not None:
+            dataset = read_dataset(_source_files[min(_nearest_idx, len(_source_files)-1)])
+        else:
+            dataset = read_dataset({source_file}, timestep=_timesteps[_nearest_idx], blocks={blocks})
+
+        {filter_code}
+
+        _cfg = RenderConfig(
+            width={width}, height={height}, background={background},
+            colormap={colormap!r}, array_name={array_name},
+            representation={representation!r}, opacity={opacity},
+            show_scalar_bar={show_scalar_bar}, log_scale={log_scale},
+            scalar_range={scalar_range},
+        )
+        if {camera_preset} is not None:
+            _cam = preset_camera(
+                {camera_preset}, dataset.GetBounds(),
+                zoom={camera_zoom}, orthographic={camera_orthographic},
+            )
+        else:
+            _cam = None
+
+        _png = render_to_png(dataset, _cfg, _cam)
+        _fname = os.path.join(OUTPUT_DIR, f"frame_{{_frame_idx:06d}}.png")
+        with open(_fname, "wb") as f:
+            f.write(_png)
+        _frame_idx += 1
+
+    _effective_fps = _frame_idx / _anim_dur if _anim_dur > 0 else _fps
+    _meta = {{"frame_count": _frame_idx, "fps": _fps, "effective_fps": _effective_fps, "mode": "timesteps"}}
+
+_rpath = os.path.join(OUTPUT_DIR, "result.json")
+with open(_rpath, "w") as f:
+    json.dump(_meta, f)
+print(json.dumps(_meta))
+"""
+
+_SPLIT_ANIM_TEMPLATE = """\
+# --- Split Animation ---
+import json as _json
+
+_timesteps = get_timesteps({source_file})
+_time_range = {time_range}
+if _time_range is not None:
+    _timesteps = [t for t in _timesteps if _time_range[0] <= t <= _time_range[1]]
+if not _timesteps:
+    _timesteps = [None]
+
+_fps = {fps}
+_speed_factor = {speed_factor}
+_phys_dur = (_timesteps[-1] - _timesteps[0]) if len(_timesteps) > 1 and _timesteps[0] is not None else 1.0
+_anim_dur = max(_phys_dur / _speed_factor, 1.0 / _fps)
+_target_frames = max(int(_anim_dur * _fps), 1)
+
+import numpy as _np
+if _timesteps[0] is not None:
+    _target_times = _np.linspace(_timesteps[0], _timesteps[-1], _target_frames)
+    _ts_arr = _np.array(_timesteps)
+else:
+    _target_times = [None]
+    _ts_arr = None
+
+_render_panes = _json.loads({render_panes_json!r})
+_stat_fields = {stat_fields}
+_source_files = {source_files}
+_all_stats = {{}}
+
+for _fi, _tt in enumerate(_target_times):
+    if _ts_arr is not None:
+        _nearest_idx = int(_np.argmin(_np.abs(_ts_arr - _tt)))
+        if _source_files is not None:
+            _ds = read_dataset(_source_files[min(_nearest_idx, len(_source_files)-1)])
+        else:
+            _ds = read_dataset({source_file}, timestep=_timesteps[_nearest_idx], blocks={blocks})
+    else:
+        _ds = read_dataset({source_file}, blocks={blocks})
+
+    if _stat_fields:
+        _st = extract_stats(_ds, _stat_fields)
+        _t_val = _tt if _tt is not None else _fi
+        _all_stats[str(_t_val)] = _st
+
+    for _pane in _render_panes:
+        _p_ds = _ds
+        for _fs in _pane.get("filter_steps", []):
+            _p_ds = apply_filter(_p_ds, _fs["filter"], **_fs["params"])
+
+        _cfg = RenderConfig(
+            width=_pane["width"], height=_pane["height"],
+            background=tuple(_pane["background"]),
+            colormap=_pane["colormap"],
+            array_name=_pane["field"],
+            representation=_pane["representation"],
+            opacity=_pane["opacity"],
+            show_scalar_bar=_pane["scalar_bar"],
+            scalar_range=tuple(_pane["scalar_range"]) if _pane.get("scalar_range") else None,
+        )
+        _cam = preset_camera(_pane["camera_preset"], _p_ds.GetBounds())
+        _png = render_to_png(_p_ds, _cfg, _cam)
+        _fname = os.path.join(OUTPUT_DIR, f"pane{{_pane['index']}}_frame_{{_fi:06d}}.png")
+        with open(_fname, "wb") as f:
+            f.write(_png)
+
+_stats_path = os.path.join(OUTPUT_DIR, "stats.json")
+with open(_stats_path, "w") as f:
+    _json.dump(_all_stats, f, default=str)
+
+_effective_fps = len(list(_target_times)) / _anim_dur if _anim_dur > 0 else _fps
+_meta = {{"frame_count": len(list(_target_times)), "effective_fps": _effective_fps}}
+_rpath = os.path.join(OUTPUT_DIR, "result.json")
+with open(_rpath, "w") as f:
+    _json.dump(_meta, f)
+print(_json.dumps(_meta))
+"""
+
+_EXPORT_TEMPLATE = """\
+# --- Export ---
+_out_path = os.path.join(OUTPUT_DIR, "exported" + {export_format})
+_result = export_file(dataset, _out_path, file_format={export_format})
+_rpath = os.path.join(OUTPUT_DIR, "result.json")
+with open(_rpath, "w") as f:
+    json.dump(_result, f, default=str)
+print(json.dumps(_result, default=str))
+"""

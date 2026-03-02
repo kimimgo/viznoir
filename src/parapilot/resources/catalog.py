@@ -30,7 +30,7 @@ def register_resources(mcp: FastMCP) -> None:
         data = {}
         for name, schema in sorted(FILTER_REGISTRY.items()):
             data[name] = {
-                "pv_class": schema["pv_class"],
+                "vtk_class": schema["vtk_class"],
                 "params": schema["params"],
             }
         return json.dumps(data, indent=2)
@@ -317,6 +317,42 @@ def register_resources(mcp: FastMCP) -> None:
             },
         }
         return json.dumps(examples, indent=2)
+
+    @mcp.resource("parapilot://physics-defaults")
+    def physics_defaults_resource() -> str:
+        """Physics-aware smart visualization defaults.
+
+        Maps physical quantities to recommended colormap, camera, representation,
+        and visualization techniques. Use these defaults when the user doesn't
+        specify explicit visualization parameters — just provide the field name
+        and the system will choose optimal settings.
+
+        Fields detected: pressure, velocity, temperature, turbulence (k/epsilon/omega),
+        stress, displacement, vof (alpha), vorticity, mesh quality, density, wall shear.
+        """
+        from parapilot.engine.physics import _PHYSICS_PATTERNS
+
+        data: dict[str, dict[str, object]] = {}
+        for pattern, props in _PHYSICS_PATTERNS:
+            data[props["name"]] = {
+                "pattern": pattern,
+                "colormap": props["colormap"],
+                "diverging": props["diverging"],
+                "log_scale": props["log_scale"],
+                "camera_2d": props["camera_2d"],
+                "camera_3d": props["camera_3d"],
+                "representation": props["representation"],
+                "warp": props["warp"],
+                "streamlines": props["streamlines"],
+            }
+        data["_usage"] = {  # type: ignore[assignment]
+            "description": (
+                "When rendering a field, detect the physics type from the field name "
+                "and apply the recommended defaults. For unknown fields, use 'cool to warm' "
+                "colormap with 'isometric' camera. If data crosses zero, switch to 'coolwarm'."
+            ),
+        }
+        return json.dumps(data, indent=2)
 
 
 def _format_desc(ext: str) -> str:

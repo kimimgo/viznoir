@@ -1,4 +1,4 @@
-"""Tests for ParaViewRunner (no Docker or pvpython needed)."""
+"""Tests for VTKRunner (no Docker or VTK needed)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from parapilot.core.runner import ParaViewRunner, RunResult
+from parapilot.core.runner import VTKRunner, RunResult
 
 
 class TestDockerContainerCleanup:
@@ -16,7 +16,7 @@ class TestDockerContainerCleanup:
     @pytest.mark.asyncio
     async def test_docker_timeout_calls_stop_container(self) -> None:
         """On timeout, _run_docker must call _stop_container with the container name."""
-        runner = ParaViewRunner(mode="docker")
+        runner = VTKRunner(mode="docker")
 
         # First call raises TimeoutError (inside wait_for), second returns normally (post-kill drain)
         mock_proc = AsyncMock()
@@ -48,7 +48,7 @@ class TestDockerContainerCleanup:
     @pytest.mark.asyncio
     async def test_docker_run_includes_container_name(self) -> None:
         """docker run args must include --name parapilot_*."""
-        runner = ParaViewRunner(mode="docker")
+        runner = VTKRunner(mode="docker")
 
         captured_args: list[str] = []
 
@@ -87,7 +87,7 @@ class TestDockerContainerCleanup:
             side_effect=OSError("docker not found"),
         ):
             # Should not raise
-            await ParaViewRunner._stop_container("parapilot_test")
+            await VTKRunner._stop_container("parapilot_test")
 
     @pytest.mark.asyncio
     async def test_cleanup_orphaned_no_containers(self) -> None:
@@ -99,7 +99,7 @@ class TestDockerContainerCleanup:
             "parapilot.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
-            count = await ParaViewRunner.cleanup_orphaned_containers()
+            count = await VTKRunner.cleanup_orphaned_containers()
         assert count == 0
 
     @pytest.mark.asyncio
@@ -123,7 +123,7 @@ class TestDockerContainerCleanup:
             "parapilot.core.runner.asyncio.create_subprocess_exec",
             side_effect=fake_subprocess,
         ):
-            count = await ParaViewRunner.cleanup_orphaned_containers()
+            count = await VTKRunner.cleanup_orphaned_containers()
         assert count == 2
 
 

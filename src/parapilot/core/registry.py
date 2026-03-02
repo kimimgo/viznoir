@@ -1,26 +1,34 @@
-"""FilterRegistry and FormatRegistry — parameter schemas for all ParaView filters and readers."""
+"""FilterRegistry and FormatRegistry — parameter schemas for all VTK filters and readers."""
 
 from __future__ import annotations
 
 from typing import Any
 
+__all__ = [
+    "FILTER_REGISTRY",
+    "FORMAT_REGISTRY",
+    "get_reader",
+    "get_filter",
+    "validate_filter_params",
+]
+
 # ---------------------------------------------------------------------------
 # Filter Registry
-# Each entry: pv_class (ParaView proxy name), params (schema), and optional
+# Each entry: vtk_class (VTK class name), params (schema), and optional
 # setup template used by ScriptCompiler when the filter needs special config.
 # ---------------------------------------------------------------------------
 
 FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     # --- Slicing / Clipping ---
     "Slice": {
-        "pv_class": "Slice",
+        "vtk_class": "vtkCutter",
         "params": {
             "origin": {"type": "list[float]", "length": 3, "required": True},
             "normal": {"type": "list[float]", "length": 3, "default": [0, 0, 1]},
         },
     },
     "Clip": {
-        "pv_class": "Clip",
+        "vtk_class": "vtkClipDataSet",
         "params": {
             "origin": {"type": "list[float]", "length": 3, "default": [0, 0, 0]},
             "normal": {"type": "list[float]", "length": 3, "default": [1, 0, 0]},
@@ -29,7 +37,7 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # --- Iso-surfaces / Threshold ---
     "Contour": {
-        "pv_class": "Contour",
+        "vtk_class": "vtkContourFilter",
         "params": {
             "field": {"type": "str", "required": True},
             "association": {"type": "str", "default": "POINTS"},
@@ -37,7 +45,7 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
         },
     },
     "Threshold": {
-        "pv_class": "Threshold",
+        "vtk_class": "vtkThreshold",
         "params": {
             "field": {"type": "str", "required": True},
             "lower": {"type": "float", "required": True},
@@ -47,7 +55,7 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # --- Flow visualization ---
     "StreamTracer": {
-        "pv_class": "StreamTracer",
+        "vtk_class": "vtkStreamTracer",
         "params": {
             "vectors": {"type": "list", "default": None},
             "seed_type": {"type": "str", "default": "Line"},
@@ -59,7 +67,7 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
         },
     },
     "Glyph": {
-        "pv_class": "Glyph",
+        "vtk_class": "vtkGlyph3D",
         "params": {
             "orient": {"type": "str", "default": ""},
             "scale": {"type": "str", "default": ""},
@@ -70,7 +78,7 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # --- Computation ---
     "Calculator": {
-        "pv_class": "Calculator",
+        "vtk_class": "vtkArrayCalculator",
         "params": {
             "expression": {"type": "str", "required": True},
             "result_name": {"type": "str", "default": "Result"},
@@ -78,42 +86,42 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
         },
     },
     "Gradient": {
-        "pv_class": "Gradient",
+        "vtk_class": "vtkGradientFilter",
         "params": {
             "field": {"type": "str", "required": True},
             "result_name": {"type": "str", "default": "Gradient"},
         },
     },
     "IntegrateVariables": {
-        "pv_class": "IntegrateVariables",
+        "vtk_class": "vtkIntegrateAttributes",
         "params": {},
     },
     "GenerateSurfaceNormals": {
-        "pv_class": "GenerateSurfaceNormals",
+        "vtk_class": "vtkPolyDataNormals",
         "params": {},
     },
     # --- Block / Surface extraction ---
     "ExtractBlock": {
-        "pv_class": "ExtractBlock",
+        "vtk_class": "vtkExtractBlock",
         "params": {
             "selector": {"type": "str", "required": True},
             "match_mode": {"type": "str", "default": "contains"},  # contains|exact
         },
     },
     "ExtractSurface": {
-        "pv_class": "ExtractSurface",
+        "vtk_class": "vtkDataSetSurfaceFilter",
         "params": {},
     },
     # --- Warp ---
     "WarpByVector": {
-        "pv_class": "WarpByVector",
+        "vtk_class": "vtkWarpVector",
         "params": {
             "vector": {"type": "str", "required": True},
             "scale_factor": {"type": "float", "default": 1.0},
         },
     },
     "WarpByScalar": {
-        "pv_class": "WarpByScalar",
+        "vtk_class": "vtkWarpScalar",
         "params": {
             "scalars": {"type": "str", "required": True},
             "scale_factor": {"type": "float", "default": 1.0},
@@ -121,16 +129,16 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # --- Data conversion ---
     "CellDatatoPointData": {
-        "pv_class": "CellDatatoPointData",
+        "vtk_class": "vtkCellDataToPointData",
         "params": {},
     },
     "PointDatatoCellData": {
-        "pv_class": "PointDatatoCellData",
+        "vtk_class": "vtkPointDataToCellData",
         "params": {},
     },
     # --- Sampling ---
     "PlotOverLine": {
-        "pv_class": "PlotOverLine",
+        "vtk_class": "vtkProbeFilter",
         "params": {
             "point1": {"type": "list[float]", "length": 3, "required": True},
             "point2": {"type": "list[float]", "length": 3, "required": True},
@@ -139,18 +147,18 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # --- Mesh processing ---
     "Decimate": {
-        "pv_class": "Decimate",
+        "vtk_class": "vtkDecimatePro",
         "params": {
             "reduction": {"type": "float", "default": 0.5},
         },
     },
     "Triangulate": {
-        "pv_class": "Triangulate",
+        "vtk_class": "vtkTriangleFilter",
         "params": {},
     },
     # --- Programmable ---
     "ProgrammableFilter": {
-        "pv_class": "ProgrammableFilter",
+        "vtk_class": "vtkProgrammableFilter",
         "params": {
             "script": {"type": "str", "required": True},
             "output_type": {"type": "str", "default": "Same as Input"},
@@ -160,44 +168,44 @@ FILTER_REGISTRY: dict[str, dict[str, Any]] = {
 
 
 # ---------------------------------------------------------------------------
-# Format Registry — file extension → ParaView reader class name
+# Format Registry — file extension → VTK reader class name
 # ---------------------------------------------------------------------------
 
 FORMAT_REGISTRY: dict[str, str] = {
-    # Compound: ParaView time-series wrappers (must be checked before single suffix)
-    ".vtm.series": "XMLMultiBlockDataReader",
-    ".vtu.series": "XMLUnstructuredGridReader",
-    ".vtp.series": "XMLPolyDataReader",
-    ".vts.series": "XMLStructuredGridReader",
-    ".vti.series": "XMLImageDataReader",
-    ".vtr.series": "XMLRectilinearGridReader",
+    # Compound: VTK time-series wrappers (must be checked before single suffix)
+    ".vtm.series": "vtkXMLMultiBlockDataReader",
+    ".vtu.series": "vtkXMLUnstructuredGridReader",
+    ".vtp.series": "vtkXMLPolyDataReader",
+    ".vts.series": "vtkXMLStructuredGridReader",
+    ".vti.series": "vtkXMLImageDataReader",
+    ".vtr.series": "vtkXMLRectilinearGridReader",
     # Standard extensions
-    ".foam": "OpenFOAMReader",
-    ".vtk": "LegacyVTKReader",
-    ".vtu": "XMLUnstructuredGridReader",
-    ".vtp": "XMLPolyDataReader",
-    ".vts": "XMLStructuredGridReader",
-    ".vti": "XMLImageDataReader",
-    ".vtr": "XMLRectilinearGridReader",
-    ".vtm": "XMLMultiBlockDataReader",
+    ".foam": "vtkOpenFOAMReader",
+    ".vtk": "vtkGenericDataObjectReader",
+    ".vtu": "vtkXMLUnstructuredGridReader",
+    ".vtp": "vtkXMLPolyDataReader",
+    ".vts": "vtkXMLStructuredGridReader",
+    ".vti": "vtkXMLImageDataReader",
+    ".vtr": "vtkXMLRectilinearGridReader",
+    ".vtm": "vtkXMLMultiBlockDataReader",
     ".pvd": "PVDReader",
-    ".stl": "STLReader",
-    ".ply": "PLYReader",
-    ".obj": "OBJReader",
-    ".csv": "CSVReader",
-    ".cgns": "CGNSSeriesReader",
-    ".exo": "ExodusIIReader",
-    ".e": "ExodusIIReader",
-    ".case": "EnSightReader",
-    ".cas": "FluentCaseReader",
-    ".dat": "TecplotReader",
-    ".xdmf": "XDMFReader",
-    ".xmf": "XDMFReader",
+    ".stl": "vtkSTLReader",
+    ".ply": "vtkPLYReader",
+    ".obj": "vtkOBJReader",
+    ".csv": "vtkDelimitedTextReader",
+    ".cgns": "vtkCGNSReader",
+    ".exo": "vtkExodusIIReader",
+    ".e": "vtkExodusIIReader",
+    ".case": "vtkGenericEnSightReader",
+    ".cas": "vtkFLUENTReader",
+    ".dat": "vtkTecplotReader",
+    ".xdmf": "vtkXdmf3Reader",
+    ".xmf": "vtkXdmf3Reader",
 }
 
 
 def get_reader(filepath: str) -> str:
-    """Return ParaView reader class name for a file path."""
+    """Return VTK reader class name for a file path."""
     from pathlib import Path
 
     p = Path(filepath)
