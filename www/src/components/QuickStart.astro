@@ -1,0 +1,67 @@
+---
+import CodeBlock from './CodeBlock.astro';
+
+const steps = [
+  {
+    num: '01',
+    title: 'Install',
+    description: 'pip으로 한 줄 설치',
+    code: 'pip install mcp-server-parapilot',
+    lang: 'bash',
+  },
+  {
+    num: '02',
+    title: 'Configure',
+    description: 'MCP 클라이언트 설정에 추가',
+    code: `{
+  "mcpServers": {
+    "parapilot": {
+      "command": "mcp-server-parapilot"
+    }
+  }
+}`,
+    lang: 'json',
+    filename: '.mcp.json',
+  },
+  {
+    num: '03',
+    title: 'Use',
+    description: '자연어로 후처리 요청',
+    code: `"cavity 케이스의 압력 분포를
+contour plot으로 보여줘"`,
+    lang: 'text',
+  },
+];
+---
+
+<section class="relative py-24">
+  <div class="max-w-5xl mx-auto px-6">
+    <!-- Section header -->
+    <div class="text-center mb-16">
+      <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wide mb-4">
+        QUICK START
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+        3단계로 시작하기
+      </h2>
+    </div>
+
+    <!-- Steps -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {steps.map((step) => (
+        <div class="group relative rounded-xl bg-secondary border border-border p-6
+                    hover:border-accent/30 transition-all duration-300 gradient-border">
+          <!-- Step number -->
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl font-extrabold text-accent/20 font-mono">{step.num}</span>
+            <h3 class="text-lg font-semibold text-text-primary">{step.title}</h3>
+          </div>
+
+          <p class="text-text-secondary text-sm mb-5">{step.description}</p>
+
+          <CodeBlock code={step.code} lang={step.lang} filename={step.filename} />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

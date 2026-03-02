@@ -1,0 +1,28 @@
+---
+const links = [
+  { label: 'GitHub', href: 'https://github.com/kimimgo/parapilot' },
+  { label: 'PyPI', href: 'https://pypi.org/project/mcp-server-parapilot/' },
+  { label: 'Issues', href: 'https://github.com/kimimgo/parapilot/issues' },
+  { label: 'MIT License', href: 'https://github.com/kimimgo/parapilot/blob/main/LICENSE' },
+];
+---
+
+<footer class="border-t border-border bg-primary">
+  <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-text-secondary text-sm">
+      &copy; 2025 parapilot &middot; MIT License
+    </p>
+    <nav class="flex gap-6">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-sm text-text-secondary hover:text-accent transition-colors"
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</footer>
