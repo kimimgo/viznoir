@@ -6,6 +6,7 @@ build/
 .venv/
 .env
 *.png
+!www/public/showcase/*.png
 *.mp4
 *.gif
 /tmp/
