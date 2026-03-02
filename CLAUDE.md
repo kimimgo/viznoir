@@ -5,7 +5,7 @@ CAE post-processing plugin for AI coding assistants.
 ## Project Info
 - **Group**: dev
 - **Agent**: cc-kimtech
-- **Repo**: kimimgo/parapilot (private → public target)
+- **Repo**: kimimgo/parapilot
 - **Language**: Python
 - **MCP SDK**: fastmcp>=2.0.0
 - **PyPI**: mcp-server-parapilot
@@ -29,7 +29,7 @@ Layer 2: Agents (전문 서브에이전트)
   mesh-agent   — 메시 분석/변환 (haiku)
 
 Layer 1: MCP Server (mcp-server-parapilot)
-  pvpython subprocess → ParaView 렌더링
+  VTK direct API    → 헤드리스 렌더링 (ParaView 불필요)
   meshio            → 50+ 형식 변환
   trimesh           → STL/OBJ/PLY 분석
 ```
@@ -60,13 +60,13 @@ Layer 1: MCP Server (mcp-server-parapilot)
 | 항목 | 수량 |
 |------|------|
 | Tools | 13 |
-| Resources | 9 |
+| Resources | 10 |
 | Prompts | 3 |
-| Tests | 146 |
+| Tests | 295 |
 
 ## Competitors
 
-- LLNL/paraview_mcp: GUI-attached, 32 stars, 테스트 0 → 우리는 headless + 146 tests
+- LLNL/paraview_mcp: GUI-attached, 32 stars, 테스트 0 → 우리는 headless + 295 tests
 - Kitware/vtk-mcp: 문서 검색만, 렌더링 없음
 - FreeCAD MCP 6개: CAD 모델링만, FEM 후처리 없음
 - 상용(Ansys SimAI 등): $10k+/년, 개인 접근 불가
