@@ -1,0 +1,306 @@
+{# Animation output: physics-time-aware frame sampling #}
+
+# --- Animation ---
+render_view = GetActiveViewOrCreate("RenderView")
+render_view.ViewSize = {{ resolution }}
+render_view.UseColorPaletteForBackground = 0
+render_view.Background = {{ background }}
+render_view.OrientationAxesVisibility = 0
+
+display = Show(current, render_view)
+display.Representation = "{{ representation }}"
+{% if representation == "Point Gaussian" %}
+# Auto-scale GaussianRadius from data bounds and point count
+_bounds = current.GetDataInformation().GetBounds()
+_extents = [_bounds[1] - _bounds[0], _bounds[3] - _bounds[2], _bounds[5] - _bounds[4]]
+_n_pts = max(1, current.GetDataInformation().GetNumberOfPoints())
+_nonzero = [_e for _e in _extents if _e > 1e-10]
+if _nonzero and _n_pts > 1:
+    _vol = 1.0
+    for _e in _nonzero:
+        _vol *= _e
+    _dp_est = (_vol / _n_pts) ** (1.0 / len(_nonzero))
+    display.GaussianRadius = _dp_est * {{ point_size }}
+else:
+    _diag = sum(_e**2 for _e in _extents) ** 0.5
+    display.GaussianRadius = max(_diag * 0.01, 1e-6) * {{ point_size }}
+display.ShaderPreset = 'Sphere'
+{% endif %}
+{% if opacity < 1.0 %}
+display.Opacity = {{ opacity }}
+{% endif %}
+
+# --- Color by field (auto-detect association if needed) ---
+_assoc = "{{ association }}"
+_field = "{{ field }}"
+_di = current.GetDataInformation()
+if _assoc == "POINTS" and _di.GetPointDataInformation().GetArrayInformation(_field) is None:
+    if _di.GetCellDataInformation().GetArrayInformation(_field) is not None:
+        _assoc = "CELLS"
+elif _assoc == "CELLS" and _di.GetCellDataInformation().GetArrayInformation(_field) is None:
+    if _di.GetPointDataInformation().GetArrayInformation(_field) is not None:
+        _assoc = "POINTS"
+ColorBy(display, (_assoc, _field))
+display.RescaleTransferFunctionToDataRange(True)
+
+lut = GetColorTransferFunction("{{ field }}")
+lut.ApplyPreset("{{ colormap }}", True)
+
+{% if scalar_range %}
+lut.RescaleTransferFunction({{ scalar_range[0] }}, {{ scalar_range[1] }})
+pwf = GetOpacityTransferFunction("{{ field }}")
+pwf.RescaleTransferFunction({{ scalar_range[0] }}, {{ scalar_range[1] }})
+{% endif %}
+
+# --- Scalar bar ---
+{% if scalar_bar %}
+display.SetScalarBarVisibility(render_view, True)
+sb = GetScalarBar(lut, render_view)
+_bg = {{ background }}
+_text_color = [0, 0, 0] if (0.299*_bg[0] + 0.587*_bg[1] + 0.114*_bg[2]) > 0.5 else [1, 1, 1]
+sb.TitleColor = _text_color
+sb.LabelColor = _text_color
+_font_scale = max(1.0, {{ resolution[1] }} / 1080.0)
+sb.TitleFontSize = int(32 * _font_scale)
+sb.LabelFontSize = int(24 * _font_scale)
+sb.ScalarBarLength = 0.4
+sb.WindowLocation = 'Any Location'
+sb.Position = [0.65, 0.02]
+{% else %}
+display.SetScalarBarVisibility(render_view, False)
+{% endif %}
+
+# Camera setup
+{% if camera_preset == "isometric" %}
+render_view.CameraPosition = [1, 1, 1]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "front" %}
+render_view.CameraPosition = [0, -1, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% else %}
+render_view.ResetCamera()
+{% endif %}
+
+{% if mode == "timesteps" %}
+# === Timestep animation with physics-time-aware sampling ===
+
+_fps = {{ fps }}
+_speed_factor = {{ speed_factor }}
+
+frames_dir = os.path.join(OUTPUT_DIR, "frames")
+os.makedirs(frames_dir, exist_ok=True)
+
+{% if source_files %}
+# === Per-file loading mode (Mesa-safe) ===
+# Each frame loads its own reader to avoid UpdatePipeline(time=t) failures
+_source_files = {{ source_files | tojson }}
+
+# Setup camera from first file
+_setup_r = {{ reader_type }}(FileNames=[_source_files[0]])
+_setup_r.UpdatePipeline()
+{% if pipeline_has_filters %}
+_setup_current = _setup_r
+{% else %}
+_setup_current = _setup_r
+{% endif %}
+_setup_d = Show(_setup_current, render_view)
+_setup_d.Representation = "{{ representation }}"
+# Auto-detect association for setup
+_setup_assoc = "{{ association }}"
+_setup_field = "{{ field }}"
+_setup_di = _setup_current.GetDataInformation()
+if _setup_assoc == "POINTS" and _setup_di.GetPointDataInformation().GetArrayInformation(_setup_field) is None:
+    if _setup_di.GetCellDataInformation().GetArrayInformation(_setup_field) is not None:
+        _setup_assoc = "CELLS"
+elif _setup_assoc == "CELLS" and _setup_di.GetCellDataInformation().GetArrayInformation(_setup_field) is None:
+    if _setup_di.GetPointDataInformation().GetArrayInformation(_setup_field) is not None:
+        _setup_assoc = "POINTS"
+ColorBy(_setup_d, (_setup_assoc, _setup_field))
+_setup_d.RescaleTransferFunctionToDataRange(True)
+lut = GetColorTransferFunction(_setup_field)
+lut.ApplyPreset("{{ colormap }}", True)
+{% if scalar_range %}
+lut.RescaleTransferFunction({{ scalar_range[0] }}, {{ scalar_range[1] }})
+{% endif %}
+render_view.ResetCamera()
+{% if camera_preset == "isometric" %}
+render_view.CameraPosition = [1, 1, 1]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "front" %}
+render_view.CameraPosition = [0, -1, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% endif %}
+# Save camera state
+_cam_state = {
+    "pos": list(render_view.CameraPosition),
+    "fp": list(render_view.CameraFocalPoint),
+    "vu": list(render_view.CameraViewUp),
+}
+if render_view.CameraParallelProjection:
+    _cam_state["ps"] = render_view.CameraParallelScale
+Hide(_setup_current, render_view)
+Delete(_setup_d)
+Delete(_setup_r)
+
+# Frame loop — per-file loading
+_total_files = len(_source_files)
+_physics_duration = 0.0
+_anim_duration = 0.0
+_all_timesteps = _source_files  # treat each file as a "timestep"
+
+for _frame_i, _fpath in enumerate(_source_files):
+    _r = {{ reader_type }}(FileNames=[_fpath])
+    _r.UpdatePipeline()
+    _d = Show(_r, render_view)
+    _d.Representation = "{{ representation }}"
+    # Auto-detect association
+    _f_assoc = _setup_assoc
+    _f_di = _r.GetDataInformation()
+    if _f_assoc == "POINTS" and _f_di.GetPointDataInformation().GetArrayInformation(_setup_field) is None:
+        if _f_di.GetCellDataInformation().GetArrayInformation(_setup_field) is not None:
+            _f_assoc = "CELLS"
+    elif _f_assoc == "CELLS" and _f_di.GetCellDataInformation().GetArrayInformation(_setup_field) is None:
+        if _f_di.GetPointDataInformation().GetArrayInformation(_setup_field) is not None:
+            _f_assoc = "POINTS"
+    ColorBy(_d, (_f_assoc, _setup_field))
+    _d.RescaleTransferFunctionToDataRange(True)
+{% if opacity < 1.0 %}
+    _d.Opacity = {{ opacity }}
+{% endif %}
+    # Restore camera
+    render_view.CameraPosition = _cam_state["pos"]
+    render_view.CameraFocalPoint = _cam_state["fp"]
+    render_view.CameraViewUp = _cam_state["vu"]
+    if "ps" in _cam_state:
+        render_view.CameraParallelScale = _cam_state["ps"]
+    Render()
+    _frame_path = os.path.join(frames_dir, f"frame_{_frame_i:06d}.png")
+    SaveScreenshot(_frame_path, render_view, ImageResolution={{ resolution }})
+    # Progress reporting
+    Path(os.path.join(OUTPUT_DIR, "progress.json")).write_text(json.dumps(
+        {"frame": _frame_i + 1, "total": _total_files, "pct": round((_frame_i + 1) / _total_files * 100)}
+    ))
+    Hide(_r, render_view)
+    Delete(_d)
+    Delete(_r)
+
+_effective_fps = _fps
+
+result = {
+    "type": "animation",
+    "frames_dir": frames_dir,
+    "frame_count": _total_files,
+    "fps": _fps,
+    "effective_fps": _fps,
+    "speed_factor": _speed_factor,
+    "physics_duration": _physics_duration,
+    "animation_duration": _total_files / _fps if _fps > 0 else 0.0,
+    "total_timesteps": _total_files,
+}
+
+{% else %}
+# === Time-series mode (single reader with UpdatePipeline) ===
+#
+# Time mapping:
+#   physics_duration / speed_factor = animation_duration (seconds)
+#   animation_duration * fps = total_frames
+#   → sample timesteps at uniform intervals to match total_frames
+
+reader.UpdatePipeline()
+_all_timesteps = list(reader.TimestepValues) if hasattr(reader, 'TimestepValues') else []
+
+{% if time_range %}
+_all_timesteps = [t for t in _all_timesteps if {{ time_range[0] }} <= t <= {{ time_range[1] }}]
+{% endif %}
+
+if len(_all_timesteps) <= 1:
+    # Single timestep or no timesteps — render one frame
+    _sampled = _all_timesteps[:1] if _all_timesteps else []
+    _anim_duration = 0.0
+    _physics_duration = 0.0
+else:
+    _physics_duration = _all_timesteps[-1] - _all_timesteps[0]
+    _anim_duration = _physics_duration / _speed_factor  # seconds of video
+    # Cap target frames at available timesteps to prevent duplicate renders
+    _target_frames = max(1, min(int(round(_anim_duration * _fps)), len(_all_timesteps)))
+
+    # Deduplicate: each unique timestep is rendered only once
+    _seen_indices = set()
+    _sampled = []
+    for fi in range(_target_frames):
+        _t_target = _all_timesteps[0] + (fi / max(1, _target_frames - 1)) * _physics_duration
+        _best_idx = min(range(len(_all_timesteps)),
+                       key=lambda k: abs(_all_timesteps[k] - _t_target))
+        if _best_idx not in _seen_indices:
+            _seen_indices.add(_best_idx)
+            _sampled.append(_all_timesteps[_best_idx])
+
+for _frame_i, _t in enumerate(_sampled):
+    reader.UpdatePipeline(time=_t)
+    current.UpdatePipeline()
+    display.RescaleTransferFunctionToDataRange(True)
+    render_view.Update()
+    _frame_path = os.path.join(frames_dir, f"frame_{_frame_i:06d}.png")
+    SaveScreenshot(_frame_path, render_view, ImageResolution={{ resolution }})
+    # Progress reporting
+    Path(os.path.join(OUTPUT_DIR, "progress.json")).write_text(json.dumps(
+        {"frame": _frame_i + 1, "total": len(_sampled), "pct": round((_frame_i + 1) / len(_sampled) * 100)}
+    ))
+
+_effective_fps = len(_sampled) / _anim_duration if _anim_duration > 0 else _fps
+
+result = {
+    "type": "animation",
+    "frames_dir": frames_dir,
+    "frame_count": len(_sampled),
+    "fps": _fps,
+    "effective_fps": round(_effective_fps, 3),
+    "speed_factor": _speed_factor,
+    "physics_duration": _physics_duration,
+    "animation_duration": _anim_duration,
+    "total_timesteps": len(_all_timesteps),
+}
+{% endif %}
+
+{% elif mode == "orbit" %}
+# === Orbit animation ===
+frames_dir = os.path.join(OUTPUT_DIR, "frames")
+os.makedirs(frames_dir, exist_ok=True)
+
+import math
+_orbit_duration = {{ orbit_duration }}
+_fps = {{ fps }}
+n_frames = int(_orbit_duration * _fps)
+center = list(render_view.CameraFocalPoint)
+radius = sum((p - c)**2 for p, c in zip(render_view.CameraPosition, center))**0.5
+
+for i in range(n_frames):
+    angle = 2 * math.pi * i / n_frames
+    render_view.CameraPosition = [
+        center[0] + radius * math.cos(angle),
+        center[1] + radius * math.sin(angle),
+        render_view.CameraPosition[2],
+    ]
+    render_view.Update()
+    frame_path = os.path.join(frames_dir, f"frame_{i:06d}.png")
+    SaveScreenshot(frame_path, render_view, ImageResolution={{ resolution }})
+
+result = {
+    "type": "animation",
+    "frames_dir": frames_dir,
+    "frame_count": n_frames,
+    "fps": _fps,
+    "orbit_duration": _orbit_duration,
+}
+{% endif %}
+
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(result))
+print(json.dumps(result))

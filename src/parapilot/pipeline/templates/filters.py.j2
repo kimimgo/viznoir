@@ -1,0 +1,119 @@
+{# Filter chain: each filter step in the pipeline #}
+{% for step in filter_steps %}
+
+# --- Filter: {{ step.filter }} {% if step.name %}({{ step.name }}){% endif %} ---
+{% if step.filter == "Slice" %}
+f_{{ loop.index }} = Slice(Input=current)
+f_{{ loop.index }}.SliceType = "Plane"
+f_{{ loop.index }}.SliceType.Origin = {{ step.params.origin }}
+f_{{ loop.index }}.SliceType.Normal = {{ step.params.normal }}
+{% elif step.filter == "Clip" %}
+f_{{ loop.index }} = Clip(Input=current)
+f_{{ loop.index }}.ClipType = "Plane"
+f_{{ loop.index }}.ClipType.Origin = {{ step.params.origin }}
+f_{{ loop.index }}.ClipType.Normal = {{ step.params.normal }}
+f_{{ loop.index }}.Invert = {{ step.params.invert | int }}
+{% elif step.filter == "Contour" %}
+f_{{ loop.index }} = Contour(Input=current)
+f_{{ loop.index }}.ContourBy = ["{{ step.params.association }}", "{{ step.params.field }}"]
+f_{{ loop.index }}.Isosurfaces = {{ step.params.isovalues }}
+{% elif step.filter == "Threshold" %}
+f_{{ loop.index }} = Threshold(Input=current)
+f_{{ loop.index }}.Scalars = ["{{ step.params.get('association', 'POINTS') }}", "{{ step.params.field }}"]
+f_{{ loop.index }}.LowerThreshold = {{ step.params.lower }}
+f_{{ loop.index }}.UpperThreshold = {{ step.params.upper }}
+f_{{ loop.index }}.ThresholdMethod = "{{ step.params.method }}"
+{% elif step.filter == "StreamTracer" %}
+f_{{ loop.index }} = StreamTracer(Input=current)
+{% if step.params.vectors %}
+f_{{ loop.index }}.Vectors = {{ step.params.vectors }}
+{% endif %}
+f_{{ loop.index }}.SeedType = "Line"
+f_{{ loop.index }}.SeedType.Point1 = {{ step.params.seed_point1 }}
+f_{{ loop.index }}.SeedType.Point2 = {{ step.params.seed_point2 }}
+f_{{ loop.index }}.SeedType.Resolution = {{ step.params.seed_resolution }}
+f_{{ loop.index }}.MaximumStreamlineLength = {{ step.params.max_length }}
+f_{{ loop.index }}.IntegrationDirection = "{{ step.params.direction }}"
+{% elif step.filter == "Glyph" %}
+f_{{ loop.index }} = Glyph(Input=current)
+f_{{ loop.index }}.GlyphType = "{{ step.params.glyph_type }}"
+{% if step.params.orient %}
+f_{{ loop.index }}.OrientationArray = ["POINTS", "{{ step.params.orient }}"]
+{% endif %}
+{% if step.params.scale %}
+f_{{ loop.index }}.ScaleArray = ["POINTS", "{{ step.params.scale }}"]
+{% endif %}
+f_{{ loop.index }}.ScaleFactor = {{ step.params.scale_factor }}
+f_{{ loop.index }}.MaximumNumberOfSamplePoints = {{ step.params.max_points }}
+{% elif step.filter == "Calculator" %}
+f_{{ loop.index }} = Calculator(Input=current)
+f_{{ loop.index }}.Function = "{{ step.params.expression }}"
+f_{{ loop.index }}.ResultArrayName = "{{ step.params.result_name }}"
+f_{{ loop.index }}.AttributeType = "{{ step.params.association | replace('POINTS', 'Point Data') | replace('CELLS', 'Cell Data') }}"
+{% elif step.filter == "Gradient" %}
+f_{{ loop.index }} = Gradient(Input=current)
+f_{{ loop.index }}.ScalarArray = ["POINTS", "{{ step.params.field }}"]
+f_{{ loop.index }}.ResultArrayName = "{{ step.params.result_name }}"
+{% elif step.filter == "IntegrateVariables" %}
+f_{{ loop.index }} = IntegrateVariables(Input=current)
+{% elif step.filter == "GenerateSurfaceNormals" %}
+f_{{ loop.index }} = GenerateSurfaceNormals(Input=current)
+{% elif step.filter == "ExtractBlock" %}
+f_{{ loop.index }} = ExtractBlock(Input=current)
+current.UpdatePipeline()
+# Search for block by name using selector
+_cdi = current.GetDataInformation().GetCompositeDataInformation()
+_block_indices = []
+_selector = "{{ step.params.selector }}"
+_match_mode = "{{ step.params.get('match_mode', 'contains') }}"
+for _i in range(_cdi.GetNumberOfChildren()):
+    _name = _cdi.GetName(_i)
+    if not _name:
+        continue
+    if _match_mode == "exact":
+        if _name == _selector:
+            _block_indices.append(_i)
+    else:
+        if _selector in _name:
+            _block_indices.append(_i)
+if _block_indices:
+    try:
+        f_{{ loop.index }}.Selectors = ['/Root/' + _cdi.GetName(_i) for _i in _block_indices]
+    except AttributeError:
+        f_{{ loop.index }}.BlockIndices = _block_indices
+else:
+    raise RuntimeError(f"ExtractBlock: no block matching '{_selector}' (mode={_match_mode}). "
+                       f"Available: {[_cdi.GetName(i) for i in range(_cdi.GetNumberOfChildren())]}")
+{% elif step.filter == "ExtractSurface" %}
+f_{{ loop.index }} = ExtractSurface(Input=current)
+{% elif step.filter == "WarpByVector" %}
+f_{{ loop.index }} = WarpByVector(Input=current)
+f_{{ loop.index }}.Vectors = ["POINTS", "{{ step.params.vector }}"]
+f_{{ loop.index }}.ScaleFactor = {{ step.params.scale_factor }}
+{% elif step.filter == "WarpByScalar" %}
+f_{{ loop.index }} = WarpByScalar(Input=current)
+f_{{ loop.index }}.Scalars = ["POINTS", "{{ step.params.scalars }}"]
+f_{{ loop.index }}.ScaleFactor = {{ step.params.scale_factor }}
+{% elif step.filter == "CellDatatoPointData" %}
+f_{{ loop.index }} = CellDatatoPointData(Input=current)
+{% elif step.filter == "PointDatatoCellData" %}
+f_{{ loop.index }} = PointDatatoCellData(Input=current)
+{% elif step.filter == "PlotOverLine" %}
+f_{{ loop.index }} = PlotOverLine(Input=current)
+f_{{ loop.index }}.Point1 = {{ step.params.point1 }}
+f_{{ loop.index }}.Point2 = {{ step.params.point2 }}
+f_{{ loop.index }}.Resolution = {{ step.params.resolution }}
+{% elif step.filter == "Decimate" %}
+f_{{ loop.index }} = Decimate(Input=current)
+f_{{ loop.index }}.TargetReduction = {{ step.params.reduction }}
+{% elif step.filter == "Triangulate" %}
+f_{{ loop.index }} = Triangulate(Input=current)
+{% elif step.filter == "ProgrammableFilter" %}
+f_{{ loop.index }} = ProgrammableFilter(Input=current)
+import base64 as _b64
+f_{{ loop.index }}.Script = _b64.b64decode("{{ step.params.script | b64encode }}").decode()
+f_{{ loop.index }}.OutputDataSetType = "{{ step.params.output_type }}"
+{% endif %}
+f_{{ loop.index }}.UpdatePipeline()
+current = f_{{ loop.index }}
+{% endfor %}

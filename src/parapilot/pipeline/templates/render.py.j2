@@ -1,0 +1,191 @@
+{# Render output: create view, apply coloring, save screenshot #}
+
+# --- Render Setup ---
+render_view = GetActiveViewOrCreate("RenderView")
+render_view.ViewSize = {{ resolution }}
+render_view.UseColorPaletteForBackground = 0
+render_view.Background = {{ background }}
+render_view.OrientationAxesVisibility = 0
+
+display = Show(current, render_view)
+display.Representation = "{{ representation }}"
+{% if representation == "Point Gaussian" %}
+# Auto-scale GaussianRadius from data bounds and point count
+_bounds = current.GetDataInformation().GetBounds()
+_extents = [_bounds[1] - _bounds[0], _bounds[3] - _bounds[2], _bounds[5] - _bounds[4]]
+_n_pts = max(1, current.GetDataInformation().GetNumberOfPoints())
+_nonzero = [_e for _e in _extents if _e > 1e-10]
+if _nonzero and _n_pts > 1:
+    _vol = 1.0
+    for _e in _nonzero:
+        _vol *= _e
+    _dp_est = (_vol / _n_pts) ** (1.0 / len(_nonzero))
+    display.GaussianRadius = _dp_est * {{ point_size }}
+else:
+    _diag = sum(_e**2 for _e in _extents) ** 0.5
+    display.GaussianRadius = max(_diag * 0.01, 1e-6) * {{ point_size }}
+display.ShaderPreset = 'Sphere'
+{% endif %}
+{% if representation == "Wireframe" and line_width > 1.0 %}
+display.LineWidth = {{ line_width }}
+{% endif %}
+{% if opacity < 1.0 %}
+display.Opacity = {{ opacity }}
+{% endif %}
+{% if specular > 0.0 %}
+display.Specular = {{ specular }}
+display.SpecularPower = {{ specular_power }}
+{% endif %}
+
+# --- Color by field (auto-detect association if needed) ---
+_assoc = "{{ association }}"
+_field = "{{ field }}"
+_di = current.GetDataInformation()
+if _assoc == "POINTS" and _di.GetPointDataInformation().GetArrayInformation(_field) is None:
+    if _di.GetCellDataInformation().GetArrayInformation(_field) is not None:
+        _assoc = "CELLS"
+elif _assoc == "CELLS" and _di.GetCellDataInformation().GetArrayInformation(_field) is None:
+    if _di.GetPointDataInformation().GetArrayInformation(_field) is not None:
+        _assoc = "POINTS"
+ColorBy(display, (_assoc, _field))
+display.RescaleTransferFunctionToDataRange(True)
+
+lut = GetColorTransferFunction("{{ field }}")
+lut.ApplyPreset("{{ colormap }}", True)
+
+{% if scalar_range %}
+lut.RescaleTransferFunction({{ scalar_range[0] }}, {{ scalar_range[1] }})
+pwf = GetOpacityTransferFunction("{{ field }}")
+pwf.RescaleTransferFunction({{ scalar_range[0] }}, {{ scalar_range[1] }})
+{% endif %}
+
+{% if log_scale %}
+lut.UseLogScale = 1
+lut.MapControlPointsToLogSpace()
+{% endif %}
+
+{% if above_range_color %}
+lut.UseAboveRangeColor = 1
+lut.AboveRangeColor = {{ above_range_color }}
+{% endif %}
+{% if below_range_color %}
+lut.UseBelowRangeColor = 1
+lut.BelowRangeColor = {{ below_range_color }}
+{% endif %}
+
+# --- Scalar bar ---
+{% if scalar_bar %}
+display.SetScalarBarVisibility(render_view, True)
+sb = GetScalarBar(lut, render_view)
+# Auto text color: black on light bg, white on dark bg
+_bg = {{ background }}
+_text_color = [0, 0, 0] if (0.299*_bg[0] + 0.587*_bg[1] + 0.114*_bg[2]) > 0.5 else [1, 1, 1]
+sb.TitleColor = _text_color
+sb.LabelColor = _text_color
+_font_scale = max(1.0, {{ resolution[1] }} / 1080.0)
+{% if scalar_bar_config %}
+{% if scalar_bar_config.title %}
+sb.Title = "{{ scalar_bar_config.title }}"
+{% endif %}
+{% if scalar_bar_config.component_title %}
+sb.ComponentTitle = "{{ scalar_bar_config.component_title }}"
+{% endif %}
+sb.Orientation = "{{ scalar_bar_config.orientation }}"
+sb.ScalarBarLength = {{ scalar_bar_config.length }}
+sb.ScalarBarThickness = int({{ scalar_bar_config.thickness }} * _font_scale)
+sb.TitleFontSize = int({{ scalar_bar_config.title_font_size }} * _font_scale)
+sb.LabelFontSize = int({{ scalar_bar_config.label_font_size }} * _font_scale)
+{% if scalar_bar_config.label_format %}
+sb.RangeLabelFormat = "{{ scalar_bar_config.label_format }}"
+{% endif %}
+{% if scalar_bar_config.position %}
+sb.WindowLocation = 'Any Location'
+sb.Position = {{ scalar_bar_config.position }}
+{% else %}
+sb.WindowLocation = 'Any Location'
+{% if scalar_bar_config.orientation == "Horizontal" %}
+sb.Position = [0.25, 0.05]
+{% else %}
+sb.Position = [0.65, 0.02]
+{% endif %}
+{% endif %}
+{% else %}
+sb.TitleFontSize = int(32 * _font_scale)
+sb.LabelFontSize = int(24 * _font_scale)
+sb.ScalarBarLength = 0.4
+sb.WindowLocation = 'Any Location'
+sb.Position = [0.65, 0.02]
+{% endif %}
+{% else %}
+display.SetScalarBarVisibility(render_view, False)
+{% endif %}
+
+# --- Camera ---
+Render()
+{% if orthographic %}
+render_view.CameraParallelProjection = 1
+{% endif %}
+{% if camera_preset == "isometric" %}
+render_view.ResetCamera()
+render_view.CameraPosition = [1, 1, 1]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "top" %}
+render_view.CameraPosition = [0, 0, 1]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 1, 0]
+render_view.ResetCamera()
+{% elif camera_preset == "front" %}
+render_view.CameraPosition = [0, -1, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "right" %}
+render_view.CameraPosition = [1, 0, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "left" %}
+render_view.CameraPosition = [-1, 0, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_preset == "back" %}
+render_view.CameraPosition = [0, 1, 0]
+render_view.CameraFocalPoint = [0, 0, 0]
+render_view.CameraViewUp = [0, 0, 1]
+render_view.ResetCamera()
+{% elif camera_position %}
+render_view.CameraPosition = {{ camera_position }}
+{% if camera_focal_point %}
+render_view.CameraFocalPoint = {{ camera_focal_point }}
+{% endif %}
+{% if camera_view_up %}
+render_view.CameraViewUp = {{ camera_view_up }}
+{% endif %}
+{% else %}
+render_view.ResetCamera()
+{% endif %}
+
+{% if zoom != 1.0 %}
+if render_view.CameraParallelProjection:
+    render_view.CameraParallelScale = render_view.CameraParallelScale / {{ zoom }}
+else:
+    _cam = GetActiveCamera()
+    _cam.Dolly({{ zoom }})
+Render()
+{% endif %}
+
+# --- Save screenshot ---
+output_path = os.path.join(OUTPUT_DIR, "{{ output_filename }}")
+SaveScreenshot(
+    output_path,
+    render_view,
+    ImageResolution={{ resolution }},
+    TransparentBackground={{ transparent | int }},
+)
+
+result = {"type": "image", "path": output_path}
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(result))
+print(json.dumps(result))

@@ -1,0 +1,347 @@
+{# Split-pane animation: multi-view render + per-timestep stats extraction #}
+
+# --- Split Animation ---
+from paraview.numpy_support import vtk_to_numpy
+import numpy as np
+
+# === Phase 1: Create render views for each pane ===
+_pane_views = {}
+_pane_displays = {}
+
+{% for pane in render_panes %}
+# --- Render pane {{ pane.index }} ---
+_view_{{ pane.index }} = CreateRenderView()
+_view_{{ pane.index }}.ViewSize = [{{ pane.width }}, {{ pane.height }}]
+_view_{{ pane.index }}.UseColorPaletteForBackground = 0
+_view_{{ pane.index }}.Background = {{ pane.background }}
+_view_{{ pane.index }}.OrientationAxesVisibility = 0
+
+# Apply per-pane filters
+_pane_src_{{ pane.index }} = reader
+{% for step in pane.filter_steps %}
+_pf_{{ pane.index }}_{{ loop.index }} = {{ step.filter }}(Input=_pane_src_{{ pane.index }})
+{% for key, value in step.assignments.items() %}
+_pf_{{ pane.index }}_{{ loop.index }}.{{ key }} = {{ value }}
+{% endfor %}
+_pf_{{ pane.index }}_{{ loop.index }}.UpdatePipeline()
+_pane_src_{{ pane.index }} = _pf_{{ pane.index }}_{{ loop.index }}
+{% endfor %}
+
+_disp_{{ pane.index }} = Show(_pane_src_{{ pane.index }}, _view_{{ pane.index }})
+_disp_{{ pane.index }}.Representation = "{{ pane.representation }}"
+{% if pane.representation == "Point Gaussian" %}
+# Auto-scale GaussianRadius from data bounds and point count
+_bounds_{{ pane.index }} = _pane_src_{{ pane.index }}.GetDataInformation().GetBounds()
+_extents_{{ pane.index }} = [_bounds_{{ pane.index }}[1] - _bounds_{{ pane.index }}[0], _bounds_{{ pane.index }}[3] - _bounds_{{ pane.index }}[2], _bounds_{{ pane.index }}[5] - _bounds_{{ pane.index }}[4]]
+_n_pts_{{ pane.index }} = max(1, _pane_src_{{ pane.index }}.GetDataInformation().GetNumberOfPoints())
+_nonzero_{{ pane.index }} = [_e for _e in _extents_{{ pane.index }} if _e > 1e-10]
+if _nonzero_{{ pane.index }} and _n_pts_{{ pane.index }} > 1:
+    _vol_{{ pane.index }} = 1.0
+    for _e in _nonzero_{{ pane.index }}:
+        _vol_{{ pane.index }} *= _e
+    _dp_est_{{ pane.index }} = (_vol_{{ pane.index }} / _n_pts_{{ pane.index }}) ** (1.0 / len(_nonzero_{{ pane.index }}))
+    _disp_{{ pane.index }}.GaussianRadius = _dp_est_{{ pane.index }} * {{ pane.point_size }}
+else:
+    _diag_{{ pane.index }} = sum(_e**2 for _e in _extents_{{ pane.index }}) ** 0.5
+    _disp_{{ pane.index }}.GaussianRadius = max(_diag_{{ pane.index }} * 0.01, 1e-6) * {{ pane.point_size }}
+_disp_{{ pane.index }}.ShaderPreset = 'Sphere'
+{% endif %}
+{% if pane.opacity < 1.0 %}
+_disp_{{ pane.index }}.Opacity = {{ pane.opacity }}
+{% endif %}
+
+_assoc_{{ pane.index }} = "{{ pane.association }}"
+_field_{{ pane.index }} = "{{ pane.field }}"
+_di_{{ pane.index }} = _pane_src_{{ pane.index }}.GetDataInformation()
+if _assoc_{{ pane.index }} == "POINTS" and _di_{{ pane.index }}.GetPointDataInformation().GetArrayInformation(_field_{{ pane.index }}) is None:
+    if _di_{{ pane.index }}.GetCellDataInformation().GetArrayInformation(_field_{{ pane.index }}) is not None:
+        _assoc_{{ pane.index }} = "CELLS"
+elif _assoc_{{ pane.index }} == "CELLS" and _di_{{ pane.index }}.GetCellDataInformation().GetArrayInformation(_field_{{ pane.index }}) is None:
+    if _di_{{ pane.index }}.GetPointDataInformation().GetArrayInformation(_field_{{ pane.index }}) is not None:
+        _assoc_{{ pane.index }} = "POINTS"
+ColorBy(_disp_{{ pane.index }}, (_assoc_{{ pane.index }}, _field_{{ pane.index }}))
+_disp_{{ pane.index }}.RescaleTransferFunctionToDataRange(True)
+
+_lut_{{ pane.index }} = GetColorTransferFunction("{{ pane.field }}")
+_lut_{{ pane.index }}.ApplyPreset("{{ pane.colormap }}", True)
+{% if pane.scalar_range %}
+_lut_{{ pane.index }}.RescaleTransferFunction({{ pane.scalar_range[0] }}, {{ pane.scalar_range[1] }})
+{% endif %}
+
+{% if pane.scalar_bar %}
+_disp_{{ pane.index }}.SetScalarBarVisibility(_view_{{ pane.index }}, True)
+_sb_{{ pane.index }} = GetScalarBar(_lut_{{ pane.index }}, _view_{{ pane.index }})
+_bg_{{ pane.index }} = {{ pane.background }}
+_tc_{{ pane.index }} = [0, 0, 0] if (0.299*_bg_{{ pane.index }}[0] + 0.587*_bg_{{ pane.index }}[1] + 0.114*_bg_{{ pane.index }}[2]) > 0.5 else [1, 1, 1]
+_sb_{{ pane.index }}.TitleColor = _tc_{{ pane.index }}
+_sb_{{ pane.index }}.LabelColor = _tc_{{ pane.index }}
+_fs_{{ pane.index }} = max(1.0, {{ pane.height }} / 1080.0)
+_sb_{{ pane.index }}.TitleFontSize = int(32 * _fs_{{ pane.index }})
+_sb_{{ pane.index }}.LabelFontSize = int(24 * _fs_{{ pane.index }})
+_sb_{{ pane.index }}.ScalarBarLength = 0.4
+_sb_{{ pane.index }}.WindowLocation = 'Any Location'
+_sb_{{ pane.index }}.Position = [0.65, 0.02]
+{% else %}
+_disp_{{ pane.index }}.SetScalarBarVisibility(_view_{{ pane.index }}, False)
+{% endif %}
+
+# Camera for pane {{ pane.index }}
+{% if pane.camera_preset == "isometric" %}
+_view_{{ pane.index }}.CameraPosition = [1, 1, 1]
+_view_{{ pane.index }}.CameraFocalPoint = [0, 0, 0]
+_view_{{ pane.index }}.CameraViewUp = [0, 0, 1]
+_view_{{ pane.index }}.ResetCamera()
+{% elif pane.camera_preset == "top" %}
+_view_{{ pane.index }}.CameraPosition = [0, 0, 1]
+_view_{{ pane.index }}.CameraFocalPoint = [0, 0, 0]
+_view_{{ pane.index }}.CameraViewUp = [0, 1, 0]
+_view_{{ pane.index }}.ResetCamera()
+{% elif pane.camera_preset == "front" %}
+_view_{{ pane.index }}.CameraPosition = [0, -1, 0]
+_view_{{ pane.index }}.CameraFocalPoint = [0, 0, 0]
+_view_{{ pane.index }}.CameraViewUp = [0, 0, 1]
+_view_{{ pane.index }}.ResetCamera()
+{% else %}
+_view_{{ pane.index }}.ResetCamera()
+{% endif %}
+
+_pane_views[{{ pane.index }}] = _view_{{ pane.index }}
+_pane_displays[{{ pane.index }}] = _disp_{{ pane.index }}
+{% endfor %}
+
+# === Phase 2: Timestep sampling ===
+_fps = {{ fps }}
+_speed_factor = {{ speed_factor }}
+
+{% if source_files %}
+# === Per-file loading mode (Mesa-safe) ===
+_source_files = {{ source_files | tojson }}
+_total_files = len(_source_files)
+
+# Save camera state from each pane view
+{% for pane in render_panes %}
+_cam_state_{{ pane.index }} = {
+    "pos": list(_view_{{ pane.index }}.CameraPosition),
+    "fp": list(_view_{{ pane.index }}.CameraFocalPoint),
+    "vu": list(_view_{{ pane.index }}.CameraViewUp),
+}
+if _view_{{ pane.index }}.CameraParallelProjection:
+    _cam_state_{{ pane.index }}["ps"] = _view_{{ pane.index }}.CameraParallelScale
+# Hide initial display
+Hide(_pane_src_{{ pane.index }}, _view_{{ pane.index }})
+{% endfor %}
+
+# === Phase 3: Per-frame rendering + stats extraction ===
+_stats = {"timesteps": [], "fields": {}}
+_stat_fields = {{ stat_fields | tojson }}
+
+for _field_name in _stat_fields:
+    _stats["fields"][_field_name] = {"min": [], "max": [], "mean": []}
+
+for _frame_i, _fpath in enumerate(_source_files):
+    _stats["timesteps"].append(float(_frame_i))
+    # Progress reporting
+    Path(os.path.join(OUTPUT_DIR, "progress.json")).write_text(json.dumps(
+        {"frame": _frame_i + 1, "total": _total_files, "pct": round((_frame_i + 1) / _total_files * 100)}
+    ))
+
+    # Load file for this frame
+    _frame_reader = {{ reader_type }}(FileNames=[_fpath])
+    _frame_reader.UpdatePipeline()
+
+    # Render each pane
+{% for pane in render_panes %}
+    # Pane {{ pane.index }}: apply per-pane filters on frame reader
+    _pf_src_{{ pane.index }} = _frame_reader
+{% for step in pane.filter_steps %}
+    _pff_{{ pane.index }}_{{ loop.index }} = {{ step.filter }}(Input=_pf_src_{{ pane.index }})
+{% for key, value in step.assignments.items() %}
+    _pff_{{ pane.index }}_{{ loop.index }}.{{ key }} = {{ value }}
+{% endfor %}
+    _pff_{{ pane.index }}_{{ loop.index }}.UpdatePipeline()
+    _pf_src_{{ pane.index }} = _pff_{{ pane.index }}_{{ loop.index }}
+{% endfor %}
+
+    _fd_{{ pane.index }} = Show(_pf_src_{{ pane.index }}, _view_{{ pane.index }})
+    _fd_{{ pane.index }}.Representation = "{{ pane.representation }}"
+    # Auto-detect association
+    _fa_{{ pane.index }} = "{{ pane.association }}"
+    _ff_{{ pane.index }} = "{{ pane.field }}"
+    _fdi_{{ pane.index }} = _pf_src_{{ pane.index }}.GetDataInformation()
+    if _fa_{{ pane.index }} == "POINTS" and _fdi_{{ pane.index }}.GetPointDataInformation().GetArrayInformation(_ff_{{ pane.index }}) is None:
+        if _fdi_{{ pane.index }}.GetCellDataInformation().GetArrayInformation(_ff_{{ pane.index }}) is not None:
+            _fa_{{ pane.index }} = "CELLS"
+    elif _fa_{{ pane.index }} == "CELLS" and _fdi_{{ pane.index }}.GetCellDataInformation().GetArrayInformation(_ff_{{ pane.index }}) is None:
+        if _fdi_{{ pane.index }}.GetPointDataInformation().GetArrayInformation(_ff_{{ pane.index }}) is not None:
+            _fa_{{ pane.index }} = "POINTS"
+    ColorBy(_fd_{{ pane.index }}, (_fa_{{ pane.index }}, _ff_{{ pane.index }}))
+    _fd_{{ pane.index }}.RescaleTransferFunctionToDataRange(True)
+{% if pane.opacity < 1.0 %}
+    _fd_{{ pane.index }}.Opacity = {{ pane.opacity }}
+{% endif %}
+    # Restore camera
+    _view_{{ pane.index }}.CameraPosition = _cam_state_{{ pane.index }}["pos"]
+    _view_{{ pane.index }}.CameraFocalPoint = _cam_state_{{ pane.index }}["fp"]
+    _view_{{ pane.index }}.CameraViewUp = _cam_state_{{ pane.index }}["vu"]
+    if "ps" in _cam_state_{{ pane.index }}:
+        _view_{{ pane.index }}.CameraParallelScale = _cam_state_{{ pane.index }}["ps"]
+    _view_{{ pane.index }}.Update()
+    _pane_path_{{ pane.index }} = os.path.join(
+        OUTPUT_DIR, f"pane_{{ pane.index }}_frame_{_frame_i:06d}.png"
+    )
+    SaveScreenshot(
+        _pane_path_{{ pane.index }}, _view_{{ pane.index }},
+        ImageResolution=[{{ pane.width }}, {{ pane.height }}]
+    )
+    Hide(_pf_src_{{ pane.index }}, _view_{{ pane.index }})
+    Delete(_fd_{{ pane.index }})
+{% endfor %}
+
+    # Extract stats for graph panes
+    if _stat_fields:
+        _fetched = servermanager.Fetch(_frame_reader)
+        _leaf = _fetched
+        if hasattr(_fetched, 'GetNumberOfBlocks'):
+            _best_cells = 0
+            for _bi in range(_fetched.GetNumberOfBlocks()):
+                _blk = _fetched.GetBlock(_bi)
+                if _blk is not None and hasattr(_blk, 'GetNumberOfCells'):
+                    if _blk.GetNumberOfCells() > _best_cells:
+                        _leaf = _blk
+                        _best_cells = _blk.GetNumberOfCells()
+        for _field_name in _stat_fields:
+            _arr = None
+            if hasattr(_leaf, 'GetPointData'):
+                _arr = _leaf.GetPointData().GetArray(_field_name)
+            if _arr is None and hasattr(_leaf, 'GetCellData'):
+                _arr = _leaf.GetCellData().GetArray(_field_name)
+            if _arr is not None:
+                _np_arr = vtk_to_numpy(_arr)
+                _stats["fields"][_field_name]["min"].append(float(_np_arr.min()))
+                _stats["fields"][_field_name]["max"].append(float(_np_arr.max()))
+                _stats["fields"][_field_name]["mean"].append(float(_np_arr.mean()))
+            else:
+                _stats["fields"][_field_name]["min"].append(0.0)
+                _stats["fields"][_field_name]["max"].append(0.0)
+                _stats["fields"][_field_name]["mean"].append(0.0)
+
+    Delete(_frame_reader)
+
+_all_timesteps = _source_files
+_physics_duration = 0.0
+_anim_duration = _total_files / _fps if _fps > 0 else 0.0
+
+{% else %}
+# === Time-series mode (single reader with UpdatePipeline) ===
+reader.UpdatePipeline()
+_all_timesteps = list(reader.TimestepValues) if hasattr(reader, 'TimestepValues') else []
+
+{% if time_range %}
+_all_timesteps = [t for t in _all_timesteps if {{ time_range[0] }} <= t <= {{ time_range[1] }}]
+{% endif %}
+
+if len(_all_timesteps) <= 1:
+    _sampled = _all_timesteps[:1] if _all_timesteps else []
+    _anim_duration = 0.0
+    _physics_duration = 0.0
+else:
+    _physics_duration = _all_timesteps[-1] - _all_timesteps[0]
+    _anim_duration = _physics_duration / _speed_factor
+    # Cap target frames at available timesteps to prevent duplicate renders
+    _target_frames = max(1, min(int(round(_anim_duration * _fps)), len(_all_timesteps)))
+
+    # Deduplicate: each unique timestep is rendered only once
+    _seen_indices = set()
+    _sampled = []
+    for fi in range(_target_frames):
+        _t_target = _all_timesteps[0] + (fi / max(1, _target_frames - 1)) * _physics_duration
+        _best_idx = min(range(len(_all_timesteps)),
+                       key=lambda k: abs(_all_timesteps[k] - _t_target))
+        if _best_idx not in _seen_indices:
+            _seen_indices.add(_best_idx)
+            _sampled.append(_all_timesteps[_best_idx])
+
+# === Phase 3: Per-frame rendering + stats extraction ===
+_stats = {"timesteps": [], "fields": {}}
+_stat_fields = {{ stat_fields | tojson }}
+
+for _field_name in _stat_fields:
+    _stats["fields"][_field_name] = {"min": [], "max": [], "mean": []}
+
+for _frame_i, _t in enumerate(_sampled):
+    reader.UpdatePipeline(time=_t)
+    _stats["timesteps"].append(float(_t))
+    # Progress reporting
+    Path(os.path.join(OUTPUT_DIR, "progress.json")).write_text(json.dumps(
+        {"frame": _frame_i + 1, "total": len(_sampled), "pct": round((_frame_i + 1) / len(_sampled) * 100)}
+    ))
+
+    # Render each pane
+{% for pane in render_panes %}
+    _pane_src_{{ pane.index }}.UpdatePipeline()
+    _disp_{{ pane.index }}.RescaleTransferFunctionToDataRange(True)
+    _view_{{ pane.index }}.Update()
+    _pane_path_{{ pane.index }} = os.path.join(
+        OUTPUT_DIR, f"pane_{{ pane.index }}_frame_{_frame_i:06d}.png"
+    )
+    SaveScreenshot(
+        _pane_path_{{ pane.index }}, _view_{{ pane.index }},
+        ImageResolution=[{{ pane.width }}, {{ pane.height }}]
+    )
+{% endfor %}
+
+    # Extract stats for graph panes
+    if _stat_fields:
+        _fetched = servermanager.Fetch(current)
+        # Handle multiblock: find largest leaf block
+        _leaf = _fetched
+        if hasattr(_fetched, 'GetNumberOfBlocks'):
+            _best_cells = 0
+            for _bi in range(_fetched.GetNumberOfBlocks()):
+                _blk = _fetched.GetBlock(_bi)
+                if _blk is not None and hasattr(_blk, 'GetNumberOfCells'):
+                    if _blk.GetNumberOfCells() > _best_cells:
+                        _leaf = _blk
+                        _best_cells = _blk.GetNumberOfCells()
+        for _field_name in _stat_fields:
+            _arr = None
+            if hasattr(_leaf, 'GetPointData'):
+                _arr = _leaf.GetPointData().GetArray(_field_name)
+            if _arr is None and hasattr(_leaf, 'GetCellData'):
+                _arr = _leaf.GetCellData().GetArray(_field_name)
+            if _arr is not None:
+                _np_arr = vtk_to_numpy(_arr)
+                _stats["fields"][_field_name]["min"].append(float(_np_arr.min()))
+                _stats["fields"][_field_name]["max"].append(float(_np_arr.max()))
+                _stats["fields"][_field_name]["mean"].append(float(_np_arr.mean()))
+            else:
+                _stats["fields"][_field_name]["min"].append(0.0)
+                _stats["fields"][_field_name]["max"].append(0.0)
+                _stats["fields"][_field_name]["mean"].append(0.0)
+{% endif %}
+
+# === Write results ===
+_stats_path = os.path.join(OUTPUT_DIR, "stats.json")
+Path(_stats_path).write_text(json.dumps(_stats))
+
+_effective_fps = len(_all_timesteps) / _anim_duration if _anim_duration > 0 else _fps
+
+result = {
+    "type": "split_animation",
+{% if source_files %}
+    "frame_count": _total_files,
+{% else %}
+    "frame_count": len(_sampled),
+{% endif %}
+    "fps": _fps,
+    "effective_fps": round(_effective_fps, 3) if isinstance(_effective_fps, float) else _effective_fps,
+    "speed_factor": _speed_factor,
+    "physics_duration": _physics_duration if len(_all_timesteps) > 1 else 0.0,
+    "animation_duration": _anim_duration if len(_all_timesteps) > 1 else 0.0,
+    "total_timesteps": len(_all_timesteps),
+    "pane_count": {{ render_panes | length }},
+    "stat_fields": _stat_fields,
+}
+
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(result))
+print(json.dumps(result))

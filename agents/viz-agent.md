@@ -11,7 +11,7 @@ permissionMode: default
 skills:
   - cfd-postprocess
 mcpServers:
-  - kimtech
+  - parapilot
 ---
 
 You are a simulation visualization specialist. Your role:

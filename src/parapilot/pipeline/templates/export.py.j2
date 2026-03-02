@@ -1,0 +1,26 @@
+{# Export output: save current pipeline result to file #}
+
+# --- Export ---
+current.UpdatePipeline()
+
+output_path = os.path.join(OUTPUT_DIR, "export.{{ export_format }}")
+
+{% if export_format == "vtk" %}
+SaveData(output_path, proxy=current, FileType="Binary")
+{% elif export_format == "vtu" %}
+SaveData(output_path, proxy=current, DataMode="Binary")
+{% elif export_format == "vtp" %}
+SaveData(output_path, proxy=current, DataMode="Binary")
+{% elif export_format == "stl" %}
+SaveData(output_path, proxy=current, FileType="Binary")
+{% elif export_format == "ply" %}
+SaveData(output_path, proxy=current)
+{% elif export_format == "csv" %}
+SaveData(output_path, proxy=current)
+{% else %}
+SaveData(output_path, proxy=current)
+{% endif %}
+
+result = {"type": "export", "path": output_path, "format": "{{ export_format }}"}
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(result))
+print(json.dumps(result))

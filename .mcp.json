@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "kimtech": {
-      "command": "mcp-server-kimtech",
+    "parapilot": {
+      "command": "mcp-server-parapilot",
       "env": {
-        "PV_PYTHON_BIN": "",
-        "PV_RENDER_BACKEND": "auto",
-        "PV_WORK_DIR": "/tmp/kimtech"
+        "PARAPILOT_PYTHON_BIN": "",
+        "PARAPILOT_RENDER_BACKEND": "auto",
+        "PARAPILOT_WORK_DIR": "/tmp/parapilot"
       }
     }
   }

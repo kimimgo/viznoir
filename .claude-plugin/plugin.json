@@ -1,5 +1,5 @@
 {
-  "name": "kimtech",
+  "name": "parapilot",
   "description": "CAE post-processing plugin for AI coding assistants. Headless ParaView rendering, mesh analysis, and automated report generation for CFD/FEA researchers.",
   "version": "0.1.0",
   "author": {

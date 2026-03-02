@@ -1,0 +1,128 @@
+{# Inspect output: extract metadata from the data source #}
+
+# --- Inspect Data ---
+reader.UpdatePipeline()
+data = servermanager.Fetch(reader)
+
+info = {
+    "type": "inspect",
+    "file": "{{ source_file }}",
+    "data_type": data.GetClassName(),
+}
+
+# --- Helper: extract array info from a single leaf dataset ---
+def _inspect_block(block):
+    result = {"num_points": 0, "num_cells": 0, "point_arrays": [], "cell_arrays": []}
+    if block is None:
+        return result
+    if hasattr(block, 'GetNumberOfPoints'):
+        result["num_points"] = int(block.GetNumberOfPoints())
+    if hasattr(block, 'GetNumberOfCells'):
+        result["num_cells"] = int(block.GetNumberOfCells())
+    if hasattr(block, 'GetPointData'):
+        pd = block.GetPointData()
+        for i in range(pd.GetNumberOfArrays()):
+            arr = pd.GetArray(i)
+            if arr is not None:
+                result["point_arrays"].append({
+                    "name": arr.GetName(),
+                    "components": arr.GetNumberOfComponents(),
+                    "range": [list(arr.GetRange(c)) for c in range(arr.GetNumberOfComponents())],
+                })
+    if hasattr(block, 'GetCellData'):
+        cd = block.GetCellData()
+        for i in range(cd.GetNumberOfArrays()):
+            arr = cd.GetArray(i)
+            if arr is not None:
+                result["cell_arrays"].append({
+                    "name": arr.GetName(),
+                    "components": arr.GetNumberOfComponents(),
+                    "range": [list(arr.GetRange(c)) for c in range(arr.GetNumberOfComponents())],
+                })
+    return result
+
+# --- Helper: recursively walk a multiblock dataset ---
+def _walk_blocks(mb, prefix=""):
+    blocks = []
+    if mb is None:
+        return blocks
+    if not hasattr(mb, 'GetNumberOfBlocks'):
+        bi = _inspect_block(mb)
+        bi["name"] = prefix or "root"
+        blocks.append(bi)
+        return blocks
+    for i in range(mb.GetNumberOfBlocks()):
+        block = mb.GetBlock(i)
+        name = ""
+        try:
+            if mb.HasMetaData(i):
+                md = mb.GetMetaData(i)
+                name = md.Get(md.NAME()) if md else "Block_%d" % i
+            else:
+                name = "Block_%d" % i
+        except Exception:
+            name = "Block_%d" % i
+        full_name = "%s/%s" % (prefix, name) if prefix else name
+        if block is not None and hasattr(block, 'GetNumberOfBlocks'):
+            blocks.extend(_walk_blocks(block, full_name))
+        elif block is not None:
+            bi = _inspect_block(block)
+            bi["name"] = full_name
+            blocks.append(bi)
+    return blocks
+
+# --- Bounds (PV 5.10 compatible) ---
+try:
+    _bounds = [0.0]*6
+    data.GetBounds(_bounds)
+    info["bounds"] = {
+        "x": [_bounds[0], _bounds[1]],
+        "y": [_bounds[2], _bounds[3]],
+        "z": [_bounds[4], _bounds[5]],
+    }
+except TypeError:
+    try:
+        _bounds = list(data.GetBounds())
+        info["bounds"] = {
+            "x": [_bounds[0], _bounds[1]],
+            "y": [_bounds[2], _bounds[3]],
+            "z": [_bounds[4], _bounds[5]],
+        }
+    except Exception:
+        pass
+
+# --- Handle multiblock vs single dataset ---
+if data.IsA("vtkMultiBlockDataSet"):
+    block_infos = _walk_blocks(data)
+    info["blocks"] = block_infos
+    total_points = sum(b["num_points"] for b in block_infos)
+    total_cells = sum(b["num_cells"] for b in block_infos)
+    info["num_points"] = total_points
+    info["num_cells"] = total_cells
+    # Use largest block for array information
+    if block_infos:
+        largest = max(block_infos, key=lambda b: b["num_cells"])
+        info["point_arrays"] = largest.get("point_arrays", [])
+        info["cell_arrays"] = largest.get("cell_arrays", [])
+    else:
+        info["point_arrays"] = []
+        info["cell_arrays"] = []
+else:
+    bi = _inspect_block(data)
+    info["num_points"] = bi["num_points"]
+    info["num_cells"] = bi["num_cells"]
+    info["point_arrays"] = bi["point_arrays"]
+    info["cell_arrays"] = bi["cell_arrays"]
+
+# Timesteps
+if hasattr(reader, 'TimestepValues') and reader.TimestepValues:
+    ts = list(reader.TimestepValues)
+    info["timesteps"] = {
+        "count": len(ts),
+        "first": ts[0],
+        "last": ts[-1],
+        "values": ts if len(ts) <= 100 else [ts[0], "...", ts[-1]],
+    }
+
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(info, default=str))
+print(json.dumps(info, default=str))

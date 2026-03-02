@@ -1,0 +1,114 @@
+{# Data extraction output: read field values, compute statistics, write JSON #}
+
+# --- Data Extraction ---
+current.UpdatePipeline()
+data = servermanager.Fetch(current)
+
+# --- Helper: get largest leaf block from multiblock, or dataset itself ---
+def _get_leaf_block(ds):
+    if ds is None:
+        return None
+    if hasattr(ds, 'GetNumberOfBlocks'):
+        best = None
+        best_cells = 0
+        for i in range(ds.GetNumberOfBlocks()):
+            block = ds.GetBlock(i)
+            if block is None:
+                continue
+            if hasattr(block, 'GetNumberOfBlocks'):
+                sub = _get_leaf_block(block)
+                if sub and hasattr(sub, 'GetNumberOfCells') and sub.GetNumberOfCells() > best_cells:
+                    best = sub
+                    best_cells = sub.GetNumberOfCells()
+            elif hasattr(block, 'GetNumberOfCells') and block.GetNumberOfCells() > best_cells:
+                best = block
+                best_cells = block.GetNumberOfCells()
+        return best
+    return ds
+
+leaf = _get_leaf_block(data)
+if leaf is None:
+    leaf = data
+
+result = {"type": "data", "fields": {}}
+
+{% if statistics_only %}
+# Statistics-only mode
+from paraview.numpy_support import vtk_to_numpy
+import numpy as np
+
+for array_name in {{ fields | default("[]", true) | tojson }}:
+    _arr = None
+    if hasattr(leaf, 'GetPointData'):
+        _arr = leaf.GetPointData().GetArray(array_name)
+    if _arr is None and hasattr(leaf, 'GetCellData'):
+        _arr = leaf.GetCellData().GetArray(array_name)
+    if _arr is not None:
+        np_arr = vtk_to_numpy(_arr)
+        stats = {
+            "min": float(np_arr.min()),
+            "max": float(np_arr.max()),
+            "mean": float(np_arr.mean()),
+            "std": float(np_arr.std()),
+            "components": _arr.GetNumberOfComponents(),
+            "tuples": _arr.GetNumberOfTuples(),
+        }
+        if _arr.GetNumberOfComponents() > 1:
+            mags = np.linalg.norm(np_arr, axis=1)
+            stats["magnitude"] = {
+                "min": float(mags.min()),
+                "max": float(mags.max()),
+                "mean": float(mags.mean()),
+            }
+        result["fields"][array_name] = stats
+
+{% else %}
+# Full data extraction
+from paraview.numpy_support import vtk_to_numpy
+import numpy as np
+
+{% if fields %}
+field_names = {{ fields | tojson }}
+{% else %}
+# Extract all available fields
+field_names = []
+if hasattr(leaf, 'GetPointData'):
+    pd = leaf.GetPointData()
+    for i in range(pd.GetNumberOfArrays()):
+        field_names.append(pd.GetArrayName(i))
+if hasattr(leaf, 'GetCellData'):
+    cd = leaf.GetCellData()
+    for i in range(cd.GetNumberOfArrays()):
+        field_names.append(cd.GetArrayName(i))
+{% endif %}
+
+for array_name in field_names:
+    _arr = None
+    if hasattr(leaf, 'GetPointData'):
+        _arr = leaf.GetPointData().GetArray(array_name)
+    if _arr is None and hasattr(leaf, 'GetCellData'):
+        _arr = leaf.GetCellData().GetArray(array_name)
+    if _arr is not None:
+        np_arr = vtk_to_numpy(_arr)
+        entry = {
+            "values": np_arr.tolist(),
+            "components": _arr.GetNumberOfComponents(),
+            "tuples": _arr.GetNumberOfTuples(),
+            "min": float(np_arr.min()),
+            "max": float(np_arr.max()),
+            "mean": float(np_arr.mean()),
+        }
+        result["fields"][array_name] = entry
+
+{% if include_coordinates %}
+if hasattr(leaf, 'GetPoints'):
+    points = leaf.GetPoints()
+    if points is not None:
+        coords = vtk_to_numpy(points.GetData())
+        result["coordinates"] = coords.tolist()
+{% endif %}
+
+{% endif %}
+
+Path(os.path.join(OUTPUT_DIR, "result.json")).write_text(json.dumps(result, default=str))
+print(json.dumps({"type": "data", "field_count": len(result["fields"])}, default=str))
