@@ -5,7 +5,7 @@ CAE post-processing plugin for AI coding assistants.
 ## Project Info
 - **Group**: dev
 - **Agent**: cc-kimtech
-- **Repo**: kimimgo/kimtech (private → public target)
+- **Repo**: kimimgo/parapilot (private → public target)
 - **Language**: Python
 - **MCP SDK**: fastmcp>=2.0.0
 - **PyPI**: mcp-server-parapilot

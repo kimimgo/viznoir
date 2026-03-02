@@ -41,9 +41,9 @@ dev = [
 mcp-server-parapilot = "parapilot.server:main"
 
 [project.urls]
-Homepage = "https://github.com/kimimgo/kimtech"
-Repository = "https://github.com/kimimgo/kimtech"
-Issues = "https://github.com/kimimgo/kimtech/issues"
+Homepage = "https://github.com/kimimgo/parapilot"
+Repository = "https://github.com/kimimgo/parapilot"
+Issues = "https://github.com/kimimgo/parapilot/issues"
 
 [build-system]
 requires = ["hatchling"]
