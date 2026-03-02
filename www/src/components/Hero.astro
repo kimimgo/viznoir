@@ -2,152 +2,122 @@
 import CodeBlock from './CodeBlock.astro';
 ---
 
-<section class="relative overflow-hidden">
-  <!-- Background grid + glow -->
-  <div class="absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-accent/5 rounded-full blur-[120px]"></div>
+<section class="relative overflow-hidden min-h-screen flex items-center">
+  <!-- Background effects -->
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.02)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
+  <div class="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[1000px] h-[800px] bg-accent/[0.04] rounded-full blur-[150px]"></div>
+  <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary to-transparent"></div>
 
-  <div class="relative max-w-5xl mx-auto px-6 pt-24 pb-20">
-    <!-- Logo / Wordmark -->
-    <div class="flex items-center justify-center gap-3 mb-10">
-      <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
+  <div class="relative max-w-6xl mx-auto px-6 pt-32 pb-24 w-full">
+    <!-- Tagline pill -->
+    <div class="flex justify-center mb-8">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-secondary/80 backdrop-blur-sm">
+        <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+        <span class="text-xs font-mono text-text-secondary">MCP Plugin for AI Terminals</span>
       </div>
-      <span class="text-2xl font-bold tracking-tight text-text-primary font-mono">parapilot</span>
     </div>
 
-    <!-- Headline -->
-    <h1 class="text-center text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-4">
-      <span class="text-text-primary">CFD Post-processing</span><br />
-      <span class="text-text-primary">at </span>
-      <span class="text-accent">Prompt Speed</span>
+    <!-- Headline — Remotion-style massive -->
+    <h1 class="text-center text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter leading-[0.9] mb-6">
+      <span class="gradient-text-white">Post-process CFD</span><br />
+      <span class="gradient-text">from your terminal</span>
     </h1>
 
-    <p class="text-center text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-3">
-      Headless ParaView MCP Server for AI Coding Assistants
+    <p class="text-center text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-4 leading-relaxed">
+      Headless ParaView as an MCP server. Ask in natural language,<br class="hidden sm:block" />
+      get publication-ready renders. No GUI needed.
     </p>
 
-    <!-- Client logos — Neon-style -->
-    <div class="flex items-center justify-center gap-2 flex-wrap mb-4 text-xs text-text-secondary font-mono">
-      <span class="opacity-50">works with</span>
-      <span class="px-2.5 py-1 rounded-md bg-secondary border border-border">Claude Code</span>
-      <span class="px-2.5 py-1 rounded-md bg-secondary border border-border">Cursor</span>
-      <span class="px-2.5 py-1 rounded-md bg-secondary border border-border">Gemini CLI</span>
-      <span class="px-2.5 py-1 rounded-md bg-secondary border border-border">Windsurf</span>
+    <!-- Supported clients -->
+    <div class="flex items-center justify-center gap-3 flex-wrap mb-10">
+      <span class="text-xs text-text-secondary/50 font-mono">works with</span>
+      {['Claude Code', 'Codex CLI', 'Gemini CLI', 'Cursor', 'Windsurf'].map((client) => (
+        <span class="px-3 py-1 rounded-full bg-secondary/80 border border-border text-xs font-mono text-text-secondary hover:text-text-primary hover:border-accent/30 transition-all cursor-default">
+          {client}
+        </span>
+      ))}
     </div>
 
-    <!-- Stats -->
-    <div class="flex items-center justify-center gap-4 sm:gap-6 mb-10 text-sm font-mono">
-      <span class="text-accent">13 tools</span>
-      <span class="text-border">&middot;</span>
-      <span class="text-accent">9 resources</span>
-      <span class="text-border">&middot;</span>
-      <span class="text-accent">146 tests</span>
-    </div>
-
-    <!-- Terminal install CTA -->
-    <div class="max-w-lg mx-auto mb-8">
+    <!-- Install CTA — prominent -->
+    <div class="max-w-md mx-auto mb-6">
       <CodeBlock code="pip install mcp-server-parapilot" lang="bash" />
     </div>
 
-    <!-- Badges -->
-    <div class="flex items-center justify-center flex-wrap gap-3 mb-14">
+    <!-- Secondary links -->
+    <div class="flex items-center justify-center gap-6 mb-20">
       <a href="https://github.com/kimimgo/parapilot" target="_blank" rel="noopener noreferrer"
-         class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-secondary
-                text-text-secondary text-sm hover:border-accent/40 hover:text-text-primary transition-all">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-        </svg>
+         class="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         GitHub
       </a>
       <a href="https://pypi.org/project/mcp-server-parapilot/" target="_blank" rel="noopener noreferrer"
-         class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-secondary
-                text-text-secondary text-sm hover:border-accent/40 hover:text-text-primary transition-all">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M9.585 11.692h4.328s2.432.039 2.432-2.35V5.391S16.714 3 11.936 3C7.362 3 7.647 4.983 7.647 4.983l.006 2.055h4.363v.617H7.14S4.5 7.28 4.5 11.85c0 4.571 2.317 4.406 2.317 4.406h1.384v-2.127s-.075-2.317 2.301-2.317l.083-.12zM9.345 5.246a.755.755 0 11-.002 1.51.755.755 0 01.002-1.51z" />
-          <path d="M14.415 12.308h-4.328s-2.432-.039-2.432 2.35v3.951s-.369 2.391 4.409 2.391c4.573 0 4.288-1.983 4.288-1.983l-.006-2.055h-4.363v-.617h4.876s2.639.375 2.639-4.195c0-4.571-2.317-4.406-2.317-4.406h-1.384v2.127s.075 2.317-2.301 2.317l-.081.12zm.24 5.446a.755.755 0 110 1.51.755.755 0 010-1.51z" />
-        </svg>
+         class="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
         PyPI
       </a>
-      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-secondary
-                    text-text-secondary text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-        </svg>
+      <a href="https://github.com/kimimgo/parapilot/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
         MIT License
-      </span>
+      </a>
     </div>
 
-    <!-- Terminal Demo — Atuin-style typing animation -->
-    <div class="max-w-3xl mx-auto rounded-xl border border-border bg-secondary overflow-hidden glow-accent">
-      <!-- Window chrome -->
-      <div class="flex items-center gap-2 px-4 py-2.5 border-b border-border">
+    <!-- Terminal Demo -->
+    <div class="max-w-3xl mx-auto rounded-2xl border border-border bg-secondary/80 backdrop-blur-sm overflow-hidden glow-accent">
+      <div class="flex items-center gap-2 px-5 py-3 border-b border-border">
         <div class="flex gap-1.5">
-          <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
-          <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
-          <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+          <span class="w-3 h-3 rounded-full bg-[#ff5f57]/80"></span>
+          <span class="w-3 h-3 rounded-full bg-[#febc2e]/80"></span>
+          <span class="w-3 h-3 rounded-full bg-[#28c840]/80"></span>
         </div>
-        <span class="text-xs text-text-secondary font-mono ml-2">claude — parapilot demo</span>
+        <span class="text-xs text-text-secondary/60 font-mono ml-2">terminal — claude code</span>
       </div>
 
-      <!-- Terminal body with typing animation -->
-      <div class="relative font-mono text-sm p-5 min-h-[280px] bg-tertiary">
+      <div class="relative font-mono text-sm p-6 min-h-[280px] bg-tertiary/80">
         <!-- CRT scanline overlay -->
-        <div class="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,212,255,0.015)_2px,rgba(0,212,255,0.015)_4px)]"></div>
+        <div class="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,212,255,0.01)_2px,rgba(0,212,255,0.01)_4px)]"></div>
 
-        <!-- Line 1: User prompt -->
         <div class="terminal-line mb-4" style="--delay: 0s">
-          <span class="text-accent/60">$</span>
+          <span class="text-accent/50">$</span>
           <span class="text-text-secondary ml-2">claude</span>
         </div>
 
-        <!-- Line 2: User message -->
         <div class="terminal-line mb-4" style="--delay: 0.8s">
-          <span class="text-accent/40 text-xs">you &gt;</span>
-          <span class="typing-text text-text-primary ml-2">"cavity 케이스의 압력 분포를 contour plot으로 보여줘"</span>
+          <span class="text-text-secondary/40 text-xs">you &gt;</span>
+          <span class="text-text-primary ml-2">"cavity 케이스의 압력 분포를 contour plot으로 보여줘"</span>
         </div>
 
-        <!-- Line 3: Tool call -->
-        <div class="terminal-line mb-2" style="--delay: 2.5s">
-          <span class="text-accent/40 text-xs">mcp &gt;</span>
+        <div class="terminal-line mb-1" style="--delay: 2.2s">
+          <span class="text-text-secondary/40 text-xs">mcp &gt;</span>
           <span class="text-accent ml-2">parapilot.contour</span>
-          <span class="text-text-secondary">(</span>
+          <span class="text-text-secondary/60">(</span>
         </div>
-        <div class="terminal-line mb-0 pl-12" style="--delay: 2.8s">
-          <span class="text-text-secondary">file=</span><span class="text-[#a5d6ff]">"cavity.foam"</span><span class="text-text-secondary">,</span>
+        <div class="terminal-line mb-0 pl-14" style="--delay: 2.5s">
+          <span class="text-text-secondary/60">file=</span><span class="text-[#a5d6ff]">"cavity.foam"</span><span class="text-text-secondary/40">,</span>
         </div>
-        <div class="terminal-line mb-0 pl-12" style="--delay: 3.1s">
-          <span class="text-text-secondary">field=</span><span class="text-[#a5d6ff]">"p"</span><span class="text-text-secondary">,</span>
+        <div class="terminal-line mb-0 pl-14" style="--delay: 2.7s">
+          <span class="text-text-secondary/60">field=</span><span class="text-[#a5d6ff]">"p"</span><span class="text-text-secondary/40">,</span>
         </div>
-        <div class="terminal-line mb-2 pl-12" style="--delay: 3.4s">
-          <span class="text-text-secondary">colormap=</span><span class="text-[#a5d6ff]">"RdBu"</span>
-          <span class="text-text-secondary">)</span>
+        <div class="terminal-line mb-3 pl-14" style="--delay: 2.9s">
+          <span class="text-text-secondary/60">colormap=</span><span class="text-[#a5d6ff]">"RdBu"</span>
+          <span class="text-text-secondary/60">)</span>
         </div>
 
-        <!-- Line 4: Result -->
-        <div class="terminal-line mb-2" style="--delay: 4.2s">
+        <div class="terminal-line mb-3" style="--delay: 3.8s">
           <span class="text-[#28c840]">&#10003;</span>
           <span class="text-text-secondary ml-2">Rendered to</span>
           <span class="text-accent ml-1">contour_p.png</span>
-          <span class="text-text-secondary ml-1">(1920x1080, 0.8s)</span>
+          <span class="text-text-secondary/50 ml-1">(1920x1080, 0.8s)</span>
         </div>
 
-        <!-- Line 5: Image placeholder with gradient -->
-        <div class="terminal-line" style="--delay: 4.8s">
-          <div class="mt-2 rounded-lg border border-border overflow-hidden h-24 bg-gradient-to-r from-[#2563eb] via-[#10b981] via-[#eab308] to-[#ef4444] opacity-80">
-            <div class="w-full h-full flex items-center justify-center backdrop-blur-[1px]">
-              <span class="text-white/70 text-xs font-mono drop-shadow-lg">▸ pressure contour — RdBu colormap</span>
+        <div class="terminal-line" style="--delay: 4.5s">
+          <div class="mt-1 rounded-lg border border-border/50 overflow-hidden h-28 bg-gradient-to-r from-[#1e3a8a] via-[#059669] via-60% via-[#ca8a04] to-[#dc2626] opacity-70">
+            <div class="w-full h-full flex items-center justify-center">
+              <span class="text-white/60 text-xs font-mono drop-shadow-lg">▸ pressure contour — RdBu colormap</span>
             </div>
           </div>
         </div>
 
-        <!-- Blinking cursor -->
-        <div class="terminal-line mt-3" style="--delay: 5.5s">
-          <span class="text-accent/60">$</span>
+        <div class="terminal-line mt-3" style="--delay: 5.2s">
+          <span class="text-accent/50">$</span>
           <span class="typing-cursor ml-1"></span>
         </div>
       </div>

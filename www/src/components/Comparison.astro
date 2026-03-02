@@ -1,32 +1,9 @@
 ---
 const competitors = [
-  {
-    name: 'parapilot',
-    highlight: true,
-    metrics: { tools: 13, tests: 146, formats: 50, headless: true },
-    bar: 100,
-  },
-  {
-    name: 'LLNL/paraview_mcp',
-    highlight: false,
-    metrics: { tools: 8, tests: 0, formats: 0, headless: false },
-    bar: 28,
-    note: 'GUI-attached, no tests',
-  },
-  {
-    name: 'Kitware/vtk-mcp',
-    highlight: false,
-    metrics: { tools: 3, tests: 0, formats: 0, headless: false },
-    bar: 12,
-    note: 'Docs search only, no rendering',
-  },
-  {
-    name: 'FreeCAD MCP (6+)',
-    highlight: false,
-    metrics: { tools: 5, tests: 0, formats: 0, headless: false },
-    bar: 18,
-    note: 'CAD modeling only, no FEM post',
-  },
+  { name: 'parapilot', highlight: true, tools: 13, tests: 146, bar: 100 },
+  { name: 'LLNL/paraview_mcp', highlight: false, tools: 8, tests: 0, bar: 28, note: 'GUI-attached, no tests' },
+  { name: 'Kitware/vtk-mcp', highlight: false, tools: 3, tests: 0, bar: 12, note: 'Docs search only' },
+  { name: 'FreeCAD MCP (6+)', highlight: false, tools: 5, tests: 0, bar: 18, note: 'CAD only, no FEM post' },
 ];
 
 const features = [
@@ -39,77 +16,72 @@ const features = [
 ];
 ---
 
-<section class="relative py-24">
-  <div class="max-w-5xl mx-auto px-6">
-    <!-- Section header -->
+<section class="relative py-28">
+  <div class="section-divider mb-28"></div>
+  <div class="max-w-6xl mx-auto px-6">
     <div class="text-center mb-16">
-      <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wide mb-4">
+      <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
         COMPARISON
       </span>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
-        왜 parapilot인가
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+        <span class="gradient-text-white">왜 parapilot인가</span>
       </h2>
-      <p class="mt-3 text-text-secondary max-w-xl mx-auto">
-        MCP 기반 CAE 후처리 도구 중 유일한 headless + 테스트 커버리지
-      </p>
     </div>
 
-    <!-- Bar chart — Ruff style -->
-    <div class="max-w-2xl mx-auto mb-16 space-y-4">
-      <p class="text-xs font-mono text-text-secondary mb-6 text-center uppercase tracking-wider">
-        Tool completeness score
-      </p>
-      {competitors.map((c) => (
-        <div class="group">
-          <div class="flex items-center gap-4">
-            <span class={`w-40 sm:w-48 text-sm font-mono truncate text-right ${c.highlight ? 'text-accent font-semibold' : 'text-text-secondary'}`}>
-              {c.name}
-            </span>
-            <div class="flex-1 h-8 bg-tertiary rounded-md overflow-hidden border border-border">
-              <div
-                class={`bar-fill h-full rounded-md flex items-center justify-end pr-3 ${c.highlight ? 'bg-accent/80' : 'bg-border'}`}
-                style={`width: ${c.bar}%`}
-              >
-                {c.bar >= 25 && (
-                  <span class={`text-xs font-mono ${c.highlight ? 'text-primary font-semibold' : 'text-text-secondary'}`}>
-                    {c.metrics.tools} tools · {c.metrics.tests} tests
-                  </span>
-                )}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <!-- Bar chart -->
+      <div class="space-y-5">
+        <p class="text-xs font-mono text-text-secondary/50 uppercase tracking-wider mb-2">
+          Tool completeness score
+        </p>
+        {competitors.map((c) => (
+          <div>
+            <div class="flex items-center gap-3">
+              <span class={`w-36 text-sm font-mono truncate text-right ${c.highlight ? 'text-accent font-semibold' : 'text-text-secondary/60'}`}>
+                {c.name}
+              </span>
+              <div class="flex-1 h-9 bg-tertiary rounded-lg overflow-hidden border border-border/50">
+                <div
+                  class={`bar-fill h-full rounded-lg flex items-center justify-end pr-3 ${c.highlight ? 'bg-gradient-to-r from-accent/60 to-accent/90' : 'bg-border/60'}`}
+                  style={`width: ${c.bar}%`}
+                >
+                  {c.bar >= 25 && (
+                    <span class={`text-xs font-mono ${c.highlight ? 'text-primary font-semibold' : 'text-text-secondary/60'}`}>
+                      {c.tools} tools &middot; {c.tests} tests
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
+            {c.note && (
+              <p class="text-xs text-text-secondary/30 ml-[9.5rem] mt-1">{c.note}</p>
+            )}
           </div>
-          {c.note && (
-            <p class="text-xs text-text-secondary/50 ml-44 sm:ml-52 mt-1">{c.note}</p>
-          )}
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
 
-    <!-- Feature comparison table -->
-    <div class="max-w-lg mx-auto">
-      <div class="rounded-xl border border-border overflow-hidden">
-        <!-- Header -->
-        <div class="grid grid-cols-3 bg-secondary text-xs font-mono uppercase tracking-wider text-text-secondary">
-          <div class="px-4 py-3 border-r border-border">Feature</div>
-          <div class="px-4 py-3 border-r border-border text-center text-accent">parapilot</div>
-          <div class="px-4 py-3 text-center">Others</div>
+      <!-- Feature table -->
+      <div class="rounded-2xl border border-border overflow-hidden">
+        <div class="grid grid-cols-3 bg-secondary text-xs font-mono uppercase tracking-wider text-text-secondary/60">
+          <div class="px-5 py-3 border-r border-border/50">Feature</div>
+          <div class="px-5 py-3 border-r border-border/50 text-center text-accent">parapilot</div>
+          <div class="px-5 py-3 text-center">Others</div>
         </div>
-        <!-- Rows -->
         {features.map((f, i) => (
-          <div class={`grid grid-cols-3 text-sm ${i % 2 === 0 ? 'bg-tertiary' : 'bg-secondary/50'}`}>
-            <div class="px-4 py-2.5 border-r border-border text-text-secondary">{f.label}</div>
-            <div class="px-4 py-2.5 border-r border-border text-center">
+          <div class={`grid grid-cols-3 text-sm ${i % 2 === 0 ? 'bg-tertiary/50' : 'bg-secondary/30'}`}>
+            <div class="px-5 py-3 border-r border-border/30 text-text-secondary/70">{f.label}</div>
+            <div class="px-5 py-3 border-r border-border/30 text-center">
               {typeof f.ours === 'boolean' ? (
                 <span class="text-[#28c840]">&#10003;</span>
               ) : (
                 <span class="text-accent font-mono font-semibold">{f.ours}</span>
               )}
             </div>
-            <div class="px-4 py-2.5 text-center">
+            <div class="px-5 py-3 text-center">
               {typeof f.others === 'boolean' ? (
-                <span class="text-red-400">&#10007;</span>
+                <span class="text-red-400/60">&#10007;</span>
               ) : (
-                <span class="text-text-secondary/50 font-mono">{f.others}</span>
+                <span class="text-text-secondary/30 font-mono">{f.others}</span>
               )}
             </div>
           </div>

@@ -1,0 +1,98 @@
+---
+const clients = [
+  {
+    name: 'Claude Code',
+    icon: 'terminal',
+    config: `.mcp.json`,
+    code: `{
+  "mcpServers": {
+    "parapilot": {
+      "command": "mcp-server-parapilot"
+    }
+  }
+}`,
+    desc: 'Anthropic 공식 CLI — MCP 네이티브 지원',
+  },
+  {
+    name: 'Codex CLI',
+    icon: 'terminal',
+    config: `.mcp.json`,
+    code: `{
+  "mcpServers": {
+    "parapilot": {
+      "command": "mcp-server-parapilot"
+    }
+  }
+}`,
+    desc: 'OpenAI CLI — 동일 MCP 설정으로 연동',
+  },
+  {
+    name: 'Cursor / Windsurf',
+    icon: 'code',
+    config: `MCP Settings`,
+    code: `{
+  "mcpServers": {
+    "parapilot": {
+      "command": "mcp-server-parapilot"
+    }
+  }
+}`,
+    desc: 'IDE 내장 MCP 설정에서 서버 추가',
+  },
+];
+---
+
+<section class="relative py-28">
+  <div class="section-divider mb-28"></div>
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+        PLUGIN
+      </span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+        <span class="gradient-text-white">터미널에서 바로 사용</span>
+      </h2>
+      <p class="mt-4 text-text-secondary max-w-xl mx-auto text-lg">
+        MCP 프로토콜 기반 — 설정 한 줄이면 어떤 AI 코딩 도구에서든 동작
+      </p>
+    </div>
+
+    <!-- Client cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {clients.map((client) => (
+        <div class="card-hover p-6">
+          <div class="flex items-center gap-3 mb-4">
+            {client.icon === 'terminal' ? (
+              <div class="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+            ) : (
+              <div class="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+            )}
+            <div>
+              <h3 class="font-semibold text-text-primary">{client.name}</h3>
+              <p class="text-xs text-text-secondary/60 font-mono">{client.config}</p>
+            </div>
+          </div>
+
+          <pre class="p-4 rounded-lg bg-tertiary border border-border text-xs font-mono text-text-secondary leading-relaxed overflow-x-auto mb-3"><code>{client.code}</code></pre>
+
+          <p class="text-sm text-text-secondary/70">{client.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Emphasis -->
+    <div class="text-center mt-12">
+      <p class="text-text-secondary/60 text-sm font-mono">
+        GUI 실행 불필요 &middot; 동일 설정 &middot; 모든 MCP 클라이언트 호환
+      </p>
+    </div>
+  </div>
+</section>

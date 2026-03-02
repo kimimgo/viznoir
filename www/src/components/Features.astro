@@ -1,0 +1,78 @@
+---
+const features = [
+  {
+    icon: 'monitor',
+    title: 'Headless Rendering',
+    desc: 'ParaView의 pvpython을 서버사이드로 실행. GUI 없이 publication-ready 이미지를 생성한다.',
+    detail: 'EGL (GPU) 또는 OSMesa (CPU) 백엔드 자동 선택',
+  },
+  {
+    icon: 'layers',
+    title: '50+ File Formats',
+    desc: 'meshio 통합으로 OpenFOAM, VTK, STL, CGNS, Abaqus 등 50개 이상 메시/결과 형식을 지원.',
+    detail: 'trimesh로 STL/OBJ/PLY 형상 분석까지',
+  },
+  {
+    icon: 'zap',
+    title: 'GPU Accelerated',
+    desc: 'Docker + EGL로 GPU 가속 렌더링. 대용량 시뮬레이션도 초 단위로 시각화.',
+    detail: 'CPU 폴백으로 어디서든 동작 보장',
+  },
+  {
+    icon: 'code',
+    title: '13 MCP Tools',
+    desc: 'render, slice, contour, clip, streamlines, animate 등 13개 도구를 자연어로 호출.',
+    detail: '9 Resources + 3 Prompts 포함',
+  },
+  {
+    icon: 'shield',
+    title: '146 Tests',
+    desc: '경쟁 프로젝트 대비 유일한 테스트 커버리지. CI/CD에서 검증된 신뢰성.',
+    detail: 'pytest + GitHub Actions 자동 테스트',
+  },
+  {
+    icon: 'box',
+    title: 'Docker Ready',
+    desc: 'parapilot:latest 이미지 하나로 의존성 걱정 없이 즉시 배포.',
+    detail: 'ParaView 5.13 + Python 3.11 내장',
+  },
+];
+
+const iconPaths: Record<string, string> = {
+  monitor: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+  layers: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+  zap: 'M13 10V3L4 14h7v7l9-11h-7z',
+  code: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  box: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+};
+---
+
+<section class="relative py-28">
+  <div class="section-divider mb-28"></div>
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+        FEATURES
+      </span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+        <span class="gradient-text-white">엔지니어를 위해 설계</span>
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {features.map((f) => (
+        <div class="card-hover p-6 group">
+          <div class="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 group-hover:bg-accent/15 transition-colors">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={iconPaths[f.icon]} />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text-primary mb-2">{f.title}</h3>
+          <p class="text-sm text-text-secondary leading-relaxed mb-2">{f.desc}</p>
+          <p class="text-xs text-text-secondary/50 font-mono">{f.detail}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
