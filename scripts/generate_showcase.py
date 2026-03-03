@@ -273,6 +273,129 @@ RENDERS: dict[str, str] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Orbit GIF animations — camera rotates 360° around subject
+# Each snippet must set: DATA (vtk dataset), CFG (RenderConfig), CAM_CENTER,
+# CAM_RADIUS, CAM_HEIGHT, VIEW_UP
+# ---------------------------------------------------------------------------
+
+ORBIT_RENDERS: dict[str, str] = {
+    # Dragon orbit — plasma + elevation, no scalar bar for cleaner animation
+    "dragon_orbit": textwrap.dedent("""\
+        import vtk
+        from parapilot.engine.renderer import RenderConfig
+        from parapilot.engine.camera import CameraConfig
+
+        reader = vtk.vtkPLYReader()
+        reader.SetFileName(DATA_DIR + '/dragon.ply')
+        reader.Update()
+
+        norms = vtk.vtkPolyDataNormals()
+        norms.SetInputData(reader.GetOutput())
+        norms.ComputePointNormalsOn()
+        norms.Update()
+
+        elev = vtk.vtkElevationFilter()
+        elev.SetInputConnection(norms.GetOutputPort())
+        b = reader.GetOutput().GetBounds()
+        elev.SetLowPoint(0, b[2], 0)
+        elev.SetHighPoint(0, b[3], 0)
+        elev.Update()
+
+        DATA = elev.GetOutput()
+        CFG = RenderConfig(
+            width=480, height=270, background=(0.04, 0.04, 0.06),
+            colormap='plasma', array_name='Elevation',
+            show_scalar_bar=False,
+        )
+        # Center on model, orbit in XZ plane
+        cx = (b[0] + b[1]) / 2
+        cy = (b[2] + b[3]) / 2
+        cz = (b[4] + b[5]) / 2
+        CAM_CENTER = (cx, cy, cz)
+        CAM_RADIUS = 0.25
+        CAM_HEIGHT = cy + 0.08
+        VIEW_UP = (0, 1, 0)
+    """),
+
+    # CT skull orbit — inferno + elevation
+    "ct_skull_orbit": textwrap.dedent("""\
+        import vtk
+        from parapilot.engine.filters import apply_filter
+        from parapilot.engine.renderer import RenderConfig
+
+        reader = vtk.vtkXMLImageDataReader()
+        reader.SetFileName(DATA_DIR + '/head.vti')
+        reader.Update()
+
+        contoured = apply_filter(reader.GetOutput(), 'contour', array_name='Scalars_', values=[1200])
+        norms = vtk.vtkPolyDataNormals()
+        norms.SetInputData(contoured)
+        norms.ComputePointNormalsOn()
+        norms.SplittingOff()
+        norms.Update()
+
+        elev = vtk.vtkElevationFilter()
+        elev.SetInputConnection(norms.GetOutputPort())
+        b = contoured.GetBounds()
+        elev.SetLowPoint(0, 0, b[4])
+        elev.SetHighPoint(0, 0, b[5])
+        elev.Update()
+
+        DATA = elev.GetOutput()
+        CFG = RenderConfig(
+            width=480, height=270, background=(0.04, 0.04, 0.06),
+            colormap='inferno', array_name='Elevation',
+            show_scalar_bar=False,
+        )
+        cx, cy, cz = 128, 128, 93
+        CAM_CENTER = (cx, cy, cz)
+        CAM_RADIUS = 280
+        CAM_HEIGHT = cz + 60
+        VIEW_UP = (0, 0, 1)
+    """),
+
+    # Iron protein orbit — plasma + elevation
+    "ironprot_orbit": textwrap.dedent("""\
+        import vtk
+        from parapilot.engine.filters import apply_filter
+        from parapilot.engine.renderer import RenderConfig
+
+        reader = vtk.vtkStructuredPointsReader()
+        reader.SetFileName(DATA_DIR + '/ironProt.vtk')
+        reader.Update()
+
+        contoured = apply_filter(reader.GetOutput(), 'contour', array_name='scalars', values=[80, 150])
+
+        norms = vtk.vtkPolyDataNormals()
+        norms.SetInputData(contoured)
+        norms.ComputePointNormalsOn()
+        norms.Update()
+
+        elev = vtk.vtkElevationFilter()
+        elev.SetInputConnection(norms.GetOutputPort())
+        b = contoured.GetBounds()
+        elev.SetLowPoint(0, b[2], 0)
+        elev.SetHighPoint(0, b[3], 0)
+        elev.Update()
+
+        DATA = elev.GetOutput()
+        CFG = RenderConfig(
+            width=480, height=270, background=(0.04, 0.04, 0.06),
+            colormap='plasma', array_name='Elevation',
+            show_scalar_bar=False,
+        )
+        cx = (b[0] + b[1]) / 2
+        cy = (b[2] + b[3]) / 2
+        cz = (b[4] + b[5]) / 2
+        CAM_CENTER = (cx, cy, cz)
+        CAM_RADIUS = 80
+        CAM_HEIGHT = cy + 20
+        VIEW_UP = (0, 1, 0)
+    """),
+}
+
+
 def download_data() -> bool:
     """Download example data files from pyvista/vtk-data."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -344,6 +467,99 @@ def run_render(name: str, code: str) -> bool:
     return True
 
 
+def run_orbit_render(name: str, code: str) -> bool:
+    """Run an orbit GIF render in an isolated subprocess.
+
+    User code must set: DATA, CFG, CAM_CENTER, CAM_RADIUS, CAM_HEIGHT, VIEW_UP.
+    This function renders 24 frames rotating 360° and saves GIF + animated WebP.
+    """
+    import os
+
+    n_frames = 24
+    fps = 8
+
+    preamble = (
+        f"import sys, io, os, math\n"
+        f"os.environ['VTK_DEFAULT_OPENGL_WINDOW'] = 'vtkEGLRenderWindow'\n"
+        f"sys.path.insert(0, {str(PROJECT_ROOT / 'src')!r})\n"
+        f"DATA_DIR = {str(DATA_DIR)!r}\n\n"
+    )
+    postamble = textwrap.dedent(f"""\
+
+        # --- Orbit rendering loop ---
+        from parapilot.engine.renderer import render_to_png
+        from parapilot.engine.camera import CameraConfig
+        from PIL import Image
+
+        n_frames = {n_frames}
+        fps = {fps}
+        frames = []
+
+        for fi in range(n_frames):
+            angle = 2 * math.pi * fi / n_frames
+            if VIEW_UP == (0, 0, 1):
+                pos = (
+                    CAM_CENTER[0] + CAM_RADIUS * math.cos(angle),
+                    CAM_CENTER[1] + CAM_RADIUS * math.sin(angle),
+                    CAM_HEIGHT,
+                )
+            else:
+                pos = (
+                    CAM_CENTER[0] + CAM_RADIUS * math.cos(angle),
+                    CAM_HEIGHT,
+                    CAM_CENTER[2] + CAM_RADIUS * math.sin(angle),
+                )
+            cam = CameraConfig(position=pos, focal_point=CAM_CENTER, view_up=VIEW_UP)
+            png_bytes = render_to_png(DATA, CFG, cam)
+            frames.append(Image.open(io.BytesIO(png_bytes)))
+
+        # Save optimized GIF (128-color palette)
+        out_gif = {str(OUT_DIR)!r} + '/{name}.gif'
+        duration_ms = max(1, int(1000 / fps))
+        palette = [f.convert('RGB').quantize(colors=128, method=Image.Quantize.MEDIANCUT) for f in frames]
+        palette[0].save(
+            out_gif, format='GIF', save_all=True,
+            append_images=palette[1:], duration=duration_ms,
+            loop=0, optimize=True,
+        )
+
+        # Save animated WebP (much smaller)
+        out_webp = {str(OUT_DIR)!r} + '/{name}.webp'
+        rgb = [f.convert('RGB') for f in frames]
+        rgb[0].save(
+            out_webp, format='WEBP', save_all=True,
+            append_images=rgb[1:], duration=duration_ms,
+            loop=0, quality=70, method=4,
+        )
+
+        gif_kb = os.path.getsize(out_gif) // 1024
+        webp_kb = os.path.getsize(out_webp) // 1024
+        print(f'{{gif_kb}}KB gif / {{webp_kb}}KB webp ({{n_frames}} frames @ {{fps}}fps)')
+    """)
+    wrapper = preamble + code + postamble
+
+    env = {**os.environ, "VTK_DEFAULT_OPENGL_WINDOW": "vtkEGLRenderWindow"}
+    env.pop("DISPLAY", None)
+
+    result = subprocess.run(
+        [sys.executable, "-c", wrapper],
+        capture_output=True, text=True, timeout=300,
+        env=env,
+    )
+
+    if result.returncode != 0:
+        err = result.stderr.strip().splitlines()[-1] if result.stderr else "unknown"
+        print(f"  FAIL: {err}")
+        if result.stderr:
+            for line in result.stderr.strip().splitlines()[-5:]:
+                print(f"    {line}")
+        return False
+
+    size = result.stdout.strip()
+    print(f"  {name}: {size}")
+    return True
+
+
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -358,7 +574,17 @@ def main() -> None:
         if run_render(name, code):
             success += 1
 
-    print(f"\nDone: {success}/{len(RENDERS)} renders saved to {OUT_DIR}")
+    print(f"\nGenerating {len(ORBIT_RENDERS)} orbit animations...\n")
+
+    anim_success = 0
+    for i, (name, code) in enumerate(ORBIT_RENDERS.items(), 1):
+        print(f"[{i}/{len(ORBIT_RENDERS)}] {name}")
+        if run_orbit_render(name, code):
+            anim_success += 1
+
+    total = success + anim_success
+    total_expected = len(RENDERS) + len(ORBIT_RENDERS)
+    print(f"\nDone: {total}/{total_expected} ({success} renders + {anim_success} animations) saved to {OUT_DIR}")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ build/
 !www/public/og-image.png
 *.mp4
 *.gif
+!www/public/showcase/*.gif
 /tmp/
 .mypy_cache/
 .ruff_cache/
