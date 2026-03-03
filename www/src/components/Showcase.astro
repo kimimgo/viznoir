@@ -226,6 +226,39 @@ const domains = [
   },
 ];
 
+const mcpTools = [
+  {
+    src: '/parapilot/showcase/mcp_render.png',
+    title: 'render',
+    desc: 'LiDAR 3.4M points — Elevation field, Viridis colormap',
+    call: 'parapilot.render(file="lidar.vtp", field="Elevation")',
+  },
+  {
+    src: '/parapilot/showcase/mcp_contour.png',
+    title: 'contour',
+    desc: 'CT skull isosurface — MetaImage field, isovalue 80',
+    call: 'parapilot.contour(file="head.vti", field="MetaImage", isovalues=[80])',
+  },
+  {
+    src: '/parapilot/showcase/mcp_slice.png',
+    title: 'slice',
+    desc: 'CT brain axial — auto-center origin, Grayscale',
+    call: 'parapilot.slice(file="head.vti", field="MetaImage")',
+  },
+  {
+    src: '/parapilot/showcase/mcp_clip.png',
+    title: 'clip',
+    desc: 'LiDAR terrain clipped at center — 3.4M points',
+    call: 'parapilot.clip(file="lidar.vtp", field="Elevation")',
+  },
+  {
+    src: '/parapilot/showcase/mcp_streamlines.png',
+    title: 'streamlines',
+    desc: 'Carotid blood flow — auto-seed, velocity tubes',
+    call: 'parapilot.streamlines(file="carotid.vtk", field="vectors")',
+  },
+];
+
 const analysis = [
   {
     src: '/parapilot/showcase/ct_density_profile.png',
@@ -522,6 +555,52 @@ const videos = [
       </div>
     </div>
 
+    <!-- MCP Tools in Action -->
+    <div class="mt-16 fade-up">
+      <div class="text-center mb-8">
+        <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-3">
+          MCP TOOLS IN ACTION
+        </span>
+        <h3 class="text-2xl sm:text-3xl font-bold tracking-tight">
+          <span class="gradient-text-white">One tool call, one render</span>
+        </h3>
+        <p class="mt-3 text-text-secondary max-w-lg mx-auto">
+          Each image below is the direct output of a single MCP tool call — no post-processing
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {mcpTools.map((m) => (
+          <div class="card-hover overflow-hidden group cursor-default">
+            <div class="relative">
+              <picture>
+                <source srcset={m.src.replace('.png', '.webp')} type="image/webp" />
+                <img
+                  src={m.src}
+                  alt={m.title}
+                  class="w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+              </picture>
+              <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
+              <div class="absolute top-3 right-3">
+                <span class="px-2 py-0.5 rounded-full bg-accent/30 text-accent text-[10px] font-mono backdrop-blur-sm">
+                  E2E
+                </span>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 p-4">
+                <span class="inline-block px-2 py-0.5 rounded-full bg-accent/20 text-accent text-[10px] font-mono mb-1.5">
+                  parapilot.{m.title}
+                </span>
+                <p class="text-xs text-text-secondary/70 mt-0.5">{m.desc}</p>
+                <code class="block text-[10px] text-accent/50 font-mono mt-1.5 truncate">{m.call}</code>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
     <!-- Data Analysis showcase -->
     <div class="mt-16 fade-up">
       <div class="text-center mb-8">
@@ -570,7 +649,7 @@ const videos = [
 
     <div class="text-center mt-10">
       <p class="text-text-secondary/50 text-sm font-mono">
-        render &middot; contour &middot; streamlines &middot; clip &middot; slice &middot; animate &middot; extract_stats &middot; plot_over_line &mdash; 8 tools, 25+ datasets, 13 domains, 14 colormaps
+        render &middot; contour &middot; streamlines &middot; clip &middot; slice &middot; animate &middot; split_animate &middot; extract_stats &middot; plot_over_line &mdash; 13 tools, 25+ datasets, 13 domains, 14 colormaps
       </p>
     </div>
   </div>

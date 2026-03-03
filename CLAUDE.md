@@ -66,7 +66,14 @@ Layer 1: MCP Server (mcp-server-parapilot)
 
 ## Competitors
 
-- LLNL/paraview_mcp: GUI-attached, 32 stars, 테스트 0 → 우리는 headless + 310 tests
-- Kitware/vtk-mcp: 문서 검색만, 렌더링 없음
-- FreeCAD MCP 6개: CAD 모델링만, FEM 후처리 없음
-- 상용(Ansys SimAI 등): $10k+/년, 개인 접근 불가
+- LLNL/paraview_mcp: GUI-attached, 32 stars — 기관의 도메인 전문성은 수십 년 축적
+- Kitware/vtk-mcp: 문서 검색 중심 — VTK 원저자로 언제든 렌더링 확장 가능
+- FreeCAD MCP 6개: CAD 모델링 전용, FEM 후처리 없음
+- 상용(Ansys SimAI 등): $10k+/년, 법적 보증 + 엔터프라이즈 지원 포함
+
+## Known Limitations
+
+- VTK 예제 데이터셋으로만 검증됨 (수십 GB 산업 데이터 미검증)
+- Headless 특성상 LLM 환각에 의한 물리적 왜곡 실시간 검증 불가
+- 시뮬레이션 제어(Steering), 다중물리(Multi-physics), 불확실성 정량화(UQ) 미지원
+- ParaView 자체에 MCP 인터페이스 통합 시 래퍼 성격의 한계
