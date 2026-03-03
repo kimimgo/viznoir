@@ -100,6 +100,13 @@ const multiview = [
     tools: ['streamlines', 'contour', 'slice', 'plot_over_line'],
     field: 'carotid.vtk',
   },
+  {
+    src: '/parapilot/showcase/cvd_multiview.png',
+    title: 'CVD Reactor — Multi-Field Analysis',
+    desc: '4 fields, 1 dataset — Temperature + Streamlines + AsH3 + H2 cross-section (ExodusII)',
+    tools: ['render', 'streamlines', 'slice'],
+    field: 'disk_out_ref.ex2',
+  },
 ];
 
 const analysis = [
@@ -152,7 +159,7 @@ const videos = [
         <span class="gradient-text-white">Real renders, zero GUI</span>
       </h2>
       <p class="mt-4 text-text-secondary max-w-xl mx-auto text-lg">
-        Official VTK examples rendered by parapilot — 8 tools, 7 datasets, multi-view + volume + surface
+        Official VTK examples rendered by parapilot — 8 tools, 8 datasets, multi-view + volume + surface
       </p>
     </div>
 
@@ -225,7 +232,7 @@ const videos = [
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {multiview.map((m) => (
           <div class="card-hover overflow-hidden group cursor-default">
             <div class="relative">
@@ -403,7 +410,7 @@ const videos = [
 
     <div class="text-center mt-10">
       <p class="text-text-secondary/50 text-sm font-mono">
-        render &middot; contour &middot; streamlines &middot; clip &middot; slice &middot; animate &middot; extract_stats &middot; plot_over_line &mdash; 8 tools, 7 datasets, 14 colormaps
+        render &middot; contour &middot; streamlines &middot; clip &middot; slice &middot; animate &middot; extract_stats &middot; plot_over_line &mdash; 8 tools, 8 datasets, 14 colormaps
       </p>
     </div>
   </div>
