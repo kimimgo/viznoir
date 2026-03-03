@@ -3,7 +3,7 @@
     "parapilot": {
       "command": "mcp-server-parapilot",
       "env": {
-        "PARAPILOT_PYTHON_BIN": "",
+        "PARAPILOT_PYTHON_BIN": "/bin/python3",
         "PARAPILOT_RENDER_BACKEND": "auto",
         "PARAPILOT_WORK_DIR": "/tmp/parapilot"
       }
