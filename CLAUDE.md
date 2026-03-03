@@ -62,11 +62,11 @@ Layer 1: MCP Server (mcp-server-parapilot)
 | Tools | 13 |
 | Resources | 10 |
 | Prompts | 3 |
-| Tests | 309 |
+| Tests | 310 |
 
 ## Competitors
 
-- LLNL/paraview_mcp: GUI-attached, 32 stars, 테스트 0 → 우리는 headless + 309 tests
+- LLNL/paraview_mcp: GUI-attached, 32 stars, 테스트 0 → 우리는 headless + 310 tests
 - Kitware/vtk-mcp: 문서 검색만, 렌더링 없음
 - FreeCAD MCP 6개: CAD 모델링만, FEM 후처리 없음
 - 상용(Ansys SimAI 등): $10k+/년, 개인 접근 불가
