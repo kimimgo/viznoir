@@ -8,16 +8,11 @@ Requires: vtk, PIL (Pillow)
 
 from __future__ import annotations
 
-import io
-import tempfile
-from pathlib import Path
-
 import pytest
 import vtk
 
 from parapilot.core.output import PipelineResult
 from parapilot.core.runner import VTKRunner
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
