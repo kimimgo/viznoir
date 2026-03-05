@@ -33,6 +33,7 @@ mcp = FastMCP(
         "3D render + time-series graphs in a grid layout → GIF)\n"
         "- cinematic_render: Publication/cinema-quality rendering with auto-framing, "
         "3-point lighting, SSAO, FXAA, PBR materials\n"
+        "- compare: Side-by-side or diff comparison of two simulation results\n"
         "- execute_pipeline: Full pipeline DSL for advanced operations\n\n"
         "Resources: parapilot://formats, parapilot://filters, parapilot://colormaps, parapilot://cameras, "
         "parapilot://case-presets, parapilot://pipelines/cfd, parapilot://pipelines/fea, parapilot://pipelines/split-animate"
@@ -699,6 +700,67 @@ async def cinematic_render(
     if png_bytes:
         return Image(data=png_bytes, format="png")
     raise RuntimeError("Cinematic rendering failed: no image produced")
+
+
+@mcp.tool()
+async def compare(
+    file_a: str,
+    file_b: str,
+    field_name: str | None = None,
+    mode: Literal["side_by_side", "diff"] = "side_by_side",
+    colormap: str = "Cool to Warm",
+    quality: Literal["draft", "standard", "cinematic"] = "standard",
+    width: int = 1920,
+    height: int = 1080,
+    scalar_range: list[float] | None = None,
+    timestep: float | str | None = None,
+    label_a: str = "A",
+    label_b: str = "B",
+    output_filename: str = "compare.png",
+) -> Image:
+    """Compare two simulation results side-by-side or as a difference map.
+
+    Renders both datasets with identical camera, colormap, and scalar range for
+    direct visual comparison. Essential for design comparison, mesh convergence
+    studies, and solver validation.
+
+    Modes:
+    - side_by_side: Two panels with shared colorbar and consistent framing
+    - diff: Absolute field difference map (|A - B|) rendered on dataset A's mesh
+
+    Args:
+        file_a: Path to first simulation file
+        file_b: Path to second simulation file
+        field_name: Field to compare (None for auto-detect)
+        mode: Comparison mode — "side_by_side" or "diff"
+        colormap: Color map preset for both panels
+        quality: Rendering quality (draft/standard/cinematic)
+        width: Total image width (each panel gets half)
+        height: Image height
+        scalar_range: Shared [min, max] for consistent coloring (None for auto)
+        timestep: Specific timestep, "latest", or None for first
+        label_a: Label for first panel (displayed top-left)
+        label_b: Label for second panel (displayed top-left)
+        output_filename: Output PNG filename
+    """
+    file_a = _validate_file_path(file_a)
+    file_b = _validate_file_path(file_b)
+    logger.debug("tool.compare: start a=%s b=%s mode=%s", file_a, file_b, mode)
+    t0 = time.monotonic()
+    from parapilot.tools.compare import compare_impl
+
+    png_bytes = await compare_impl(
+        file_a, file_b, _runner,
+        field_name=field_name, mode=mode, colormap=colormap,
+        quality=quality, width=width, height=height,
+        scalar_range=scalar_range, timestep=timestep,
+        label_a=label_a, label_b=label_b,
+        output_filename=output_filename,
+    )
+    logger.debug("tool.compare: done in %.2fs", time.monotonic() - t0)
+    if png_bytes:
+        return Image(data=png_bytes, format="png")
+    raise RuntimeError("Compare failed: no image produced")
 
 
 # ---------------------------------------------------------------------------

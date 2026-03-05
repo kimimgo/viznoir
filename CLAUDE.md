@@ -131,10 +131,10 @@ server.py (MCP tool)
 
 | 항목 | 수량 |
 |------|------|
-| Tools | 14 |
+| Tools | 15 |
 | Resources | 10 |
 | Prompts | 3 |
-| Tests | 419 |
+| Tests | 461 |
 
 ## Test Structure
 
