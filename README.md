@@ -53,7 +53,7 @@ docker compose up -d
 
 Requires NVIDIA Container Toolkit for GPU rendering.
 
-## Tools (13)
+## Tools (15)
 
 | Tool | Description |
 |------|-------------|
@@ -63,6 +63,8 @@ Requires NVIDIA Container Toolkit for GPU rendering.
 | `contour` | Iso-surface visualization |
 | `clip` | Clipped region visualization |
 | `streamlines` | Vector field flow visualization |
+| `cinematic_render` | Publication-quality render (SSAO, PBR, 3-point lighting) |
+| `compare` | Side-by-side or diff comparison of two datasets |
 | `extract_stats` | Min/max/mean/std for fields |
 | `plot_over_line` | Sample values along a line |
 | `integrate_surface` | Force/flux integration over surfaces |
@@ -71,14 +73,15 @@ Requires NVIDIA Container Toolkit for GPU rendering.
 | `execute_pipeline` | Full pipeline DSL for advanced workflows |
 | `pv_isosurface` | DualSPHysics bi4 → VTK surface mesh |
 
-## Resources (10)
+## Resources (11)
 
 | URI | Content |
 |-----|---------|
 | `parapilot://formats` | Supported file formats and readers |
 | `parapilot://filters` | Available filter parameters |
 | `parapilot://colormaps` | Colormap presets |
-| `parapilot://cameras` | Camera angle presets |
+| `parapilot://cameras` | Camera angle presets + auto-camera PCA |
+| `parapilot://cinematic` | Lighting, materials, backgrounds, quality presets |
 | `parapilot://representations` | Render representations |
 | `parapilot://case-presets` | Domain-specific case presets |
 | `parapilot://physics-defaults` | Physics-aware rendering defaults |
@@ -109,8 +112,8 @@ See the full gallery at **[kimimgo.github.io/parapilot](https://kimimgo.github.i
 │  ↕ MCP protocol (stdio)                    │
 ├─────────────────────────────────────────────┤
 │  parapilot MCP Server (FastMCP)             │
-│  ├── tools/     13 MCP tools                │
-│  ├── resources/ 10 MCP resources            │
+│  ├── tools/     15 MCP tools                │
+│  ├── resources/ 11 MCP resources            │
 │  └── prompts/   3 MCP prompts               │
 ├─────────────────────────────────────────────┤
 │  Engine Layer (VTK direct API)              │
@@ -162,9 +165,9 @@ mypy src/parapilot/        # type check
 | | parapilot | LLNL/paraview_mcp | Kitware/vtk-mcp |
 |---|---|---|---|
 | Rendering | Headless VTK + ParaView | GUI-attached only | None (docs search) |
-| Tests | 331 | 0 | 0 |
+| Tests | 622 | 0 | 0 |
 | Docker | GPU (EGL) | No | No |
-| MCP Tools | 13 | 23 | 3 |
+| MCP Tools | 15 | 23 | 3 |
 | Plugin | Claude Code plugin | No | No |
 
 ## Known Limitations
