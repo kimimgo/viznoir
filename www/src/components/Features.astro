@@ -3,38 +3,38 @@ const features = [
   {
     icon: 'monitor',
     title: 'Headless Rendering',
-    desc: 'ParaView의 pvpython을 서버사이드로 실행. GUI 없이 publication-ready 이미지를 생성한다.',
-    detail: 'EGL (GPU) 또는 OSMesa (CPU) 백엔드 자동 선택',
+    desc: 'VTK direct API for server-side rendering. Publication-ready images without any GUI.',
+    detail: 'Auto-selects EGL (GPU) or OSMesa (CPU) backend',
   },
   {
     icon: 'layers',
     title: '50+ File Formats',
-    desc: 'meshio 통합으로 OpenFOAM, VTK, STL, CGNS, Abaqus 등 50개 이상 메시/결과 형식을 지원.',
-    detail: 'trimesh로 STL/OBJ/PLY 형상 분석까지',
+    desc: 'meshio integration for OpenFOAM, VTK, STL, CGNS, Abaqus, and 50+ mesh/result formats.',
+    detail: 'trimesh for STL/OBJ/PLY geometry analysis',
   },
   {
     icon: 'zap',
     title: 'GPU Accelerated',
-    desc: 'Docker + EGL로 GPU 가속 렌더링. 대용량 시뮬레이션도 초 단위로 시각화.',
-    detail: 'CPU 폴백으로 어디서든 동작 보장',
+    desc: 'Docker + EGL for GPU-accelerated rendering. Visualize large simulations in seconds.',
+    detail: 'CPU fallback ensures it runs anywhere',
   },
   {
     icon: 'code',
     title: '18 MCP Tools',
-    desc: 'render, slice, contour, clip, streamlines, cinematic, compare, batch, probe, preview_3d 등 18개 도구를 자연어로 호출.',
-    detail: '11 Resources + 3 Prompts 포함',
+    desc: 'render, slice, contour, clip, streamlines, cinematic, compare, batch, probe, preview_3d and more via natural language.',
+    detail: '11 Resources + 3 Prompts included',
   },
   {
     icon: 'shield',
     title: '627 Tests',
-    desc: '경쟁 프로젝트 대비 유일한 테스트 커버리지 (70%). CI/CD에서 검증된 신뢰성.',
-    detail: 'pytest + GitHub Actions 자동 테스트',
+    desc: 'The only CAE MCP server with real test coverage (70%). CI-verified reliability.',
+    detail: 'pytest + GitHub Actions on every PR',
   },
   {
     icon: 'box',
     title: 'Docker Ready',
-    desc: 'parapilot:latest 이미지 하나로 의존성 걱정 없이 즉시 배포.',
-    detail: 'ParaView 5.13 + Python 3.11 내장',
+    desc: 'One image, zero dependency headaches. Deploy instantly with parapilot:latest.',
+    detail: 'VTK 9.4 + Python 3.11 built-in',
   },
 ];
 
@@ -56,7 +56,7 @@ const iconPaths: Record<string, string> = {
         FEATURES
       </span>
       <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-        <span class="gradient-text-white">엔지니어를 위해 설계</span>
+        <span class="gradient-text-white">Built for engineers</span>
       </h2>
     </div>
 

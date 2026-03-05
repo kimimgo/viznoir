@@ -6,7 +6,7 @@ interface Props {
 
 const {
   title = 'parapilot — Headless ParaView MCP Server',
-  description = 'AI가 CFD를 렌더링한다. Headless ParaView + meshio + trimesh MCP Server. 18 tools, 11 resources, 627 tests.',
+  description = 'Headless CAE post-processing MCP server for AI coding assistants. 18 tools, 11 resources, 627 tests. Render CFD/FEA from your terminal.',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -14,7 +14,7 @@ const ogImage = new URL('/parapilot/og-image.png', Astro.site);
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

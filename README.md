@@ -152,7 +152,9 @@ inspect_data → render / slice / contour → extract_stats → animate
 
 OpenFOAM (.foam), VTK (.vti/.vtp/.vtu/.vtm), CGNS (.cgns), Ensight (.case), Exodus (.exo), STL (.stl), PLY (.ply), OBJ (.obj), and 30+ more via VTK readers.
 
-## Development
+## Contributing
+
+We welcome contributions! Check out our [open issues](https://github.com/kimimgo/parapilot/issues) — especially those labeled [`good first issue`](https://github.com/kimimgo/parapilot/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 
 ```bash
 git clone https://github.com/kimimgo/parapilot
@@ -162,6 +164,8 @@ pytest                     # 627 tests
 ruff check src/ tests/     # lint
 mypy src/parapilot/        # type check
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup, architecture guide, and how to add new filters/readers.
 
 ## vs Alternatives
 
