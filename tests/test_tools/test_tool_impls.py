@@ -313,3 +313,33 @@ class TestPreview3dImpl:
             )
 
         mock_read.assert_called_once_with("/data/case.vtk", timestep=2.0)
+
+
+# ---------------------------------------------------------------------------
+# batch_render_impl
+# ---------------------------------------------------------------------------
+
+class TestBatchRenderImpl:
+    @pytest.mark.asyncio
+    @patch("parapilot.tools.batch.cinematic_render")
+    @patch("parapilot.tools.batch.read_dataset")
+    async def test_batch_render_basic(self, mock_read, mock_cine):
+        from parapilot.tools.batch import batch_render_impl
+
+        mock_read.return_value = MagicMock()
+        mock_cine.return_value = b"\x89PNG\r\n\x1a\nfake"
+        runner = MagicMock()
+
+        result = await batch_render_impl(
+            file_path="/data/case.vtk",
+            fields=["pressure", "velocity"],
+            runner=runner,
+        )
+
+        assert result["count"] == 2
+        assert len(result["images"]) == 2
+        assert result["fields"] == ["pressure", "velocity"]
+        for img in result["images"]:
+            assert "base64" in img
+            assert "field" in img
+            assert img["size_bytes"] > 0

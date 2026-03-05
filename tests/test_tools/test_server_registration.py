@@ -20,7 +20,7 @@ class TestServerRegistration:
             "streamlines", "extract_stats", "plot_over_line",
             "integrate_surface", "animate", "split_animate",
             "execute_pipeline", "pv_isosurface",
-            "cinematic_render", "compare", "preview_3d",
+            "cinematic_render", "compare", "batch_render", "preview_3d",
         ]
         for name in tool_funcs:
             assert hasattr(server, name), f"Missing tool function: {name}"

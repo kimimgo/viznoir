@@ -764,6 +764,47 @@ async def compare(
 
 
 # ---------------------------------------------------------------------------
+# batch_render — render multiple fields in one call
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def batch_render(
+    file_path: str,
+    fields: list[str],
+    colormap: str = "Cool to Warm",
+    camera: str = "isometric",
+    width: int = 1920,
+    height: int = 1080,
+    timestep: float | str | None = None,
+    quality: str = "standard",
+) -> dict[str, Any]:
+    """Render multiple fields from the same dataset in one call.
+
+    Returns a dict with images list, each containing field name and base64 PNG.
+    Useful for comparing pressure, velocity, temperature, etc. side-by-side.
+    """
+    t0 = time.monotonic()
+    logger.info("tool.batch_render: file=%s fields=%s", file_path, fields)
+    _validate_file_path(file_path)
+    from parapilot.tools.batch import batch_render_impl
+
+    result = await batch_render_impl(
+        file_path=file_path,
+        fields=fields,
+        runner=_runner,
+        colormap=colormap,
+        camera=camera,
+        width=width,
+        height=height,
+        timestep=timestep,
+        quality=quality,
+    )
+    logger.debug("tool.batch_render: done in %.2fs, %d images", time.monotonic() - t0, result["count"])
+    return result
+
+
+# ---------------------------------------------------------------------------
 # preview_3d — interactive 3D viewer export
 # ---------------------------------------------------------------------------
 
