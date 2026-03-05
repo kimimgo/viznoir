@@ -152,7 +152,7 @@ OpenFOAM (.foam), VTK (.vti/.vtp/.vtu/.vtm), CGNS (.cgns), Ensight (.case), Exod
 git clone https://github.com/kimimgo/parapilot
 cd parapilot
 pip install -e ".[dev]"
-pytest                     # 331 tests
+pytest                     # 548 tests
 ruff check src/ tests/     # lint
 mypy src/parapilot/        # type check
 ```

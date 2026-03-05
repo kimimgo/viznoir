@@ -81,7 +81,7 @@ server.py (MCP tool)
           → core/output.py (OutputHandler: RunResult → PipelineResult)
 ```
 
-- `server.py`: FastMCP 인스턴스 + 14개 tool 등록, lazy import로 tool impl 로딩
+- `server.py`: FastMCP 인스턴스 + 15개 tool 등록, lazy import로 tool impl 로딩
 - `tools/`: 각 tool의 비즈니스 로직 (render_impl, slice_impl 등)
 - `pipeline/models.py`: Pydantic 모델 (SourceDef, FilterStep, RenderDef, OutputDef 등)
 - `core/compiler.py`: PipelineDefinition → executable Python/VTK script 문자열 생성
@@ -132,9 +132,9 @@ server.py (MCP tool)
 | 항목 | 수량 |
 |------|------|
 | Tools | 15 |
-| Resources | 10 |
+| Resources | 11 |
 | Prompts | 3 |
-| Tests | 461 |
+| Tests | 548 |
 
 ## Test Structure
 
