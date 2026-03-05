@@ -764,6 +764,43 @@ async def compare(
 
 
 # ---------------------------------------------------------------------------
+# probe_timeseries — sample field at a point over time
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def probe_timeseries(
+    file_path: str,
+    field_name: str,
+    point: list[float],
+    files: list[str] | None = None,
+    file_pattern: str | None = None,
+    time_range: list[float] | None = None,
+) -> dict[str, Any]:
+    """Sample a field value at a fixed point across timesteps.
+
+    Useful for monitoring pressure/velocity at a sensor location over time.
+    Returns dict with times and values arrays.
+    """
+    t0 = time.monotonic()
+    logger.info("tool.probe_timeseries: file=%s field=%s point=%s", file_path, field_name, point)
+    _validate_file_path(file_path)
+    from parapilot.tools.probe import probe_timeseries_impl
+
+    result = await probe_timeseries_impl(
+        file_path=file_path,
+        field_name=field_name,
+        point=point,
+        runner=_runner,
+        files=files,
+        file_pattern=file_pattern,
+        time_range=time_range,
+    )
+    logger.debug("tool.probe_timeseries: done in %.2fs", time.monotonic() - t0)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # batch_render — render multiple fields in one call
 # ---------------------------------------------------------------------------
 

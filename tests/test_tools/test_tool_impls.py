@@ -319,6 +319,52 @@ class TestPreview3dImpl:
 # batch_render_impl
 # ---------------------------------------------------------------------------
 
+class TestProbeTimeseriesImpl:
+    @pytest.mark.asyncio
+    @patch("parapilot.tools.probe.execute_pipeline")
+    async def test_probe_builds_pipeline(self, mock_exec):
+        from parapilot.tools.probe import probe_timeseries_impl
+
+        mock_exec.return_value = _mock_pipeline_result()
+        runner = MagicMock()
+
+        await probe_timeseries_impl(
+            file_path="/data/case.vtk",
+            field_name="pressure",
+            point=[0.5, 0.5, 0.0],
+            runner=runner,
+        )
+
+        mock_exec.assert_called_once()
+        pipeline_def = mock_exec.call_args[0][0]
+        assert pipeline_def.source.file == "/data/case.vtk"
+        assert len(pipeline_def.pipeline) == 1
+        assert pipeline_def.pipeline[0].filter == "ProbePoint"
+        assert pipeline_def.pipeline[0].params["point"] == [0.5, 0.5, 0.0]
+        assert pipeline_def.output.type == "data"
+
+    @pytest.mark.asyncio
+    @patch("parapilot.tools.probe.execute_pipeline")
+    async def test_probe_with_files(self, mock_exec):
+        from parapilot.tools.probe import probe_timeseries_impl
+
+        mock_exec.return_value = _mock_pipeline_result()
+        runner = MagicMock()
+
+        await probe_timeseries_impl(
+            file_path="/data/case_0000.vtk",
+            field_name="p",
+            point=[0.0, 0.0, 0.0],
+            runner=runner,
+            files=["/data/case_0000.vtk", "/data/case_0001.vtk"],
+            file_pattern="case_*.vtk",
+        )
+
+        pipeline_def = mock_exec.call_args[0][0]
+        assert pipeline_def.source.files == ["/data/case_0000.vtk", "/data/case_0001.vtk"]
+        assert pipeline_def.source.file_pattern == "case_*.vtk"
+
+
 class TestBatchRenderImpl:
     @pytest.mark.asyncio
     @patch("parapilot.tools.batch.cinematic_render")
