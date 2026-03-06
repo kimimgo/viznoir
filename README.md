@@ -174,7 +174,7 @@ We welcome contributions! Check out our [open issues](https://github.com/kimimgo
 git clone https://github.com/kimimgo/parapilot
 cd parapilot
 pip install -e ".[dev]"
-pytest                     # 794 tests
+pytest                     # 826 tests
 ruff check src/ tests/     # lint
 mypy src/parapilot/        # type check
 ```

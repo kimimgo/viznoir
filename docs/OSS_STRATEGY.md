@@ -123,7 +123,7 @@ New contributor arrives
 **Posting Rules**:
 - Tuesday-Thursday, 9-11am EST (HN optimal)
 - Lead with the DrivAerML 8.8M cell demo image
-- Always include: "18 tools, 794 tests, MIT license"
+- Always include: "18 tools, 826 tests, MIT license"
 - Never say "better than ParaView" — say "complements ParaView"
 
 ### Phase C: Academic & Deep Community (Month 2-6)
@@ -207,7 +207,7 @@ scientific-visualization, ai-tools, engineering
                     |
      LLNL           |       parapilot
      paraview_mcp   |       (headless, 18 tools,
-     (GUI-attached) |        794 tests, plugin)
+     (GUI-attached) |        826 tests, plugin)
                     |
                     ↓
                     Headless
@@ -234,7 +234,7 @@ scientific-visualization, ai-tools, engineering
 | **CFD Engineers** | "Render your OpenFOAM/CGNS with a single prompt" | DrivAerML 8.8M cell demo |
 | **AI Developers** | "Give your LLM eyes for simulation data" | 18 tools, Claude plugin, stdio/SSE |
 | **Researchers** | "Reproducible viz pipelines in version control" | JSON DSL, deterministic output |
-| **OSS Contributors** | "Well-tested, well-documented, real impact" | 794 tests, 82% coverage, 9 good-first-issues |
+| **OSS Contributors** | "Well-tested, well-documented, real impact" | 826 tests, 83% coverage, 9 good-first-issues |
 | **Engineering Managers** | "Automate post-processing in CI/CD" | Docker GPU, batch_render, headless |
 
 ### Visual Assets Needed
@@ -322,7 +322,7 @@ Things competitors cannot easily replicate:
 
 | Moat | Why It's Defensible |
 |------|-------------------|
-| **794 tests** | Months of work; LLNL/paraview_mcp has 0 |
+| **826 tests** | Months of work; LLNL/paraview_mcp has 0 |
 | **Pipeline DSL** | Declarative JSON filter chains + code gen |
 | **Physics-aware defaults** | Field name → physical quantity auto-detection |
 | **Split-pane animation** | Synchronized multi-view + time-series graph GIF |
