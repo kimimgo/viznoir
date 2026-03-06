@@ -165,6 +165,82 @@ class TestCompositorGif:
         assert gif.n_frames == 3
 
 
+class TestCompositorGraphEdgeCases:
+    def test_graph_with_missing_field_stats(self) -> None:
+        """Graph pane with series referencing missing field should not crash."""
+        from parapilot.core.compositor import Compositor
+        panes: list[dict[str, Any]] = [
+            {"type": "render", "row": 0, "col": 0,
+             "render_pane": {"render": {"field": "p"}}},
+            {"type": "graph", "row": 0, "col": 1,
+             "graph_pane": {
+                 "series": [{"field": "nonexistent_field", "stat": "max"}],
+                 "title": "Missing",
+             }},
+        ]
+        sa = _make_split_anim(panes=panes, resolution=[800, 400], rows=1, cols=2, gif=False)
+        c = Compositor(sa)
+        pane_data = {
+            "pane_0_frame_000000.png": _make_png(398, 400, "red"),
+        }
+        stats: dict[str, Any] = {"timesteps": [0.0], "fields": {}}
+        composed, _ = c.compose_all(pane_data, stats, frame_count=1)
+        assert len(composed) == 1
+
+    def test_graph_with_y_range(self) -> None:
+        """Graph pane with y_range set applies axis limits."""
+        from parapilot.core.compositor import Compositor
+        panes: list[dict[str, Any]] = [
+            {"type": "render", "row": 0, "col": 0,
+             "render_pane": {"render": {"field": "p"}}},
+            {"type": "graph", "row": 0, "col": 1,
+             "graph_pane": {
+                 "series": [{"field": "p", "stat": "max"}],
+                 "y_range": [0.0, 10.0],
+                 "y_label": "p [Pa]",
+             }},
+        ]
+        sa = _make_split_anim(panes=panes, resolution=[800, 400], rows=1, cols=2, gif=False)
+        c = Compositor(sa)
+        pane_data = {
+            "pane_0_frame_000000.png": _make_png(398, 400, "red"),
+        }
+        stats: dict[str, Any] = {
+            "timesteps": [0.0],
+            "fields": {"p": {"max": [5.0]}},
+        }
+        composed, _ = c.compose_all(pane_data, stats, frame_count=1)
+        assert len(composed) == 1
+
+    def test_compose_font_fallback(self) -> None:
+        """Font OSError in _compose_single_frame falls back to default."""
+        from parapilot.core.compositor import Compositor
+        panes: list[dict[str, Any]] = [
+            {"type": "render", "row": 0, "col": 0,
+             "render_pane": {"render": {"field": "p"}, "title": "Titled Pane"}},
+        ]
+        sa = _make_split_anim(panes=panes, resolution=[400, 400], rows=1, cols=1, gif=False)
+        c = Compositor(sa)
+
+        from PIL import Image as PILImage
+        from PIL import ImageFont
+
+        render_img = PILImage.new("RGB", (400, 400), "red")
+        render_images = {(0, 0): render_img}
+
+        orig_truetype = ImageFont.truetype
+
+        def selective_fail(font=None, size=10, *a, **kw):
+            if font and "DejaVuSans.ttf" in str(font):
+                raise OSError("font not found")
+            return orig_truetype(font, size, *a, **kw)
+
+        with patch.object(ImageFont, "truetype", side_effect=selective_fail):
+            result = c._compose_single_frame(render_images, {})
+        assert result is not None
+        assert result.size == (400, 400)
+
+
 class TestCompositorDependencyCheck:
     def test_missing_pillow_raises(self) -> None:
         """Should raise ImportError when pillow is not available."""
