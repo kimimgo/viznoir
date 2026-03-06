@@ -179,7 +179,7 @@ We welcome contributions! Check out our [open issues](https://github.com/kimimgo
 git clone https://github.com/kimimgo/parapilot
 cd parapilot
 pip install -e ".[dev]"
-pytest                     # 1062 tests
+pytest                     # 1070 tests
 ruff check src/ tests/     # lint
 mypy src/parapilot/        # type check
 ```
@@ -188,13 +188,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup, architecture guide, a
 
 ## vs Alternatives
 
-| | parapilot | LLNL/paraview_mcp | Kitware/vtk-mcp |
-|---|---|---|---|
-| Rendering | Headless VTK + ParaView | GUI-attached only | None (docs search) |
-| Tests | 1062 | 0 | 0 |
-| Docker | GPU (EGL) | No | No |
-| MCP Tools | 18 | 23 | 3 |
-| Plugin | Claude Code plugin | No | No |
+| | parapilot | LLNL/paraview_mcp | FEA-MCP | openfoam-mcp |
+|---|---|---|---|---|
+| Focus | General CAE post-processing | ParaView visualization | ETABS/LUSAS FEA | OpenFOAM education |
+| Rendering | Headless VTK (no GUI) | GUI-attached ParaView | GUI-attached | None |
+| Tests | 1070 | 0 | 0 | 0 |
+| Docker | GPU (EGL) + CPU (OSMesa) | No | No | No |
+| MCP Tools | 18 | 23 | N/A | N/A |
+| Plugin | Claude Code plugin | No | No | No |
+| Last active | 2026-03 | 2025-06 | 2025 | 2025 |
 
 ## Known Limitations
 
