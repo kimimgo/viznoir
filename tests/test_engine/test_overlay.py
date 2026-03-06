@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -10,6 +11,8 @@ from parapilot.engine.overlay import (
     THEMES,
     OverlayTheme,
     ScalarBarConfig,
+    _find_font,
+    _sample_colormap,
     compose,
     draw_scalar_bar,
     draw_title,
@@ -55,6 +58,35 @@ class TestFontManagement:
         f1 = get_font(12, "sans")
         f2 = get_font(14, "sans")
         assert f1 is not f2
+
+    def test_find_font_no_ttf_returns_none(self):
+        """_find_font returns None when no font files exist."""
+        with patch("parapilot.engine.overlay._FONT_SEARCH_PATHS", ["/nonexistent/a.ttf"]):
+            result = _find_font("sans", bold=False)
+        assert result is None
+
+    def test_find_font_fallback_to_any_existing(self, tmp_path):
+        """_find_font falls back to any existing TTF when preferred names don't match."""
+        # Create a font file that exists but doesn't match preferred name patterns
+        fake_font = tmp_path / "UnknownFont.ttf"
+        fake_font.write_bytes(b"fake")
+        with patch("parapilot.engine.overlay._FONT_SEARCH_PATHS", [str(fake_font)]):
+            result = _find_font("sans", bold=False)
+        assert result == str(fake_font)
+
+    def test_get_font_load_default_fallback(self):
+        """get_font falls back to load_default when no TTF found."""
+        import parapilot.engine.overlay as overlay_mod
+        # Clear cache and mock _find_font to return None
+        old_cache = overlay_mod._font_cache.copy()
+        overlay_mod._font_cache.clear()
+        try:
+            with patch.object(overlay_mod, "_find_font", return_value=None):
+                f = overlay_mod.get_font(16, "sans")
+            assert f is not None
+        finally:
+            overlay_mod._font_cache.clear()
+            overlay_mod._font_cache.update(old_cache)
 
 
 # ── Themes ────────────────────────────────────────────────────────────
@@ -157,6 +189,16 @@ class TestDrawTitle:
         px = img.getpixel((40, 30))
         assert px != (50, 50, 60, 255)
 
+    def test_top_right_position(self):
+        img = _blank_image(800, 600)
+        h = draw_title(img, "Right", THEMES["dark"], position="top_right")
+        assert h > 0
+
+    def test_top_center_position(self):
+        img = _blank_image(800, 600)
+        h = draw_title(img, "Center", THEMES["dark"], position="top_center")
+        assert h > 0
+
 
 # ── draw_watermark ────────────────────────────────────────────────────
 
@@ -231,6 +273,24 @@ class TestCompose:
         for theme_name in ("dark", "light", "paper", "transparent"):
             result = compose(raw, title=theme_name, theme=theme_name)
             assert len(result) > 0
+
+    def test_unknown_colormap_fallback(self):
+        """Unknown colormap falls back to 'cool to warm' or inline default."""
+        colors = _sample_colormap("totally_nonexistent_map_xyz", n=5)
+        assert len(colors) == 5
+        assert all(len(c) == 3 for c in colors)
+
+    def test_sample_colormap_else_branch(self):
+        """Colormap with control points not reaching t=1.0 hits the else branch."""
+        import parapilot.engine.colormaps as cm_mod
+        # Control points stop at t=0.3, so for t>0.3 the for loop's else fires
+        mock_pts = [(0.0, 0.0, 0.0, 0.0), (0.3, 1.0, 0.0, 0.0)]
+        cm_mod.COLORMAP_REGISTRY["_test_short"] = mock_pts
+        try:
+            colors = _sample_colormap("_test_short", n=10)
+            assert len(colors) == 10
+        finally:
+            del cm_mod.COLORMAP_REGISTRY["_test_short"]
 
     def test_custom_theme(self):
         raw = _blank_png()
