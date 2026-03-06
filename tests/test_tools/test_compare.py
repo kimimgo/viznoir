@@ -2,18 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 import vtk
 
 from parapilot.tools.compare import _compose_side_by_side
-
-_skip_rendering = pytest.mark.skipif(
-    bool(os.environ.get("CI")),
-    reason="VTK offscreen rendering requires GPU (not available in CI)",
-)
 
 
 def _write_test_vtk(path: Path, radius: float = 1.0) -> None:
@@ -37,7 +31,6 @@ def _write_test_vtk(path: Path, radius: float = 1.0) -> None:
     writer.Write()
 
 
-@_skip_rendering
 class TestComposeSideBySide:
     def test_produces_png(self):
         """Test that side-by-side composition produces valid PNG."""
@@ -79,7 +72,6 @@ def two_test_files(tmp_path):
     return str(file_a), str(file_b)
 
 
-@_skip_rendering
 class TestCompareImpl:
     def test_side_by_side_sync(self, two_test_files):
         """Integration test: compare two files side by side (sync path)."""

@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
-import pytest
 import vtk
 
 from parapilot.engine.renderer import (
@@ -17,11 +14,6 @@ from parapilot.engine.renderer import (
     _resolve_renderable,
     cleanup,
     render_to_png,
-)
-
-_skip_rendering = pytest.mark.skipif(
-    bool(os.environ.get("CI")),
-    reason="VTK offscreen rendering requires GPU (not available in CI)",
 )
 
 
@@ -206,7 +198,6 @@ class TestRenderConfig:
         assert config.representation == "surface"
 
 
-@_skip_rendering
 class TestVTKRendererAndRenderToPng:
     def test_render_simple_data(self):
         grid = _make_grid_with_data()

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
 import pytest
 import vtk
 
@@ -13,11 +11,6 @@ from parapilot.engine.renderer_cine import (
     _apply_quality_preset,
     _scene_diagonal,
     cinematic_render,
-)
-
-_skip_rendering = pytest.mark.skipif(
-    bool(os.environ.get("CI")),
-    reason="VTK offscreen rendering requires GPU (not available in CI)",
 )
 
 
@@ -92,7 +85,6 @@ class TestSceneDiagonal:
         assert diag == 1.0  # fallback
 
 
-@_skip_rendering
 class TestCinematicRender:
     def test_basic_render_produces_png(self, wavelet):
         config = CinematicConfig(quality="draft")
