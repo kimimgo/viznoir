@@ -508,3 +508,75 @@ class TestGetScalarRangeEdgeCases:
         # -1 component on multi-component → magnitude range (L457-459)
         assert lo >= 0.0
         assert hi > lo
+
+
+class TestRenderMultiblock:
+    def test_multiblock_per_block_style(self):
+        """render_multiblock applies per-block styling by index."""
+        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        mb = vtk.vtkMultiBlockDataSet()
+        # Block 0: wavelet with color
+        mb.SetBlock(0, _wavelet())
+        # Block 1: sphere wireframe
+        mb.SetBlock(1, _sphere())
+
+        rc = RenderConfig(width=200, height=150)
+        renderer = VTKRenderer(rc)
+        styles = {
+            0: RenderConfig(width=200, height=150, array_name="RTData", colormap="viridis"),
+            1: RenderConfig(width=200, height=150, representation="wireframe"),
+        }
+        png = renderer.render_multiblock(mb, block_styles=styles)
+        assert png[:4] == b"\x89PNG"
+
+    def test_multiblock_per_block_style_by_name(self):
+        """render_multiblock matches block styles by name."""
+        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        mb = vtk.vtkMultiBlockDataSet()
+        mb.SetBlock(0, _wavelet())
+        mb.GetMetaData(0).Set(vtk.vtkCompositeDataSet.NAME(), "wavelet")
+        mb.SetBlock(1, _sphere())
+        mb.GetMetaData(1).Set(vtk.vtkCompositeDataSet.NAME(), "sphere")
+
+        rc = RenderConfig(width=200, height=150)
+        renderer = VTKRenderer(rc)
+        styles = {
+            "wavelet": RenderConfig(width=200, height=150, colormap="plasma"),
+            "sphere": RenderConfig(width=200, height=150, representation="wireframe"),
+        }
+        png = renderer.render_multiblock(mb, block_styles=styles)
+        assert png[:4] == b"\x89PNG"
+
+    def test_multiblock_no_styles(self):
+        """render_multiblock without styles uses default config."""
+        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        mb = vtk.vtkMultiBlockDataSet()
+        mb.SetBlock(0, _wavelet())
+        mb.SetBlock(1, _sphere())
+
+        rc = RenderConfig(width=200, height=150)
+        renderer = VTKRenderer(rc)
+        png = renderer.render_multiblock(mb)
+        assert png[:4] == b"\x89PNG"
+
+    def test_multiblock_with_none_block(self):
+        """render_multiblock skips None blocks."""
+        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        mb = vtk.vtkMultiBlockDataSet()
+        mb.SetNumberOfBlocks(3)
+        mb.SetBlock(0, None)
+        mb.SetBlock(1, _wavelet())
+        mb.SetBlock(2, None)
+
+        rc = RenderConfig(width=200, height=150)
+        renderer = VTKRenderer(rc)
+        png = renderer.render_multiblock(mb)
+        assert png[:4] == b"\x89PNG"
+
+    def test_non_multiblock_fallback(self):
+        """render_multiblock with non-multiblock falls back to render()."""
+        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        rc = RenderConfig(width=200, height=150)
+        renderer = VTKRenderer(rc)
+        png = renderer.render_multiblock(_wavelet())
+        assert png[:4] == b"\x89PNG"

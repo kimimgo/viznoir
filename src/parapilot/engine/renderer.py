@@ -356,6 +356,47 @@ class VTKRenderer:
         rw.Render()
         return _capture_png(rw)
 
+    def render_multiblock(
+        self,
+        data: vtk.vtkDataObject,
+        block_styles: dict[int | str, RenderConfig] | None = None,
+        camera_config: object | None = None,
+    ) -> bytes:
+        """Render a multiblock dataset with per-block styling.
+
+        Args:
+            data: VTK multiblock dataset.
+            block_styles: Dict mapping block index (int) or name (str) to RenderConfig.
+            camera_config: Optional CameraConfig for the scene.
+
+        Returns:
+            PNG image as bytes.
+        """
+        import vtk
+
+        block_styles = block_styles or {}
+
+        if not isinstance(data, vtk.vtkMultiBlockDataSet):
+            return self.render(data, camera_config=camera_config)
+
+        datasets: list[tuple[vtk.vtkDataObject, RenderConfig | None]] = []
+        for i in range(data.GetNumberOfBlocks()):
+            block = data.GetBlock(i)
+            if block is None:
+                continue
+
+            # Match by index or name
+            cfg = block_styles.get(i)
+            if cfg is None and data.HasMetaData(i):
+                meta = data.GetMetaData(i)
+                if meta.Has(vtk.vtkCompositeDataSet.NAME()):
+                    name = meta.Get(vtk.vtkCompositeDataSet.NAME())
+                    cfg = block_styles.get(name)
+
+            datasets.append((block, cfg))
+
+        return self.render_multiple(datasets, camera_config=camera_config)
+
 
 # ---------------------------------------------------------------------------
 # Internal helpers
