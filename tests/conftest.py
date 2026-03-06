@@ -42,9 +42,9 @@ def pytest_collection_modifyitems(
     )
 
     for item in items:
-        # Skip entire files
+        # Skip entire files (explicit list + *_vtk.py pattern)
         filename = item.path.name if hasattr(item, "path") else ""
-        if filename in _RENDERING_TEST_FILES:
+        if filename in _RENDERING_TEST_FILES or filename.endswith("_vtk.py"):
             item.add_marker(skip_render)
             continue
 
