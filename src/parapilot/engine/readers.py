@@ -67,6 +67,15 @@ _READER_MAP: dict[str, tuple[str, bool]] = {
 _SERIES_EXTENSIONS = {".series"}
 
 
+def _format_suggestion(suffix: str) -> str | None:
+    """Suggest a close format match for a typo'd extension."""
+    import difflib
+
+    known = list(_READER_MAP.keys()) + list(_SERIES_EXTENSIONS) + [".pvd"]
+    matches = difflib.get_close_matches(suffix, known, n=1, cutoff=0.6)
+    return matches[0] if matches else None
+
+
 @dataclass
 class DatasetInfo:
     """Metadata about a loaded dataset."""
@@ -221,6 +230,8 @@ class DataReader:
         """Attempt to read the file via meshio and convert to VTK."""
         import vtk
 
+        hint = _format_suggestion(suffix)
+
         try:
             import meshio
         except ImportError:
@@ -229,6 +240,8 @@ class DataReader:
                 f"Unsupported file format '{suffix}'. Supported: {available}. "
                 f"For more formats: pip install mcp-server-parapilot[mesh]"
             )
+            if hint:
+                msg += f" Did you mean '{hint}'?"
             raise FileFormatError(msg)
 
         try:
@@ -239,6 +252,8 @@ class DataReader:
                 f"Unsupported file format '{suffix}'. Native VTK: {available}. "
                 f"meshio also failed: {exc}"
             )
+            if hint:
+                msg += f" Did you mean '{hint}'?"
             raise FileFormatError(msg) from exc
         vtk_data = _meshio_to_vtk(mesh)
 

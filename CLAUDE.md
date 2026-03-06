@@ -19,7 +19,7 @@ CAE post-processing MCP server for AI coding assistants.
 # Install (editable with dev deps)
 pip install -e ".[dev]"
 
-# Run all tests (627 tests, async mode=auto)
+# Run all tests (650 tests, async mode=auto)
 pytest --cov=parapilot --cov-report=term-missing -q
 
 # Run a single test file
@@ -134,7 +134,7 @@ server.py (MCP tool)
 | Tools | 18 |
 | Resources | 11 |
 | Prompts | 3 |
-| Tests | 627 |
+| Tests | 650 |
 
 ## Test Structure
 

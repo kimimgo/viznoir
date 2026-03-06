@@ -196,6 +196,38 @@ class TestDataReaderInit:
             with pytest.raises(FileFormatError, match="pip install mcp-server-parapilot"):
                 reader.read()
 
+    def test_typo_extension_suggests_match(self, tmp_path):
+        """Test that a typo'd extension like .vtt gets a 'Did you mean .vtu?' suggestion."""
+        from parapilot.engine.readers import DataReader
+        from parapilot.errors import FileFormatError
+
+        typo_file = tmp_path / "file.vtt"
+        typo_file.write_text("data")
+
+        reader = DataReader(typo_file)
+        with patch.dict("sys.modules", {"meshio": None}):
+            with pytest.raises(FileFormatError, match="Did you mean"):
+                reader.read()
+
+
+class TestFormatSuggestion:
+    def test_close_match(self):
+        from parapilot.engine.readers import _format_suggestion
+
+        assert _format_suggestion(".vtt") in (".vtk", ".vtp", ".vtu")
+
+    def test_no_match(self):
+        from parapilot.engine.readers import _format_suggestion
+
+        assert _format_suggestion(".zzz") is None
+
+    def test_exact_match_not_needed(self):
+        from parapilot.engine.readers import _format_suggestion
+
+        # .stll is close to .stl
+        result = _format_suggestion(".stll")
+        assert result == ".stl"
+
 
 # ---------------------------------------------------------------------------
 # meshio fallback
