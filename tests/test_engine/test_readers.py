@@ -1235,3 +1235,115 @@ class TestReaderEdgeCases:
         mock_out_info.Set.assert_called_once_with(mock_key, 1.0)
         mock_vtk_reader.Modified.assert_called_once()
         mock_vtk_reader.Update.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# Integration tests for PLY/OBJ/STL formats (Issue #37)
+# Uses VTK writers to create real fixture files, then reads them back.
+# ---------------------------------------------------------------------------
+
+
+class TestMeshFormatIntegration:
+    """Integration tests for mesh format readers with real VTK I/O."""
+
+    def _create_sphere_polydata(self):
+        """Create a simple sphere as vtkPolyData fixture."""
+        import vtk
+
+        sphere = vtk.vtkSphereSource()
+        sphere.SetThetaResolution(8)
+        sphere.SetPhiResolution(8)
+        sphere.Update()
+        return sphere.GetOutput()
+
+    def test_ply_roundtrip(self, tmp_path):
+        """Write PLY with VTK writer, read back with DataReader."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        polydata = self._create_sphere_polydata()
+        path = str(tmp_path / "sphere.ply")
+        writer = vtk.vtkPLYWriter()
+        writer.SetFileName(path)
+        writer.SetInputData(polydata)
+        writer.Write()
+
+        reader = DataReader(path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() > 0
+        assert data.GetNumberOfCells() > 0
+
+    def test_stl_roundtrip(self, tmp_path):
+        """Write STL with VTK writer, read back with DataReader."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        polydata = self._create_sphere_polydata()
+        path = str(tmp_path / "sphere.stl")
+        writer = vtk.vtkSTLWriter()
+        writer.SetFileName(path)
+        writer.SetInputData(polydata)
+        writer.Write()
+
+        reader = DataReader(path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() > 0
+        assert data.GetNumberOfCells() > 0
+
+    def test_obj_roundtrip(self, tmp_path):
+        """Write OBJ manually (ASCII), read back with DataReader."""
+        from parapilot.engine.readers import DataReader
+
+        # OBJ is simple ASCII — create a minimal triangle
+        obj_content = (
+            "# Simple triangle\n"
+            "v 0.0 0.0 0.0\n"
+            "v 1.0 0.0 0.0\n"
+            "v 0.5 1.0 0.0\n"
+            "f 1 2 3\n"
+        )
+        path = tmp_path / "triangle.obj"
+        path.write_text(obj_content)
+
+        reader = DataReader(str(path))
+        data = reader.read()
+        assert data.GetNumberOfPoints() == 3
+        assert data.GetNumberOfCells() >= 1
+
+    def test_ply_preserves_geometry(self, tmp_path):
+        """PLY roundtrip should preserve point count."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        polydata = self._create_sphere_polydata()
+        original_points = polydata.GetNumberOfPoints()
+        path = str(tmp_path / "test.ply")
+        writer = vtk.vtkPLYWriter()
+        writer.SetFileName(path)
+        writer.SetInputData(polydata)
+        writer.Write()
+
+        reader = DataReader(path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() == original_points
+
+    def test_stl_preserves_cells(self, tmp_path):
+        """STL roundtrip should preserve cell count."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        polydata = self._create_sphere_polydata()
+        original_cells = polydata.GetNumberOfCells()
+        path = str(tmp_path / "test.stl")
+        writer = vtk.vtkSTLWriter()
+        writer.SetFileName(path)
+        writer.SetInputData(polydata)
+        writer.Write()
+
+        reader = DataReader(path)
+        data = reader.read()
+        assert data.GetNumberOfCells() == original_cells

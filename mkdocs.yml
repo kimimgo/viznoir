@@ -79,6 +79,7 @@ nav:
       - Presets: api/presets.md
   - Examples:
       - Thermal Analysis: examples/thermal.md
+  - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
 
 extra:
