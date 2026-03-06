@@ -15,6 +15,21 @@ from parapilot.logging import get_logger
 
 logger = get_logger("server")
 
+
+def _has_mcp_tasks() -> bool:
+    """Check if FastMCP >= 3.0 with MCP Tasks support is available."""
+    try:
+        from importlib.metadata import version as get_version
+
+        from packaging.version import parse
+
+        return parse(get_version("fastmcp")) >= parse("3.0.0")
+    except Exception:
+        return False
+
+
+_TASKS_AVAILABLE = _has_mcp_tasks()
+
 mcp = FastMCP(
     "parapilot",
     instructions=(
@@ -411,7 +426,7 @@ async def integrate_surface(
     return result
 
 
-@mcp.tool()
+@mcp.tool(task=True if _TASKS_AVAILABLE else None)
 async def animate(
     file_path: str,
     field_name: str,
@@ -478,7 +493,7 @@ async def animate(
     return result.json_data or {"error": "Animation failed"}
 
 
-@mcp.tool()
+@mcp.tool(task=True if _TASKS_AVAILABLE else None)
 async def split_animate(
     file_path: str,
     panes: list[dict[str, Any]],
@@ -575,7 +590,7 @@ async def pv_isosurface(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(task=True if _TASKS_AVAILABLE else None)
 async def execute_pipeline(
     pipeline: dict[str, Any],
 ) -> dict[str, Any] | Image:

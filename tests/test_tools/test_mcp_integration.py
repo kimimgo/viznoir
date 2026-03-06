@@ -187,3 +187,70 @@ class TestMCPToolCall:
             except Exception as e:
                 # Exception is acceptable — server correctly rejected bad input
                 assert "not found" in str(e).lower() or "File not found" in str(e)
+
+
+# ---------------------------------------------------------------------------
+# MCP Tasks support (FastMCP >= 3.0)
+# ---------------------------------------------------------------------------
+
+
+class TestMCPTasksSupport:
+    """Verify MCP Tasks feature detection and tool registration."""
+
+    def test_tasks_available_flag(self):
+        """_TASKS_AVAILABLE reflects FastMCP version."""
+        from parapilot.server import _TASKS_AVAILABLE, _has_mcp_tasks
+
+        assert _TASKS_AVAILABLE == _has_mcp_tasks()
+
+    def test_has_mcp_tasks_returns_bool(self):
+        """_has_mcp_tasks always returns a boolean."""
+        from parapilot.server import _has_mcp_tasks
+
+        result = _has_mcp_tasks()
+        assert isinstance(result, bool)
+
+    def test_long_running_tools_registered(self):
+        """animate, split_animate, execute_pipeline should be registered tools."""
+        from fastmcp import Client
+
+        async def _check():
+            async with Client(mcp) as client:
+                tools = await client.list_tools()
+                names = {t.name for t in tools}
+                assert "animate" in names
+                assert "split_animate" in names
+                assert "execute_pipeline" in names
+
+        import asyncio
+        asyncio.run(_check())
+
+    def test_has_mcp_tasks_with_mock_old_version(self):
+        """Simulating FastMCP 2.x should return False."""
+        from unittest.mock import patch
+
+        from parapilot.server import _has_mcp_tasks
+
+        with patch("importlib.metadata.version", return_value="2.14.5"):
+            result = _has_mcp_tasks()
+            assert result is False
+
+    def test_has_mcp_tasks_with_mock_new_version(self):
+        """Simulating FastMCP 3.x should return True."""
+        from unittest.mock import patch
+
+        from parapilot.server import _has_mcp_tasks
+
+        with patch("importlib.metadata.version", return_value="3.1.0"):
+            result = _has_mcp_tasks()
+            assert result is True
+
+    def test_has_mcp_tasks_handles_import_error(self):
+        """Missing packaging should return False gracefully."""
+        from unittest.mock import patch
+
+        from parapilot.server import _has_mcp_tasks
+
+        with patch("importlib.metadata.version", side_effect=Exception("no package")):
+            result = _has_mcp_tasks()
+            assert result is False
