@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Test count: 310 → 934 (97% coverage)
+- Test count: 310 → 1043 (99% coverage)
 - File format support: 26 → 50+ (via meshio fallback)
 - CI matrix: Python 3.10/3.12 → 3.10/3.11/3.12/3.13
 
