@@ -664,6 +664,8 @@ def read_dataset(
     Returns:
         VTK data object.
     """
+    import vtk
+
     _ = source_files  # used only in animation code generation
     reader = DataReader(file_path)
     dataset = reader.read(timestep)

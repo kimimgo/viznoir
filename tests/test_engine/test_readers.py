@@ -698,6 +698,167 @@ class TestGetArrayNames:
         assert "pressure" in names
 
 
+class TestPublicApiFunctions:
+    """Tests for module-level public functions (read_dataset, get_timesteps, etc.)."""
+    vtk = pytest.importorskip("vtk")
+
+    def test_read_dataset_basic(self):
+        """read_dataset returns data from DataReader."""
+        from parapilot.engine.readers import read_dataset
+
+        mock_grid = self.vtk.vtkUnstructuredGrid()
+        pts = self.vtk.vtkPoints()
+        pts.InsertNextPoint(0, 0, 0)
+        mock_grid.SetPoints(pts)
+
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.read.return_value = mock_grid
+            mock_dr.return_value = inst
+            result = read_dataset("/fake/file.vtk")
+
+        assert result is mock_grid
+        inst.read.assert_called_once_with(None)
+
+    def test_read_dataset_with_timestep(self):
+        """read_dataset passes timestep through."""
+        from parapilot.engine.readers import read_dataset
+
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.read.return_value = MagicMock()
+            mock_dr.return_value = inst
+            read_dataset("/fake/file.vtk", timestep=2.5)
+
+        inst.read.assert_called_once_with(2.5)
+
+    def test_read_dataset_with_blocks(self):
+        """read_dataset extracts blocks from multiblock."""
+        from parapilot.engine.readers import read_dataset
+
+        mb = self.vtk.vtkMultiBlockDataSet()
+        child = self.vtk.vtkUnstructuredGrid()
+        mb.SetBlock(0, child)
+        mb.GetMetaData(0).Set(self.vtk.vtkCompositeDataSet.NAME(), "internalMesh")
+
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.read.return_value = mb
+            mock_dr.return_value = inst
+            result = read_dataset("/fake/file.vtk", blocks=["internalMesh"])
+
+        assert result is not None
+
+    def test_get_timesteps(self):
+        """get_timesteps returns timesteps list."""
+        from parapilot.engine.readers import get_timesteps
+
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.read.return_value = MagicMock()
+            inst.timesteps = [0.0, 1.0, 2.0]
+            mock_dr.return_value = inst
+            result = get_timesteps("/fake/file.vtk")
+
+        assert result == [0.0, 1.0, 2.0]
+
+    def test_list_arrays(self):
+        """list_arrays returns dict with point/cell/field keys."""
+        from parapilot.engine.readers import DatasetInfo, list_arrays
+
+        info = DatasetInfo(
+            file_path="/fake.vtk",
+            reader_type="vtkXMLUnstructuredGridReader",
+            dataset_type="vtkUnstructuredGrid",
+            num_points=100,
+            num_cells=50,
+            bounds=(0, 1, 0, 1, 0, 1),
+            point_arrays=["velocity", "pressure"],
+            cell_arrays=["cellType"],
+            field_arrays=[],
+            num_blocks=0,
+            block_names=[],
+            timesteps=[],
+        )
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.get_info.return_value = info
+            mock_dr.return_value = inst
+            result = list_arrays("/fake.vtk")
+
+        assert result["point"] == ["velocity", "pressure"]
+        assert result["cell"] == ["cellType"]
+        assert result["field"] == []
+
+    def test_list_blocks(self):
+        """list_blocks returns block name list."""
+        from parapilot.engine.readers import DatasetInfo, list_blocks
+
+        info = DatasetInfo(
+            file_path="/fake.vtk",
+            reader_type="vtkOpenFOAMReader",
+            dataset_type="vtkMultiBlockDataSet",
+            num_points=100,
+            num_cells=50,
+            bounds=(0, 1, 0, 1, 0, 1),
+            point_arrays=[],
+            cell_arrays=[],
+            field_arrays=[],
+            num_blocks=2,
+            block_names=["internalMesh", "wall"],
+            timesteps=[],
+        )
+        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+            inst = MagicMock()
+            inst.get_info.return_value = info
+            mock_dr.return_value = inst
+            result = list_blocks("/fake.vtk")
+
+        assert result == ["internalMesh", "wall"]
+
+
+class TestPvdParserEdgeCases:
+    """Test edge cases in PVD parsing."""
+
+    def test_pvd_dataset_without_file_skipped(self, tmp_path):
+        """DataSet element without 'file' attribute is skipped (line 394)."""
+        pvd = tmp_path / "test.pvd"
+        pvd.write_text("""\
+<?xml version="1.0"?>
+<VTKFile type="Collection">
+  <Collection>
+    <DataSet timestep="0.0" file="data_0.vtu"/>
+    <DataSet timestep="1.0" />
+    <DataSet timestep="2.0" file="data_2.vtu"/>
+  </Collection>
+</VTKFile>""")
+        entries = _parse_pvd(pvd)
+        assert len(entries) == 2
+        assert entries[0].file == "data_0.vtu"
+        assert entries[1].file == "data_2.vtu"
+
+
+class TestExtractTimestepsWithData:
+    """Test _extract_timesteps with actual VTK mocks for TIME_STEPS key."""
+    vtk = pytest.importorskip("vtk")
+
+    def test_with_time_steps(self):
+        """_extract_timesteps returns times when TIME_STEPS key is present."""
+        from parapilot.engine.readers import _extract_timesteps
+
+        exe = MagicMock()
+        out_info = MagicMock()
+        out_info.Has.return_value = True
+        out_info.Length.return_value = 3
+        out_info.Get.side_effect = [0.0, 0.5, 1.0]
+        exe.GetOutputInformation.return_value = out_info
+
+        reader = MagicMock()
+        reader.GetExecutive.return_value = exe
+        result = _extract_timesteps(reader)
+        assert result == [0.0, 0.5, 1.0]
+
+
 class TestExtractTimesteps:
     vtk = pytest.importorskip("vtk")
 
