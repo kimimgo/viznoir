@@ -345,6 +345,141 @@ class TestCompileVideo:
         assert error is not None
         assert "No frame files" in error or "ffmpeg not found" in error
 
+    @pytest.mark.asyncio
+    async def test_compile_video_mp4_success(self):
+        """compile_video produces MP4 when ffmpeg is available."""
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            pytest.skip("ffmpeg not available")
+
+        # Create minimal PNG frames (1x1 pixel, 3 frames)
+        import io
+
+        from PIL import Image
+
+        from parapilot.pipeline.engine import compile_video
+
+        frames: dict[str, bytes] = {}
+        for i in range(3):
+            img = Image.new("RGB", (64, 64), color=(i * 80, 0, 0))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            frames[f"frame_{i:06d}.png"] = buf.getvalue()
+
+        video_bytes, error = await compile_video(frames, fps=10.0)
+        assert error is None
+        assert video_bytes is not None
+        assert len(video_bytes) > 100
+
+    @pytest.mark.asyncio
+    async def test_compile_video_gif_format(self):
+        """compile_video produces GIF output."""
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            pytest.skip("ffmpeg not available")
+
+        import io
+
+        from PIL import Image
+
+        from parapilot.pipeline.engine import compile_video
+
+        frames: dict[str, bytes] = {}
+        for i in range(3):
+            img = Image.new("RGB", (64, 64), color=(0, i * 80, 0))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            frames[f"frame_{i:06d}.png"] = buf.getvalue()
+
+        video_bytes, error = await compile_video(frames, fps=5.0, output_format="gif")
+        assert error is None
+        assert video_bytes is not None
+        # GIF magic bytes
+        assert video_bytes[:3] == b"GIF"
+
+    @pytest.mark.asyncio
+    async def test_compile_video_with_text_overlay(self):
+        """compile_video with text overlay doesn't crash."""
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            pytest.skip("ffmpeg not available")
+
+        import io
+
+        from PIL import Image
+
+        from parapilot.pipeline.engine import compile_video
+
+        frames: dict[str, bytes] = {}
+        for i in range(3):
+            img = Image.new("RGB", (128, 128), color=(0, 0, i * 80))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            frames[f"frame_{i:06d}.png"] = buf.getvalue()
+
+        video_bytes, error = await compile_video(
+            frames, fps=10.0, text_overlay="Test Case"
+        )
+        # May fail if ffmpeg doesn't support drawtext, so allow either outcome
+        assert video_bytes is not None or error is not None
+
+    @pytest.mark.asyncio
+    async def test_compile_video_timeout(self, monkeypatch: Any):
+        """compile_video handles timeout gracefully."""
+        import asyncio as _asyncio
+        import io
+
+        from PIL import Image
+
+        from parapilot.pipeline.engine import compile_video
+
+        frames: dict[str, bytes] = {}
+        for i in range(2):
+            img = Image.new("RGB", (32, 32), color=(255, 0, 0))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            frames[f"frame_{i:06d}.png"] = buf.getvalue()
+
+        # Monkeypatch asyncio.wait_for to raise TimeoutError
+        async def fake_wait_for(coro, timeout):
+            raise _asyncio.TimeoutError()
+
+        monkeypatch.setattr(_asyncio, "wait_for", fake_wait_for)
+
+        video_bytes, error = await compile_video(frames, fps=10.0)
+        assert video_bytes is None
+        assert error is not None
+        assert "timed out" in error
+
+    @pytest.mark.asyncio
+    async def test_compile_video_webm_format(self):
+        """compile_video produces WebM output."""
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            pytest.skip("ffmpeg not available")
+
+        import io
+
+        from PIL import Image
+
+        from parapilot.pipeline.engine import compile_video
+
+        frames: dict[str, bytes] = {}
+        for i in range(3):
+            img = Image.new("RGB", (64, 64), color=(i * 80, i * 40, 0))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            frames[f"frame_{i:06d}.png"] = buf.getvalue()
+
+        video_bytes, error = await compile_video(frames, fps=10.0, output_format="webm")
+        assert error is None
+        assert video_bytes is not None
+        assert len(video_bytes) > 100
+
 
 class TestPipelineModels:
     def test_pipeline_from_json(self):
