@@ -66,6 +66,30 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/parapilot"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/www",
+    "/video",
+    "/docs",
+    "/paper",
+    "/scripts",
+    "/benchmarks",
+    "/assets",
+    "/.github",
+    "/.claude*",
+    "/.pre-commit*",
+    "/.allcontributorsrc",
+    "/codecov.yml",
+    "/smithery.yaml",
+    "/Dockerfile*",
+    "/docker-compose*",
+    "*.gif",
+    "*.mp4",
+    "*.webp",
+    "*.webm",
+    "*.png",
+]
+
 [tool.ruff]
 target-version = "py310"
 line-length = 120
