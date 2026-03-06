@@ -881,3 +881,227 @@ class TestExtractTimesteps:
         reader = MagicMock()
         reader.GetExecutive.return_value = exe
         assert _extract_timesteps(reader) == []
+
+
+# ---------------------------------------------------------------------------
+# PVD multi-timestep read with timestep switching (lines 162, 342-344, 357-364)
+# ---------------------------------------------------------------------------
+
+class TestPvdTimestepSwitch:
+    vtk = pytest.importorskip("vtk")
+
+    def _make_vtu(self, tmp_path, name, value):
+        """Create a VTU file with a single point and scalar."""
+        import vtk
+        from vtk.util.numpy_support import numpy_to_vtk
+        import numpy as np
+
+        pts = vtk.vtkPoints()
+        pts.InsertNextPoint(0, 0, 0)
+        pts.InsertNextPoint(1, 0, 0)
+        pts.InsertNextPoint(0, 1, 0)
+        grid = vtk.vtkUnstructuredGrid()
+        grid.SetPoints(pts)
+
+        arr = numpy_to_vtk(np.array([value, value + 1, value + 2], dtype=np.float64))
+        arr.SetName("temperature")
+        grid.GetPointData().AddArray(arr)
+
+        writer = vtk.vtkXMLUnstructuredGridWriter()
+        path = tmp_path / name
+        writer.SetFileName(str(path))
+        writer.SetInputData(grid)
+        writer.Write()
+        return path
+
+    def test_pvd_read_with_timestep(self, tmp_path):
+        """PVD reader switches file when timestep is specified (lines 342-344, 357-364)."""
+        from parapilot.engine.readers import DataReader
+
+        self._make_vtu(tmp_path, "step_0.vtu", 10.0)
+        self._make_vtu(tmp_path, "step_1.vtu", 20.0)
+
+        pvd_content = """<?xml version="1.0"?>
+<VTKFile type="Collection">
+  <Collection>
+    <DataSet timestep="0.0" file="step_0.vtu"/>
+    <DataSet timestep="1.0" file="step_1.vtu"/>
+  </Collection>
+</VTKFile>"""
+        pvd_path = tmp_path / "case.pvd"
+        pvd_path.write_text(pvd_content)
+
+        reader = DataReader(pvd_path)
+        # Read first timestep
+        data0 = reader.read(timestep=0.0)
+        assert data0.GetNumberOfPoints() == 3
+        arr0 = data0.GetPointData().GetArray("temperature")
+        assert arr0.GetValue(0) == 10.0
+
+        # Read second timestep (switch file)
+        data1 = reader.read(timestep=1.0)
+        arr1 = data1.GetPointData().GetArray("temperature")
+        assert arr1.GetValue(0) == 20.0
+
+    def test_pvd_timesteps_list(self, tmp_path):
+        """PVD reader exposes timesteps list."""
+        from parapilot.engine.readers import DataReader
+
+        self._make_vtu(tmp_path, "a.vtu", 1.0)
+        self._make_vtu(tmp_path, "b.vtu", 2.0)
+
+        pvd_content = """<?xml version="1.0"?>
+<VTKFile type="Collection">
+  <Collection>
+    <DataSet timestep="0.0" file="a.vtu"/>
+    <DataSet timestep="0.5" file="b.vtu"/>
+  </Collection>
+</VTKFile>"""
+        pvd_path = tmp_path / "ts.pvd"
+        pvd_path.write_text(pvd_content)
+
+        reader = DataReader(pvd_path)
+        reader.read()
+        assert reader.timesteps == [0.0, 0.5]
+
+
+# ---------------------------------------------------------------------------
+# Series multi-timestep read with timestep switching (lines 345-347, 366-373)
+# ---------------------------------------------------------------------------
+
+class TestSeriesTimestepSwitch:
+    vtk = pytest.importorskip("vtk")
+
+    def _make_vtu(self, tmp_path, name, value):
+        import vtk
+        from vtk.util.numpy_support import numpy_to_vtk
+        import numpy as np
+
+        pts = vtk.vtkPoints()
+        pts.InsertNextPoint(0, 0, 0)
+        grid = vtk.vtkUnstructuredGrid()
+        grid.SetPoints(pts)
+
+        arr = numpy_to_vtk(np.array([value], dtype=np.float64))
+        arr.SetName("pressure")
+        grid.GetPointData().AddArray(arr)
+
+        writer = vtk.vtkXMLUnstructuredGridWriter()
+        path = tmp_path / name
+        writer.SetFileName(str(path))
+        writer.SetInputData(grid)
+        writer.Write()
+        return path
+
+    def test_series_read_with_timestep(self, tmp_path):
+        """Series reader switches file when timestep is specified (lines 345-347, 366-373)."""
+        from parapilot.engine.readers import DataReader
+
+        self._make_vtu(tmp_path, "out_0.vtu", 100.0)
+        self._make_vtu(tmp_path, "out_1.vtu", 200.0)
+
+        series_data = {
+            "file-series-version": "1.0",
+            "files": [
+                {"name": "out_0.vtu", "time": 0.0},
+                {"name": "out_1.vtu", "time": 1.0},
+            ],
+        }
+        series_path = tmp_path / "output.vtu.series"
+        series_path.write_text(json.dumps(series_data))
+
+        reader = DataReader(series_path)
+        data0 = reader.read(timestep=0.0)
+        arr0 = data0.GetPointData().GetArray("pressure")
+        assert arr0.GetValue(0) == 100.0
+
+        data1 = reader.read(timestep=1.0)
+        arr1 = data1.GetPointData().GetArray("pressure")
+        assert arr1.GetValue(0) == 200.0
+
+    def test_series_timesteps_list(self, tmp_path):
+        """Series reader exposes timesteps list."""
+        from parapilot.engine.readers import DataReader
+
+        self._make_vtu(tmp_path, "s0.vtu", 1.0)
+        self._make_vtu(tmp_path, "s1.vtu", 2.0)
+        self._make_vtu(tmp_path, "s2.vtu", 3.0)
+
+        series_data = {
+            "file-series-version": "1.0",
+            "files": [
+                {"name": "s0.vtu", "time": 0.0},
+                {"name": "s1.vtu", "time": 0.5},
+                {"name": "s2.vtu", "time": 1.0},
+            ],
+        }
+        series_path = tmp_path / "multi.vtu.series"
+        series_path.write_text(json.dumps(series_data))
+
+        reader = DataReader(series_path)
+        reader.read()
+        assert reader.timesteps == [0.0, 0.5, 1.0]
+
+
+# ---------------------------------------------------------------------------
+# DataReader with real VTK files (lines 162, 210-211)
+# ---------------------------------------------------------------------------
+
+class TestDataReaderRealVTK:
+    vtk = pytest.importorskip("vtk")
+
+    def test_read_stl_file(self, tmp_path):
+        """DataReader reads real STL files."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        sphere = vtk.vtkSphereSource()
+        sphere.Update()
+        writer = vtk.vtkSTLWriter()
+        stl_path = tmp_path / "sphere.stl"
+        writer.SetFileName(str(stl_path))
+        writer.SetInputData(sphere.GetOutput())
+        writer.Write()
+
+        reader = DataReader(stl_path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() > 0
+
+    def test_read_vtp_file(self, tmp_path):
+        """DataReader reads real VTP files."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        sphere = vtk.vtkSphereSource()
+        sphere.Update()
+        writer = vtk.vtkXMLPolyDataWriter()
+        vtp_path = tmp_path / "sphere.vtp"
+        writer.SetFileName(str(vtp_path))
+        writer.SetInputData(sphere.GetOutput())
+        writer.Write()
+
+        reader = DataReader(vtp_path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() > 0
+        info = reader.get_info()
+        assert info.num_points > 0
+
+    def test_read_vtk_legacy_file(self, tmp_path):
+        """DataReader reads legacy VTK files."""
+        import vtk
+
+        from parapilot.engine.readers import DataReader
+
+        sphere = vtk.vtkSphereSource()
+        sphere.Update()
+        writer = vtk.vtkPolyDataWriter()
+        vtk_path = tmp_path / "sphere.vtk"
+        writer.SetFileName(str(vtk_path))
+        writer.SetInputData(sphere.GetOutput())
+        writer.Write()
+
+        reader = DataReader(vtk_path)
+        data = reader.read()
+        assert data.GetNumberOfPoints() > 0

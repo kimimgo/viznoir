@@ -46,10 +46,16 @@ class TestCinematicRender:
         """Cinematic render with no array (line 192)."""
         from parapilot.engine.renderer import RenderConfig
         from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        # Create polydata with points but NO arrays at all
+        pd = vtk.vtkPolyData()
+        pts = vtk.vtkPoints()
+        pts.InsertNextPoint(0, 0, 0)
+        pts.InsertNextPoint(1, 0, 0)
+        pts.InsertNextPoint(0, 1, 0)
+        pd.SetPoints(pts)
         rc = RenderConfig(width=200, height=150)
-        # Sphere has no scalar arrays → array_name will be None
         config = CinematicConfig(render=rc, quality="draft")
-        png = cinematic_render(_sphere(), config)
+        png = cinematic_render(pd, config)
         assert png[:4] == b"\x89PNG"
 
     def test_empty_dataset(self):
