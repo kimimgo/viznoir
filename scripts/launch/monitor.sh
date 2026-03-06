@@ -85,7 +85,7 @@ check "GitHub Topics set (>5)" \
 # ── 3. CI/CD Health ──
 log "3. CI/CD Health"
 check "Latest CI green" \
-  "gh run list --repo $REPO --branch main --limit 1 --json conclusion --jq '.[0].conclusion' 2>/dev/null | grep -q 'success'"
+  "gh run list --repo $REPO --workflow ci.yml --limit 1 --json conclusion --jq '.[0].conclusion' 2>/dev/null | grep -q 'success'"
 check "publish.yml workflow exists" \
   "test -f $PROJECT_DIR/.github/workflows/publish.yml"
 
