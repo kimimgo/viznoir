@@ -431,6 +431,10 @@ class TestCompileVideo:
         """compile_video handles timeout gracefully."""
         import asyncio as _asyncio
         import io
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            pytest.skip("ffmpeg not available")
 
         from PIL import Image
 
