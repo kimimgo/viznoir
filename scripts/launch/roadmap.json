@@ -85,7 +85,7 @@
           "title": "HN Show HN 포스트 최종 초안",
           "priority": "P0",
           "date": "2026-03-08",
-          "status": "todo",
+          "status": "done",
           "check_cmd": "test -f /home/imgyu/workspace/02_active/dev/kimtech/scripts/launch/posts/hn.md",
           "notes": "제목 + 본문 300자 이내"
         },
@@ -94,7 +94,7 @@
           "title": "Reddit 3곳 포스트 초안 (r/CFD, r/OpenFOAM, r/MachineLearning)",
           "priority": "P1",
           "date": "2026-03-08",
-          "status": "todo",
+          "status": "done",
           "check_cmd": "test -f /home/imgyu/workspace/02_active/dev/kimtech/scripts/launch/posts/reddit.md",
           "notes": "각 subreddit 톤 맞춤"
         },
@@ -196,7 +196,7 @@
           "title": "good first issue 5개 생성",
           "priority": "P1",
           "date": "2026-03-12",
-          "status": "todo",
+          "status": "done",
           "check_cmd": "gh issue list --label 'good first issue' --json number --jq 'length' 2>/dev/null | grep -q '[5-9]\\|[0-9][0-9]'",
           "notes": "colormap, reader, 문서, 예제, 에러메시지"
         }
@@ -204,7 +204,17 @@
     }
   },
   "kpi": {
-    "stars_d7": { "fail": 10, "ok": 50, "good": 100, "great": 200 },
-    "stars_d30": { "fail": 30, "ok": 100, "good": 300, "great": 500 }
+    "stars_d7": {
+      "fail": 10,
+      "ok": 50,
+      "good": 100,
+      "great": 200
+    },
+    "stars_d30": {
+      "fail": 30,
+      "ok": 100,
+      "good": 300,
+      "great": 500
+    }
   }
 }
