@@ -29,7 +29,7 @@ pip install -e ".[all]"        # everything
 ## Running Tests
 
 ```bash
-# Full test suite (1116 tests)
+# Full test suite (1128 tests)
 pytest --cov=parapilot --cov-report=term-missing -q
 
 # Single test file

@@ -43,13 +43,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Test count: 310 → 1116 (99% coverage)
+- Test count: 310 → 1128 (99% coverage)
 - CI coverage threshold: 75% → 80%
 - File format support: 26 → 50+ (via meshio fallback)
 - CI matrix: Python 3.10/3.12 → 3.10/3.11/3.12/3.13
 
 ### Fixed
 
+- postfx.py: narrow exception handling — catch specific VTK errors instead of bare `Exception`
+- readers.py: narrow meshio fallback exception to avoid masking `MemoryError`/`KeyboardInterrupt`
 - Contour: empty output guard with data range diagnostics
 - Streamlines: auto seed points from dataset bounds
 - Slice/clip: auto origin from dataset center

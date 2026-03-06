@@ -32,7 +32,7 @@ from OpenFOAM, VTK, CGNS, and 50+ other formats.
 - **Publication quality**: PBR materials, SSAO, FXAA, 3-point lighting, auto-camera
 - **50+ file formats** via VTK + meshio fallback
 - **Docker images**: GPU (EGL) and CPU-only (OSMesa)
-- **1100+ tests, 99% coverage**, CodeQL + pip-audit security scanning
+- **1128 tests, 99% coverage**, CodeQL + pip-audit security scanning
 - **Claude Code plugin**: `claude install kimimgo/parapilot`
 
 ## Category

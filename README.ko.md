@@ -178,7 +178,7 @@ OpenFOAM (.foam), VTK (.vti/.vtp/.vtu/.vtm), CGNS (.cgns), Ensight (.case), Exod
 git clone https://github.com/kimimgo/parapilot
 cd parapilot
 pip install -e ".[dev]"
-pytest                     # 1116 테스트
+pytest                     # 1128 테스트
 ruff check src/ tests/     # 린트
 mypy src/parapilot/        # 타입 체크
 ```
@@ -191,7 +191,7 @@ mypy src/parapilot/        # 타입 체크
 |---|---|---|---|---|---|
 | 초점 | 범용 CAE 후처리 | ParaView 시각화 | ETABS/LUSAS FEA | OpenFOAM 설정 | 3D 모델링 |
 | 렌더링 | 헤드리스 VTK (GUI 불필요) | GUI 연결 ParaView | GUI 연결 | 없음 | GUI Blender |
-| 테스트 | 1116 | 0 | 0 | 0 | 0 |
+| 테스트 | 1128 | 0 | 0 | 0 | 0 |
 | 커버리지 | 99% | — | — | — | — |
 | Docker | GPU (EGL) + CPU (OSMesa) | 없음 | 없음 | 없음 | 없음 |
 | MCP 도구 | 18 | 23 | N/A | N/A | N/A |
