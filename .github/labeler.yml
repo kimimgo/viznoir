@@ -1,0 +1,37 @@
+# Auto-label PRs based on file paths
+# Used by .github/workflows/pr-quality.yml
+
+engine:
+  - changed-files:
+    - any-glob-to-any-file: 'src/parapilot/engine/**'
+
+core:
+  - changed-files:
+    - any-glob-to-any-file: 'src/parapilot/core/**'
+
+tools:
+  - changed-files:
+    - any-glob-to-any-file: 'src/parapilot/tools/**'
+
+pipeline:
+  - changed-files:
+    - any-glob-to-any-file: 'src/parapilot/pipeline/**'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**'
+      - '*.md'
+      - 'paper/**'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+
+www:
+  - changed-files:
+    - any-glob-to-any-file: 'www/**'

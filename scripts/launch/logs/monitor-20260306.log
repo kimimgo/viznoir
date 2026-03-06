@@ -1,0 +1,39 @@
+
+═══════════════════════════════════════════════════
+  parapilot Launch Monitor — D-3 (Launch: 2026-03-09)
+  2026-03-06 22:45:03 KST
+═══════════════════════════════════════════════════
+[22:45:03] 1. Release & Distribution
+  [PASS] v0.1.0 GitHub Release exists
+  [FAIL] PyPI package published
+  [PASS] pip install works
+[22:45:06] 2. OSS Infrastructure
+  [PASS] SECURITY.md exists
+  [PASS] CONTRIBUTING.md exists
+  [PASS] CHANGELOG.md exists
+  [PASS] CITATION.cff exists
+  [PASS] Issue templates exist
+  [PASS] PR template exists
+  [PASS] dependabot.yml exists
+  [PASS] GitHub Discussions enabled
+  [PASS] GitHub Topics set (>5)
+[22:45:07] 3. CI/CD Health
+  [FAIL] Latest CI green
+  [PASS] publish.yml workflow exists
+[22:45:07] 4. Content Assets
+  [FAIL] Social Preview set
+  [FAIL] Demo GIF exists
+  [FAIL] HN post draft ready
+  [FAIL] Reddit drafts ready
+[22:45:07] 5. MCP Registry
+  [PASS] smithery.yaml in repo
+  [FAIL] awesome-mcp-servers PR submitted
+[22:45:08] 6. Repo Metrics (informational)
+  [INFO] Stars: 0 | Forks: 5 | Open Issues: 4
+  [INFO] Views (14d): 74 | Clones (14d): 699
+
+───────────────────────────────────────────────────
+  D-3: 13/20 ready (65%), 7 remaining
+───────────────────────────────────────────────────
+
+[22:45:10] Roadmap Task Summary:

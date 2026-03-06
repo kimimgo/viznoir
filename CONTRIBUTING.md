@@ -29,7 +29,7 @@ pip install -e ".[all]"        # everything
 ## Running Tests
 
 ```bash
-# Full test suite (934 tests)
+# Full test suite (1048 tests)
 pytest --cov=parapilot --cov-report=term-missing -q
 
 # Single test file
@@ -168,14 +168,68 @@ Create a minimal test fixture if needed and add tests in `tests/test_engine/test
 
 1. **Fork** the repository and create a feature branch from `main`
 2. **Write tests** for any new functionality
-3. **Run the full check suite** before submitting:
+3. **Set up pre-commit hooks** (optional but recommended):
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+4. **Run the full check suite** before submitting:
    ```bash
    ruff check src/ tests/
    mypy src/parapilot/ --ignore-missing-imports
    pytest --cov=parapilot --cov-report=term-missing -q
    ```
-4. **Keep commits focused** — one logical change per commit
-5. **Open a PR** against `main` with a clear description of what and why
+5. **Keep commits focused** — one logical change per commit, [Conventional Commits](https://www.conventionalcommits.org/) format
+6. **Open a PR** against `main` with a clear description
+
+### Quality Gates (automated on every PR)
+
+Your PR must pass all 5 gates to be mergeable:
+
+| Gate | Tool | Threshold |
+|------|------|-----------|
+| G1. Lint | ruff | 0 errors |
+| G2. Type Safety | mypy (strict) | 0 errors |
+| G3. Tests | pytest (Python 3.10-3.13) | All pass |
+| G4. Coverage | pytest-cov + Codecov | >= 80% project, >= 70% new code |
+| G5. Security | CodeQL + pip-audit | 0 critical/high |
+
+### PR Size Guidelines
+
+PRs are automatically labeled by size. Smaller PRs get reviewed faster:
+
+| Label | Lines Changed | Review Time |
+|-------|---------------|-------------|
+| `size/XS` | < 10 | Minutes |
+| `size/S` | < 50 | Same day |
+| `size/M` | < 200 | 1-2 days |
+| `size/L` | < 500 | 2-3 days |
+| `size/XL` | 500+ | Consider splitting |
+
+## Contributor Recognition
+
+We use [All Contributors](https://allcontributors.org/) to recognize every contribution.
+
+### Contribution Tiers
+
+| Tier | Criteria | Recognition |
+|------|----------|-------------|
+| First-timer | 1st merged PR | Welcome message + All Contributors badge |
+| Contributor | 3+ merged PRs | README Hall of Fame |
+| Core Contributor | 10+ merged PRs | CODEOWNERS listing + review privileges |
+| Maintainer | Sustained contributions | Write access + release authority |
+
+### Types of Contributions
+
+Not just code! We recognize:
+- **Code** — features, bug fixes, performance improvements
+- **Documentation** — guides, API docs, examples
+- **Testing** — test cases, coverage improvements
+- **Bug Reports** — well-documented issue reports
+- **Ideas** — feature proposals via Discussions
+- **Reviews** — PR reviews and feedback
+
+To add a contributor: `@all-contributors please add @username for code, test`
 
 ## Code Style
 
@@ -183,7 +237,10 @@ Create a minimal test fixture if needed and add tests in `tests/test_engine/test
 - Type checker: [mypy](https://mypy-lang.org/) (strict mode)
 - Test framework: [pytest](https://docs.pytest.org/) with [pytest-asyncio](https://pytest-asyncio.readthedocs.io/)
 - Naming: snake_case for engine functions, PascalCase for registry/DSL keys
-- Commits: [Conventional Commits](https://www.conventionalcommits.org/)
+
+## Good First Issues
+
+Look for issues labeled [`good first issue`](https://github.com/kimimgo/parapilot/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) — these are curated for newcomers with clear scope and guidance.
 
 ## Reporting Issues
 

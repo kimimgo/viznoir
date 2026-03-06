@@ -1,0 +1,22 @@
+{
+  "projectName": "parapilot",
+  "projectOwner": "kimimgo",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": ["README.md"],
+  "imageSize": 80,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "kimimgo",
+      "name": "Imgyu Kim",
+      "avatar_url": "https://github.com/kimimgo.png",
+      "profile": "https://github.com/kimimgo",
+      "contributions": ["code", "doc", "test", "infra", "maintenance"]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square)](#contributors)"
+}

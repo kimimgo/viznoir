@@ -38,8 +38,12 @@ jobs:
           VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
         run: pytest --cov=parapilot --cov-report=term-missing --cov-report=xml -q
 
-      - name: Upload coverage to Codecov
+      - name: Coverage threshold check
         if: matrix.python-version == '3.12'
+        run: coverage report --fail-under=75
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12' && !cancelled()
         uses: codecov/codecov-action@v5
         with:
           files: coverage.xml

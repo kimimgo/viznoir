@@ -1,0 +1,28 @@
+# Codecov configuration — Quality Gate G4
+# Docs: https://docs.codecov.com/docs/codecov-yaml
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%    # allow 2% drop from base
+        if_ci_failed: error
+    patch:
+      default:
+        target: 70%      # new code must be ≥70% covered
+        threshold: 5%
+
+  # CI에서 GPU 테스트 skip → 실제 coverage는 로컬 99%이지만 CI 기준 ~80%
+  # VTK rendering 테스트는 *_vtk.py로 분리되어 CI에서 자동 skip
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true   # only comment when coverage changes
+
+ignore:
+  - "tests/**"
+  - "www/**"
+  - "scripts/**"
+  - "docs/**"
+  - "paper/**"

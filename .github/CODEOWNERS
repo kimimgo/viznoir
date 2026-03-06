@@ -1,0 +1,23 @@
+# parapilot Code Owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @kimimgo
+
+# Engine layer — core VTK logic
+src/parapilot/engine/ @kimimgo
+
+# MCP server + tools
+src/parapilot/server.py @kimimgo
+src/parapilot/tools/ @kimimgo
+
+# Pipeline DSL
+src/parapilot/pipeline/ @kimimgo
+src/parapilot/core/ @kimimgo
+
+# CI/CD and infrastructure
+.github/ @kimimgo
+
+# Documentation
+docs/ @kimimgo
+paper/ @kimimgo

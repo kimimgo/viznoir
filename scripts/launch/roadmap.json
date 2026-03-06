@@ -1,0 +1,210 @@
+{
+  "project": "parapilot",
+  "launch_date": "2026-03-09",
+  "prep_deadline": "2026-03-08",
+  "created": "2026-03-06",
+  "phases": {
+    "prep": {
+      "label": "Phase A: Pre-Launch (3/6~3/8)",
+      "deadline": "2026-03-08T23:59:00+09:00",
+      "tasks": [
+        {
+          "id": "pypi-trusted-publisher",
+          "title": "PyPI Trusted Publisher 설정 + 발행 검증",
+          "priority": "P0",
+          "date": "2026-03-07",
+          "status": "todo",
+          "check_cmd": "pip index versions mcp-server-parapilot 2>/dev/null | grep -q 'Available'",
+          "notes": "pypi.org > Manage > Publishing > Add GitHub publisher, 이후 v0.1.1 release로 트리거"
+        },
+        {
+          "id": "social-preview",
+          "title": "GitHub Social Preview 이미지 (1280x640)",
+          "priority": "P0",
+          "date": "2026-03-07",
+          "status": "todo",
+          "check_cmd": "gh api repos/kimimgo/parapilot --jq '.has_social_preview' 2>/dev/null | grep -q 'true'",
+          "notes": "DrivAerML cinematic render + 로고 합성, GitHub issue #23"
+        },
+        {
+          "id": "demo-gif",
+          "title": "30초 데모 GIF 제작 (Claude Code에서 render 호출)",
+          "priority": "P0",
+          "date": "2026-03-07",
+          "status": "todo",
+          "check_cmd": "test -f /home/imgyu/workspace/02_active/dev/kimtech/assets/demo.gif",
+          "notes": "asciinema or screen recording -> GIF, HN/Reddit 포스트용"
+        },
+        {
+          "id": "registry-smithery",
+          "title": "Smithery.ai 등록",
+          "priority": "P0",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "curl -sf 'https://smithery.ai/server/mcp-server-parapilot' -o /dev/null",
+          "notes": "npx @smithery/cli publish, smithery.yaml 준비됨"
+        },
+        {
+          "id": "registry-mcp-so",
+          "title": "MCP.so 등록",
+          "priority": "P0",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "curl -sf 'https://mcp.so' -o /dev/null && echo 'manual-check'",
+          "notes": "웹 제출, GitHub URL"
+        },
+        {
+          "id": "registry-glama",
+          "title": "Glama.ai 등록",
+          "priority": "P1",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "웹 제출, GitHub URL"
+        },
+        {
+          "id": "registry-pulsemcp",
+          "title": "PulseMCP 등록",
+          "priority": "P1",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "웹 제출, GitHub URL"
+        },
+        {
+          "id": "registry-awesome",
+          "title": "awesome-mcp-servers PR 제출",
+          "priority": "P0",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "gh pr list --repo punkpeye/awesome-mcp-servers --author kimimgo --state open --json number --jq 'length' 2>/dev/null | grep -qv '^0$'",
+          "notes": "science/engineering 카테고리, 1줄 설명 + 링크"
+        },
+        {
+          "id": "hn-draft",
+          "title": "HN Show HN 포스트 최종 초안",
+          "priority": "P0",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "test -f /home/imgyu/workspace/02_active/dev/kimtech/scripts/launch/posts/hn.md",
+          "notes": "제목 + 본문 300자 이내"
+        },
+        {
+          "id": "reddit-drafts",
+          "title": "Reddit 3곳 포스트 초안 (r/CFD, r/OpenFOAM, r/MachineLearning)",
+          "priority": "P1",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "test -f /home/imgyu/workspace/02_active/dev/kimtech/scripts/launch/posts/reddit.md",
+          "notes": "각 subreddit 톤 맞춤"
+        },
+        {
+          "id": "readme-comparison-fix",
+          "title": "README LLNL comparison 업데이트 (tools 수 등)",
+          "priority": "P1",
+          "date": "2026-03-08",
+          "status": "todo",
+          "check_cmd": "grep -q '23 tools' /home/imgyu/workspace/02_active/dev/kimtech/README.md 2>/dev/null || grep -q '23' /home/imgyu/workspace/02_active/dev/kimtech/README.md 2>/dev/null",
+          "notes": "LLNL paraview_mcp 8->23 tools 수정"
+        }
+      ]
+    },
+    "launch": {
+      "label": "Phase B: Launch Day (3/9)",
+      "deadline": "2026-03-09T23:59:00+09:00",
+      "tasks": [
+        {
+          "id": "hn-post",
+          "title": "HN Show HN 포스트 (한국시간 자정 = EST 10am)",
+          "priority": "P0",
+          "date": "2026-03-09",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "월요일 런치, EST 10am 최적"
+        },
+        {
+          "id": "reddit-post",
+          "title": "Reddit 3곳 동시 포스트",
+          "priority": "P0",
+          "date": "2026-03-09",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "r/CFD, r/OpenFOAM, r/MachineLearning"
+        },
+        {
+          "id": "twitter-post",
+          "title": "Twitter/X 포스트 (데모 GIF 포함)",
+          "priority": "P1",
+          "date": "2026-03-09",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "GIF + 핵심 메시지"
+        },
+        {
+          "id": "linkedin-post",
+          "title": "LinkedIn 포스트",
+          "priority": "P2",
+          "date": "2026-03-09",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "엔지니어링 네트워크 타겟"
+        }
+      ]
+    },
+    "post_launch": {
+      "label": "Phase C: Post-Launch (3/10~3/16)",
+      "deadline": "2026-03-16T23:59:00+09:00",
+      "tasks": [
+        {
+          "id": "hn-comments",
+          "title": "HN 댓글 24시간 내 응답",
+          "priority": "P0",
+          "date": "2026-03-10",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "개발자 직접 참여가 stars 전환율 높임"
+        },
+        {
+          "id": "issue-response",
+          "title": "GitHub Issues 24시간 내 응답",
+          "priority": "P0",
+          "date": "2026-03-10",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "새 이슈 모니터링"
+        },
+        {
+          "id": "patch-release",
+          "title": "v0.1.2 패치 릴리스 (피드백 반영)",
+          "priority": "P1",
+          "date": "2026-03-14",
+          "status": "todo",
+          "check_cmd": "gh release view v0.1.2 --repo kimimgo/parapilot >/dev/null 2>&1",
+          "notes": "런치 후 발견 버그 즉시 수정"
+        },
+        {
+          "id": "joss-submit",
+          "title": "JOSS paper 제출",
+          "priority": "P2",
+          "date": "2026-03-16",
+          "status": "todo",
+          "check_cmd": "echo 'manual-check'",
+          "notes": "paper.md + paper.bib 준비됨"
+        },
+        {
+          "id": "good-first-issues",
+          "title": "good first issue 5개 생성",
+          "priority": "P1",
+          "date": "2026-03-12",
+          "status": "todo",
+          "check_cmd": "gh issue list --label 'good first issue' --json number --jq 'length' 2>/dev/null | grep -q '[5-9]\\|[0-9][0-9]'",
+          "notes": "colormap, reader, 문서, 예제, 에러메시지"
+        }
+      ]
+    }
+  },
+  "kpi": {
+    "stars_d7": { "fail": 10, "ok": 50, "good": 100, "great": 200 },
+    "stars_d30": { "fail": 30, "ok": 100, "good": 300, "great": 500 }
+  }
+}

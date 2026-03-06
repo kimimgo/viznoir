@@ -1,0 +1,67 @@
+name: PR Quality
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label-size:
+    name: Size Label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Label PR by size
+        uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/XS'
+          xs_max_size: 10
+          s_label: 'size/S'
+          s_max_size: 50
+          m_label: 'size/M'
+          m_max_size: 200
+          l_label: 'size/L'
+          l_max_size: 500
+          xl_label: 'size/XL'
+          fail_if_xl: false
+          message_if_xl: |
+            This PR is very large (XL). Consider breaking it into smaller PRs.
+
+  label-type:
+    name: Type Label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+
+  review-hint:
+    name: Review Checklist
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Post review guide
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const checks = [];
+            if (!body.includes('## Description') || body.includes('<!-- What does this PR do? -->'))
+              checks.push('Add a description of what this PR does');
+            if (!body.includes('## Test Plan') || body.includes('<!-- How was this tested? -->'))
+              checks.push('Describe how you tested the changes');
+            if (checks.length === 0) return;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `### PR Quality Checklist\n\nPlease complete:\n${checks.map(c => '- [ ] ' + c).join('\n')}\n\n---\n*Automated reminder — fill out the PR template.*`
+            });
