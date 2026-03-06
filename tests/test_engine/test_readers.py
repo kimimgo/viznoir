@@ -892,9 +892,9 @@ class TestPvdTimestepSwitch:
 
     def _make_vtu(self, tmp_path, name, value):
         """Create a VTU file with a single point and scalar."""
+        import numpy as np
         import vtk
         from vtk.util.numpy_support import numpy_to_vtk
-        import numpy as np
 
         pts = vtk.vtkPoints()
         pts.InsertNextPoint(0, 0, 0)
@@ -973,9 +973,9 @@ class TestSeriesTimestepSwitch:
     vtk = pytest.importorskip("vtk")
 
     def _make_vtu(self, tmp_path, name, value):
+        import numpy as np
         import vtk
         from vtk.util.numpy_support import numpy_to_vtk
-        import numpy as np
 
         pts = vtk.vtkPoints()
         pts.InsertNextPoint(0, 0, 0)

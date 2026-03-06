@@ -228,7 +228,7 @@ class VTKRenderer:
         if not isinstance(data, vtk.vtkImageData):
             # Try resampling to regular grid
             resample = vtk.vtkResampleToImage()
-            resample.SetInputData(data)
+            resample.SetInputDataObject(data)
             resample.SetSamplingDimensions(128, 128, 128)
             resample.Update()
             image_data = resample.GetOutput()
