@@ -6,15 +6,15 @@ import os
 
 import pytest
 
-_skip_rendering = pytest.mark.skipif(
-    bool(os.environ.get("CI")),
-    reason="VTK offscreen rendering requires GPU (not available in CI)",
-)
-
 from parapilot.engine.export import (
     _WRITER_MAP,
     export_gltf,
     supported_export_formats,
+)
+
+_skip_rendering = pytest.mark.skipif(
+    bool(os.environ.get("CI")),
+    reason="VTK offscreen rendering requires GPU (not available in CI)",
 )
 
 

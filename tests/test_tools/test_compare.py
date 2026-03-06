@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 import vtk
 
+from parapilot.tools.compare import _compose_side_by_side
+
 _skip_rendering = pytest.mark.skipif(
     bool(os.environ.get("CI")),
     reason="VTK offscreen rendering requires GPU (not available in CI)",
 )
-
-from parapilot.tools.compare import _compose_side_by_side
 
 
 def _write_test_vtk(path: Path, radius: float = 1.0) -> None:
