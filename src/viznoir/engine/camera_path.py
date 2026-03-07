@@ -7,6 +7,14 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from viznoir.anim.easing import (
+    EASING_FUNCTIONS,
+    ease_in_out_cubic,
+    ease_in_quad,
+    ease_out_quad,
+    linear,
+)
+
 
 @dataclass(frozen=True)
 class CameraKeyframe:
@@ -27,36 +35,27 @@ class CameraPath:
 
 
 # ---------------------------------------------------------------------------
-# Easing functions
+# Easing function aliases — backwards compatibility with legacy names
 # ---------------------------------------------------------------------------
 
 def _ease_linear(t: float) -> float:
-    return t
+    """Delegated to viznoir.anim.easing.linear."""
+    return linear(t)
 
 
 def _ease_in(t: float) -> float:
-    """Quadratic ease-in: slow start."""
-    return t * t
+    """Quadratic ease-in: slow start. Delegated to viznoir.anim.easing."""
+    return ease_in_quad(t)
 
 
 def _ease_out(t: float) -> float:
-    """Quadratic ease-out: slow end."""
-    return t * (2.0 - t)
+    """Quadratic ease-out: slow end. Delegated to viznoir.anim.easing."""
+    return ease_out_quad(t)
 
 
 def _ease_in_out(t: float) -> float:
-    """Cubic ease-in-out: slow start and end."""
-    if t < 0.5:
-        return 4.0 * t * t * t
-    return 1.0 - (-2.0 * t + 2.0) ** 3 / 2.0
-
-
-EASING_FUNCTIONS = {
-    "linear": _ease_linear,
-    "ease_in": _ease_in,
-    "ease_out": _ease_out,
-    "ease_in_out": _ease_in_out,
-}
+    """Cubic ease-in-out: slow start and end. Delegated to viznoir.anim.easing."""
+    return ease_in_out_cubic(t)
 
 
 # ---------------------------------------------------------------------------

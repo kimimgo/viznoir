@@ -9,7 +9,10 @@ import tempfile
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from viznoir.core.worker import InProcessExecutor
 
 from viznoir.config import PVConfig
 from viznoir.logging import get_logger
@@ -61,6 +64,7 @@ class VTKRunner:
     def __init__(self, config: PVConfig | None = None, mode: str = "auto"):
         self.config = config or PVConfig()
         self.mode = self._detect_mode() if mode == "auto" else mode
+        self._executor: InProcessExecutor | None = None
 
     def _detect_mode(self) -> str:
         """'local' if python_bin is available, otherwise 'docker'."""
@@ -97,7 +101,7 @@ class VTKRunner:
             output_dir.mkdir()
 
             if self.mode == "local":
-                result = await self._run_local(script_path, output_dir, timeout)
+                result = await self._run_inprocess(script, output_dir, timeout)
             else:
                 result = await self._run_docker(
                     script_path, output_dir, timeout,
@@ -178,6 +182,39 @@ class VTKRunner:
             stderr=stderr_bytes.decode("utf-8", errors="replace"),
             exit_code=proc.returncode or 0,
         )
+
+    async def _run_inprocess(self, script: str, output_dir: Path, timeout: float) -> RunResult:
+        """Execute script in-process via InProcessExecutor."""
+        if self._executor is None:
+            from viznoir.core.worker import InProcessExecutor
+            self._executor = InProcessExecutor()
+
+        env_overrides: dict[str, str] = {}
+        if self.config.data_dir:
+            env_overrides["VIZNOIR_DATA_DIR"] = str(self.config.data_dir)
+
+        vtk_backend = self.config.vtk_backend
+        if vtk_backend == "auto":
+            vtk_backend = "egl" if self.config.use_gpu else "osmesa"
+        if vtk_backend == "egl":
+            env_overrides["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkEGLRenderWindow"
+            env_overrides["VTK_DEFAULT_EGL_DEVICE_INDEX"] = str(self.config.gpu_device)
+        elif vtk_backend == "osmesa":
+            env_overrides["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkOSOpenGLRenderWindow"
+
+        loop = asyncio.get_event_loop()
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(
+                    None, self._executor.run, script, env_overrides, output_dir
+                ),
+                timeout=timeout,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("in-process script timed out after %.0fs", timeout)
+            return RunResult(
+                stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1
+            )
 
     async def _run_docker(
         self,

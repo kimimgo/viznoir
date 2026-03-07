@@ -54,7 +54,7 @@ docker compose build
 docker compose up                       # stdio mode, GPU required
 ```
 
-CI runs on Python 3.10 and 3.12: lint → type check → test.
+CI runs on Python 3.10, 3.11, 3.12, 3.13: lint → type check → test. Coverage threshold ≥80% enforced on 3.12.
 
 ## Architecture
 
@@ -76,16 +76,17 @@ Layer 1: MCP Server (mcp-server-viznoir)  ← src/viznoir/
 server.py (MCP tool)
   → tools/*.py (impl: build PipelineDefinition)
     → core/compiler.py (ScriptCompiler: PipelineDefinition → Python script string)
-      → core/runner.py (VTKRunner: exec script via subprocess or Docker)
+      → core/runner.py (VTKRunner: in-process executor or Docker)
         → engine/*.py (VTK direct API: readers, filters, renderer, camera)
           → core/output.py (OutputHandler: RunResult → PipelineResult)
 ```
 
-- `server.py`: FastMCP 인스턴스 + 15개 tool 등록, lazy import로 tool impl 로딩
+- `server.py`: FastMCP 인스턴스 + 19개 tool 등록, lazy import로 tool impl 로딩
 - `tools/`: 각 tool의 비즈니스 로직 (render_impl, slice_impl 등)
 - `pipeline/models.py`: Pydantic 모델 (SourceDef, FilterStep, RenderDef, OutputDef 등)
 - `core/compiler.py`: PipelineDefinition → executable Python/VTK script 문자열 생성
-- `core/runner.py`: VTKRunner — 로컬 subprocess 또는 Docker 컨테이너에서 스크립트 실행
+- `core/runner.py`: VTKRunner — InProcessExecutor (로컬) 또는 Docker 컨테이너에서 스크립트 실행
+- `core/worker.py`: InProcessExecutor — subprocess 없이 in-process 스크립트 실행 (500ms→50ms)
 - `core/registry.py`: PascalCase 키 (FilterRegistry, FormatRegistry)
 - `engine/filters.py`: snake_case 키, 실제 VTK 필터 함수 (slice_plane, clip_plane 등)
 - `engine/renderer.py`: 오프스크린 렌더링 (EGL/OSMesa), 싱글톤 vtkRenderWindow 재사용
@@ -93,18 +94,39 @@ server.py (MCP tool)
 - `engine/camera_auto.py`: PCA 형상 분석 + frustum fitting 자동 카메라
 - `engine/lighting.py`: 3-point lighting 프리셋 (cinematic/dramatic/studio/publication/outdoor)
 - `engine/postfx.py`: SSAO + FXAA 후처리
+- `engine/transfer_functions.py`: 볼륨 렌더링 transfer function 프리셋 6종
+- `anim/easing.py`: 17종 easing 함수 (Manim rate_functions 기반)
 - `engine/scene.py`: 배경 프리셋 + ground plane
 - `engine/readers.py`: 파일 포맷별 VTK reader 팩토리
 
 ### Dual Registry Gotcha
 
-`core/registry.py`는 PascalCase 키 (Slice, Clip), `engine/filters.py`는 snake_case 키 (slice_plane, clip_plane). `get_filter()`가 case-insensitive lookup으로 연결.
+두 개의 독립적인 필터 레지스트리가 존재:
+
+- `core/registry.py` → `FILTER_REGISTRY`: PascalCase 키 (Slice, Clip). **파라미터 스키마 + VTK 클래스명** 저장. `ScriptCompiler`가 파이프라인 코드 생성 시 사용. `get_filter()`가 case-insensitive lookup 제공.
+- `engine/filters.py` → `_FILTER_REGISTRY`: snake_case 키 (slice_plane, clip_plane). **실제 VTK 필터 함수** 매핑. `apply_filter()`가 `_normalize_filter_name()`으로 CamelCase → snake_case 변환 후 lookup.
+
+새 필터 추가 시 **양쪽 모두** 등록 필요.
 
 ### VTK Headless Rendering
 
-- `VTK_DEFAULT_OPENGL_WINDOW=vtkEGLRenderWindow` 환경변수로 EGL 활성화
+- `VTK_DEFAULT_OPENGL_WINDOW=vtkEGLRenderWindow` 환경변수로 EGL 활성화 (CI에서는 `vtkOSOpenGLRenderWindow` 사용)
 - `vtkRenderWindow()` 사용 (NOT `vtkEGLRenderWindow()` — SIGSEGV 발생)
-- `_protect_stdout()`: VTK C 코드의 stdout 오염으로부터 MCP JSON-RPC 스트림 보호
+- 싱글톤 `_RENDER_WINDOW`는 100회 렌더 후 자동 재생성 (GPU 메모리 누수 방지)
+- `_protect_stdout()`: VTK C 코드가 fd 1에 ~20MB 바이너리 쓰레기를 직접 출력 → MCP JSON-RPC 스트림 오염 방지. 실제 stdout fd를 `os.dup()`로 보존하고 fd 1을 `/dev/null`로 리다이렉트
+
+### Error Hierarchy
+
+`errors.py`에 정의된 커스텀 예외:
+- `ViznoirError` — base
+- `FileFormatError` — 미지원 파일 포맷
+- `FieldNotFoundError` — 데이터셋에 없는 필드
+- `EmptyOutputError` — 필터 결과가 비어있음 (isovalues가 데이터 범위 밖 등)
+- `RenderError` — 렌더링 실패
+
+### Security: ProgrammableFilter
+
+`ProgrammableFilter`는 기본 비활성 (임의 코드 실행 위험). `VIZNOIR_ALLOW_PROGRAMMABLE=1` 환경변수로 활성화.
 
 ## Configuration (Environment Variables)
 
@@ -116,6 +138,9 @@ server.py (MCP tool)
 | `VIZNOIR_RENDER_BACKEND` | `gpu` | gpu/cpu/auto |
 | `VIZNOIR_VTK_BACKEND` | `auto` | egl/osmesa/auto |
 | `VIZNOIR_TIMEOUT` | `600` | 스크립트 실행 타임아웃 (초) |
+| `VIZNOIR_ALLOW_PROGRAMMABLE` | `0` | ProgrammableFilter 활성화 (보안) |
+| `VIZNOIR_DOCKER_IMAGE` | `viznoir:latest` | Docker 실행 모드 이미지 |
+| `VIZNOIR_GPU_DEVICE` | `0` | GPU 디바이스 인덱스 |
 
 ## Naming Convention
 
@@ -131,7 +156,7 @@ server.py (MCP tool)
 
 | 항목 | 수량 |
 |------|------|
-| Tools | 18 |
+| Tools | 19 |
 | Resources | 11 |
 | Prompts | 3 |
 | Tests | 1134 |
@@ -144,6 +169,21 @@ server.py (MCP tool)
 - `tests/test_tools/` — MCP tool 레벨 테스트 (convenience, server, e2e_production)
 - `tests/fixtures/` — 테스트 데이터 생성 헬퍼 (wavelet, create_data)
 - pytest-asyncio `asyncio_mode = "auto"` — async 테스트 자동 감지
+
+### CI Auto-Skip Rules (conftest.py)
+
+CI 환경(`CI=1`)에서 VTK GPU 렌더링이 필요한 테스트는 자동 스킵:
+- `*_vtk.py` 파일 전체 (패턴 매칭)
+- 명시적 파일: `test_e2e_production.py`, `test_renderer_cine.py`
+- 명시적 클래스: `TestVTKRendererAndRenderToPng`, `TestComposeSideBySide`, `TestCompareImpl`, `TestExportGltf`
+
+새 VTK 렌더링 테스트 추가 시: 파일명을 `*_vtk.py`로 하거나 `conftest.py`의 스킵 목록에 추가.
+
+### Ruff Config
+
+- `target-version = "py310"`, `line-length = 120`
+- Select: `E`, `F`, `I`, `N`, `W`, `UP` (N802 무시 — VTK의 PascalCase 메서드명)
+- `tests/fixtures/*`에서 F403, F405 무시 (wildcard import 허용)
 
 ## Known Limitations
 

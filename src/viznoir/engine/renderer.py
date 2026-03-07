@@ -40,6 +40,7 @@ class RenderConfig:
     edge_color: tuple[float, float, float] = (0.0, 0.0, 0.0)
     point_size: float = 2.0
     line_width: float = 1.0
+    transfer_preset: str = "generic"
 
 
 # ---------------------------------------------------------------------------
@@ -256,12 +257,9 @@ class VTKRenderer:
         )
         # build_lut returns vtkColorTransferFunction — use directly
 
-        # Opacity transfer function — ramp from transparent to opaque
-        otf = vtk.vtkPiecewiseFunction()
-        otf.AddPoint(lo, 0.0)
-        otf.AddPoint(lo + (hi - lo) * 0.2, 0.0)
-        otf.AddPoint(lo + (hi - lo) * 0.4, 0.05)
-        otf.AddPoint(hi, self._config.opacity * 0.5)
+        # Opacity transfer function from preset
+        from .transfer_functions import build_opacity_function
+        otf = build_opacity_function(self._config.transfer_preset, (lo, hi), self._config.opacity)
 
         # Volume property
         vol_prop = vtk.vtkVolumeProperty()

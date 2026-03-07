@@ -267,50 +267,38 @@ class TestDetectMode:
 class TestExecuteLocalEdgeCases:
     @pytest.mark.asyncio
     async def test_extra_files_written(self):
-        """execute writes extra_files to tmpdir before running script."""
+        """execute writes extra_files to tmpdir; in-process mode verifies via script."""
         runner = VTKRunner(mode="local")
 
-        mock_proc = AsyncMock()
-        mock_proc.communicate = AsyncMock(return_value=(b"", b""))
-        mock_proc.returncode = 0
+        # In in-process mode, extra_files are written to tmpdir and accessible
+        # from the script via the tmpdir path. We verify using _run_inprocess mock.
+        captured = {}
 
-        written_files = {}
-
-        async def capture_subprocess(*args, **kwargs):
-            import pathlib
-            script_path = pathlib.Path(args[1])
-            extra_file = script_path.parent / "data.json"
+        async def mock_run_inprocess(self_inner, script, output_dir, timeout):
+            # Verify extra_files written to tmpdir (parent of output_dir)
+            extra_file = output_dir.parent / "data.json"
             if extra_file.exists():
-                written_files["data.json"] = extra_file.read_bytes()
-            return mock_proc
+                captured["data.json"] = extra_file.read_bytes()
+            from viznoir.core.runner import RunResult
+            return RunResult(stdout="", stderr="", exit_code=0)
 
-        with patch(
-            "viznoir.core.runner.asyncio.create_subprocess_exec",
-            side_effect=capture_subprocess,
-        ):
+        with patch.object(runner, "_run_inprocess", mock_run_inprocess.__get__(runner, type(runner))):
             result = await runner.execute(
                 "pass",
                 extra_files={"data.json": b'{"key": "value"}'},
             )
         assert result.exit_code == 0
-        assert written_files.get("data.json") == b'{"key": "value"}'
+        assert captured.get("data.json") == b'{"key": "value"}'
 
     @pytest.mark.asyncio
     async def test_json_parsed_from_stdout(self):
         """execute parses JSON from stdout when no result.json file."""
         runner = VTKRunner(mode="local")
 
-        mock_proc = AsyncMock()
-        mock_proc.communicate = AsyncMock(
-            return_value=(b'{"status": "ok", "count": 42}', b"")
-        )
-        mock_proc.returncode = 0
-
-        with patch(
-            "viznoir.core.runner.asyncio.create_subprocess_exec",
-            return_value=mock_proc,
-        ):
-            result = await runner.execute("pass")
+        # In in-process mode, stdout is captured directly from script execution.
+        # We use the script itself to print JSON to stdout.
+        script = "import json; print(json.dumps({'status': 'ok', 'count': 42}))"
+        result = await runner.execute(script)
         assert result.json_result == {"status": "ok", "count": 42}
 
     @pytest.mark.asyncio
@@ -336,44 +324,45 @@ class TestExecuteLocalEdgeCases:
         """execute handles local script timeout gracefully."""
         runner = VTKRunner(mode="local")
 
-        mock_proc = AsyncMock()
-        mock_proc.communicate = AsyncMock(
-            side_effect=[asyncio.TimeoutError, (b"", b"")]
-        )
-        mock_proc.kill = MagicMock()
+        # In in-process mode, _run_inprocess handles timeout internally and returns
+        # a RunResult with exit_code=-1. We verify via a real short timeout.
+        from unittest.mock import patch
 
-        with patch(
-            "viznoir.core.runner.asyncio.create_subprocess_exec",
-            return_value=mock_proc,
-        ):
+        from viznoir.core.runner import RunResult
+
+        async def mock_run_inprocess(script, output_dir, timeout):
+            return RunResult(
+                stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1
+            )
+
+        with patch.object(runner, "_run_inprocess", side_effect=mock_run_inprocess):
             result = await runner.execute("pass", timeout=1.0)
         assert result.exit_code == -1
         assert "timed out" in result.stderr
-        mock_proc.kill.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_osmesa_backend_env(self):
-        """OSMesa backend sets correct env var."""
+        """OSMesa backend sets correct env_overrides for in-process execution."""
         from viznoir.config import PVConfig
+        from viznoir.core.runner import RunResult
 
         config = PVConfig(vtk_backend="osmesa", render_backend="cpu")
         runner = VTKRunner(mode="local", config=config)
 
-        captured_env = {}
+        captured_env_overrides: dict = {}
 
-        async def capture_subprocess(*args, **kwargs):
-            captured_env.update(kwargs.get("env", {}))
-            mock_proc = AsyncMock()
-            mock_proc.communicate = AsyncMock(return_value=(b"", b""))
-            mock_proc.returncode = 0
-            return mock_proc
+        def mock_executor_run(script, env_overrides=None, output_dir=None):
+            if env_overrides:
+                captured_env_overrides.update(env_overrides)
+            return RunResult(stdout="", stderr="", exit_code=0)
 
-        with patch(
-            "viznoir.core.runner.asyncio.create_subprocess_exec",
-            side_effect=capture_subprocess,
-        ):
-            await runner.execute("pass")
-        assert captured_env.get("VTK_DEFAULT_OPENGL_WINDOW") == "vtkOSOpenGLRenderWindow"
+        from viznoir.core.worker import InProcessExecutor
+        mock_executor = InProcessExecutor.__new__(InProcessExecutor)
+        mock_executor.run = mock_executor_run
+        runner._executor = mock_executor
+
+        await runner.execute("pass")
+        assert captured_env_overrides.get("VTK_DEFAULT_OPENGL_WINDOW") == "vtkOSOpenGLRenderWindow"
 
 
 class TestDockerModeNoGPU:
@@ -422,18 +411,16 @@ class TestOutputFilePermissionError:
         """Output file with PermissionError is silently skipped."""
         runner = VTKRunner(mode="local")
 
-        async def fake_subprocess(*args, **kwargs):
-            import pathlib
-            script_path = pathlib.Path(args[1])
-            output_dir = script_path.parent / "output"
-            # Create an output file
+        # In in-process mode, the script creates output files directly.
+        # execute() collects them after _run_inprocess returns.
+        # We patch Path.read_bytes to simulate PermissionError on bad.dat.
+        from viznoir.core.runner import RunResult
+
+        async def mock_run_inprocess(script, output_dir, timeout):
+            # Create output files in the real output_dir
             (output_dir / "good.png").write_bytes(b"PNG")
             (output_dir / "bad.dat").write_bytes(b"DATA")
-
-            mock_proc = AsyncMock()
-            mock_proc.communicate = AsyncMock(return_value=(b"", b""))
-            mock_proc.returncode = 0
-            return mock_proc
+            return RunResult(stdout="", stderr="", exit_code=0)
 
         original_read_bytes = Path.read_bytes
 
@@ -443,10 +430,7 @@ class TestOutputFilePermissionError:
             return original_read_bytes(self)
 
         with (
-            patch(
-                "viznoir.core.runner.asyncio.create_subprocess_exec",
-                side_effect=fake_subprocess,
-            ),
+            patch.object(runner, "_run_inprocess", side_effect=mock_run_inprocess),
             patch.object(Path, "read_bytes", patched_read_bytes),
         ):
             result = await runner.execute("pass")

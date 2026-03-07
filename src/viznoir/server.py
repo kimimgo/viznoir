@@ -735,6 +735,58 @@ async def cinematic_render(
 
 
 @mcp.tool()
+async def volume_render(
+    file_path: str,
+    field_name: str | None = None,
+    transfer_preset: str = "generic",
+    colormap: str = "viridis",
+    quality: str = "standard",
+    lighting: str | None = "cinematic",
+    background: str | None = "dark_gradient",
+    width: int | None = None,
+    height: int | None = None,
+    scalar_range: list[float] | None = None,
+    timestep: float | str | None = None,
+    output_filename: str = "volume.png",
+) -> Image:
+    """Volume render 3D data (CT, MRI, CFD fields) with transfer function presets.
+
+    Presets: generic, ct_bone, ct_tissue, mri_brain, thermal, isosurface_like
+
+    Args:
+        file_path: Path to volumetric data (VTI, VTK structured grid, etc.)
+        field_name: Scalar field to render, None for active scalars
+        transfer_preset: Opacity preset (ct_bone, ct_tissue, mri_brain, thermal, generic, isosurface_like)
+        colormap: Color map preset
+        quality: Render quality (draft/standard/cinematic/ultra/publication)
+        lighting: Lighting preset
+        background: Background preset
+        width: Image width in pixels
+        height: Image height in pixels
+        scalar_range: [min, max] for color scale
+        timestep: Specific timestep, "latest", or None
+        output_filename: Output filename
+    """
+    file_path = _validate_file_path(file_path)
+    logger.debug("tool.volume_render: file=%s preset=%s", file_path, transfer_preset)
+    t0 = time.monotonic()
+    from viznoir.tools.volume import volume_render_impl
+
+    png_bytes = await volume_render_impl(
+        file_path, _runner,
+        field_name=field_name, transfer_preset=transfer_preset,
+        colormap=colormap, quality=quality, lighting=lighting,
+        background=background, width=width, height=height,
+        scalar_range=scalar_range, timestep=timestep,
+        output_filename=output_filename,
+    )
+    logger.debug("tool.volume_render: done in %.2fs", time.monotonic() - t0)
+    if png_bytes:
+        return Image(data=png_bytes, format="png")
+    raise RuntimeError("Volume rendering failed: no image produced")
+
+
+@mcp.tool()
 async def compare(
     file_a: str,
     file_b: str,
