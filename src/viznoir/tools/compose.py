@@ -101,11 +101,16 @@ async def compose_assets_impl(
         )
         paths: list[str] = []
         batch_id = uuid.uuid4().hex[:8]
-        for i, slide in enumerate(slide_imgs):
-            filename = f"slide_{batch_id}_{i:03d}.png"
-            save_path = out_path / filename
-            slide.save(str(save_path))
-            paths.append(str(save_path))
+        def _save_slides() -> list[str]:
+            saved: list[str] = []
+            for i, slide in enumerate(slide_imgs):
+                filename = f"slide_{batch_id}_{i:03d}.png"
+                sp = out_path / filename
+                slide.save(str(sp))
+                saved.append(str(sp))
+            return saved
+
+        paths = await loop.run_in_executor(None, _save_slides)
         return {
             "output_paths": paths,
             "layout": "slides",
@@ -140,7 +145,13 @@ def _resolve_assets(assets: list[dict[str, Any]]) -> list[Image.Image]:
         if asset_type == "render" or asset_type == "plot":
             path = asset.get("path", "")
             if path and Path(path).exists():
-                images.append(Image.open(path).convert("RGBA"))
+                resolved = Path(path).resolve()
+                data_dir = os.environ.get("VIZNOIR_DATA_DIR")
+                if data_dir and not str(resolved).startswith(str(Path(data_dir).resolve())):
+                    output_dir_env = os.environ.get("VIZNOIR_OUTPUT_DIR", "/tmp")
+                    if not str(resolved).startswith(str(Path(output_dir_env).resolve())):
+                        raise ValueError(f"Path '{path}' is outside allowed directories")
+                images.append(Image.open(str(resolved)).convert("RGBA"))
             else:
                 # Placeholder for missing files
                 images.append(Image.new("RGBA", (400, 300), (80, 80, 80, 255)))
@@ -224,30 +235,38 @@ def _render_video(
     tl = Timeline(scene_objs, fps=fps)
     frames: list[Image.Image] = []
 
+    # Pre-render each scene's layout (avoid re-rendering per frame)
+    scene_renders: dict[int, Image.Image] = {}
+    for idx, scene in enumerate(scene_objs):
+        scene_assets = [images[i] for i in scene.asset_indices if i < len(images)]
+        scene_labels_list = [labels[i] for i in scene.asset_indices if i < len(labels)]
+        scene_renders[idx] = render_story_layout(
+            scene_assets, scene_labels_list, title=None, width=width, height=height,
+        )
+
+    prev_scene_idx = -1
     for global_t in tl.frame_times():
         scene_idx, local_t = tl.scene_at(global_t)
-        scene = tl.scenes[scene_idx]
-
-        # Gather scene assets
-        scene_assets = [images[i] for i in scene.asset_indices if i < len(images)]
-        scene_labels = [labels[i] for i in scene.asset_indices if i < len(labels)]
-
-        # Render the base frame
-        base = render_story_layout(
-            scene_assets, scene_labels, title=None, width=width, height=height,
-        )
+        base = scene_renders[scene_idx]
 
         # Apply transition effect (only in first 20% of scene)
         transition_duration = 0.2
         if local_t < transition_duration:
             t_norm = local_t / transition_duration
             try:
-                tfn = get_transition(scene.transition)
-                base = tfn(base, t_norm)
-            except KeyError:
+                tfn = get_transition(tl.scenes[scene_idx].transition)
+                # fade_in/fade_out take (img, t); dissolve/wipe take (src, dst, t)
+                if tl.scenes[scene_idx].transition in ("fade_in", "fade_out"):
+                    base = tfn(base, t_norm)
+                elif prev_scene_idx >= 0 and prev_scene_idx in scene_renders:
+                    base = tfn(scene_renders[prev_scene_idx], base, t_norm)
+                else:
+                    base = tfn(base, t_norm)  # fallback to fade_in-like
+            except (KeyError, TypeError):
                 pass  # Unknown transition — skip
 
         frames.append(base)
+        prev_scene_idx = scene_idx
 
     filename = f"video_{uuid.uuid4().hex[:8]}.mp4"
     video_path = str(Path(output_dir) / filename)

@@ -102,7 +102,7 @@ def render_story_layout(
     padding = 20
     panel_area_y = title_h + padding
     panel_area_h = height - panel_area_y - label_h - padding
-    panel_w = (width - padding * (n + 1)) // n
+    panel_w = max(1, (width - padding * (n + 1)) // n)
 
     # Draw title
     if title:
@@ -180,8 +180,8 @@ def render_grid_layout(
     padding = 10
     rows = math.ceil(n / cols)
 
-    cell_w = (width - padding * (cols + 1)) // cols
-    cell_h = (height - padding * (rows + 1)) // rows
+    cell_w = max(1, (width - padding * (cols + 1)) // cols)
+    cell_h = max(1, (height - padding * (rows + 1)) // rows)
 
     for idx, asset in enumerate(assets):
         row = idx // cols
@@ -314,6 +314,7 @@ def export_video(
         "-crf", "23",
         "-preset", preset,
         "-movflags", "+faststart",
+        "--",  # Prevent output_path from being interpreted as option
         output_path,
     ]
 
