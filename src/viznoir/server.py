@@ -999,6 +999,60 @@ async def analyze_data(
     return result
 
 
+@mcp.tool()
+async def compose_assets(
+    assets: list[dict[str, Any]],
+    layout: Literal["story", "grid", "slides", "video"] = "story",
+    title: str | None = None,
+    width: int = 1920,
+    height: int = 1080,
+    scenes: list[dict[str, Any]] | None = None,
+    fps: int = 30,
+) -> dict[str, Any] | Image:
+    """Compose multiple assets into a deliverable format.
+
+    Layout modes:
+      - story: horizontal row of panels with title and labels (→ PNG)
+      - grid: N×M grid layout (→ PNG)
+      - slides: one slide per asset with centered image and label (→ PNG per slide)
+      - video: animated sequence with transitions (→ MP4)
+
+    Asset types (each item in the assets list):
+      - render: {"type": "render", "path": "/path/to/render.png", "label": "..."}
+      - latex:  {"type": "latex", "tex": "E = mc^2", "color": "FFFFFF", "label": "..."}
+      - plot:   {"type": "plot", "path": "/path/to/plot.png", "label": "..."}
+      - text:   {"type": "text", "content": "Plain text overlay", "label": "..."}
+
+    Transitions (for video layout scenes):
+      fade_in, fade_out, dissolve, wipe_left, wipe_right, wipe_down, wipe_up
+
+    Args:
+        assets: List of asset definitions (dicts with 'type' and type-specific keys)
+        layout: Layout mode — "story", "grid", "slides", or "video"
+        title: Optional title text (used in story layout)
+        width: Output width in pixels (default 1920)
+        height: Output height in pixels (default 1080)
+        scenes: Scene definitions for video layout (list of dicts with
+                asset_indices, duration, transition)
+        fps: Frames per second for video export (default 30)
+    """
+    logger.debug("tool.compose_assets: layout=%s assets=%d", layout, len(assets))
+    t0 = time.monotonic()
+    from viznoir.tools.compose import compose_assets_impl
+
+    result = await compose_assets_impl(
+        assets,
+        layout=layout,
+        title=title,
+        width=width,
+        height=height,
+        scenes=scenes,
+        fps=fps,
+    )
+    logger.debug("tool.compose_assets: done in %.2fs", time.monotonic() - t0)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Resources
 # ---------------------------------------------------------------------------

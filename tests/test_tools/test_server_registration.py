@@ -22,6 +22,7 @@ class TestServerRegistration:
             "execute_pipeline", "pv_isosurface",
             "cinematic_render", "compare",
             "probe_timeseries", "batch_render", "preview_3d",
+            "compose_assets",
         ]
         for name in tool_funcs:
             assert hasattr(server, name), f"Missing tool function: {name}"
