@@ -29,3 +29,4 @@ firebase-debug.log
 scripts/launch/logs/
 .hypothesis/
 .mutmut-cache
+.worktrees/
