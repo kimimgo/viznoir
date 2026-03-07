@@ -2,7 +2,7 @@
 
 A complete 8-step conjugate heat transfer (CHT) post-processing workflow.
 
-See the full pipeline definition: [`examples/thermal_analysis.json`](https://github.com/kimimgo/parapilot/blob/main/examples/thermal_analysis.json)
+See the full pipeline definition: [`examples/thermal_analysis.json`](https://github.com/kimimgo/viznoir/blob/main/examples/thermal_analysis.json)
 
 ## Steps
 

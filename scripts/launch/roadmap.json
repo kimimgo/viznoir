@@ -1,5 +1,5 @@
 {
-  "project": "parapilot",
+  "project": "viznoir",
   "launch_date": "2026-03-09",
   "prep_deadline": "2026-03-08",
   "created": "2026-03-06",
@@ -14,7 +14,7 @@
           "priority": "P0",
           "date": "2026-03-07",
           "status": "todo",
-          "check_cmd": "pip index versions mcp-server-parapilot 2>/dev/null | grep -q 'Available'",
+          "check_cmd": "pip index versions mcp-server-viznoir 2>/dev/null | grep -q 'Available'",
           "notes": "pypi.org > Manage > Publishing > Add GitHub publisher, 이후 v0.1.1 release로 트리거"
         },
         {
@@ -23,7 +23,7 @@
           "priority": "P0",
           "date": "2026-03-07",
           "status": "todo",
-          "check_cmd": "gh api repos/kimimgo/parapilot --jq '.has_social_preview' 2>/dev/null | grep -q 'true'",
+          "check_cmd": "gh api repos/kimimgo/viznoir --jq '.has_social_preview' 2>/dev/null | grep -q 'true'",
           "notes": "DrivAerML cinematic render + 로고 합성, GitHub issue #23"
         },
         {
@@ -41,7 +41,7 @@
           "priority": "P0",
           "date": "2026-03-08",
           "status": "todo",
-          "check_cmd": "curl -sf 'https://smithery.ai/server/mcp-server-parapilot' -o /dev/null",
+          "check_cmd": "curl -sf 'https://smithery.ai/server/mcp-server-viznoir' -o /dev/null",
           "notes": "npx @smithery/cli publish, smithery.yaml 준비됨"
         },
         {
@@ -179,7 +179,7 @@
           "priority": "P1",
           "date": "2026-03-14",
           "status": "todo",
-          "check_cmd": "gh release view v0.1.2 --repo kimimgo/parapilot >/dev/null 2>&1",
+          "check_cmd": "gh release view v0.1.2 --repo kimimgo/viznoir >/dev/null 2>&1",
           "notes": "런치 후 발견 버그 즉시 수정"
         },
         {

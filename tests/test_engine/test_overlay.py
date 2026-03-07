@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image
 
-from parapilot.engine.overlay import (
+from viznoir.engine.overlay import (
     THEMES,
     OverlayTheme,
     ScalarBarConfig,
@@ -61,7 +61,7 @@ class TestFontManagement:
 
     def test_find_font_no_ttf_returns_none(self):
         """_find_font returns None when no font files exist."""
-        with patch("parapilot.engine.overlay._FONT_SEARCH_PATHS", ["/nonexistent/a.ttf"]):
+        with patch("viznoir.engine.overlay._FONT_SEARCH_PATHS", ["/nonexistent/a.ttf"]):
             result = _find_font("sans", bold=False)
         assert result is None
 
@@ -70,13 +70,13 @@ class TestFontManagement:
         # Create a font file that exists but doesn't match preferred name patterns
         fake_font = tmp_path / "UnknownFont.ttf"
         fake_font.write_bytes(b"fake")
-        with patch("parapilot.engine.overlay._FONT_SEARCH_PATHS", [str(fake_font)]):
+        with patch("viznoir.engine.overlay._FONT_SEARCH_PATHS", [str(fake_font)]):
             result = _find_font("sans", bold=False)
         assert result == str(fake_font)
 
     def test_get_font_load_default_fallback(self):
         """get_font falls back to load_default when no TTF found."""
-        import parapilot.engine.overlay as overlay_mod
+        import viznoir.engine.overlay as overlay_mod
         # Clear cache and mock _find_font to return None
         old_cache = overlay_mod._font_cache.copy()
         overlay_mod._font_cache.clear()
@@ -247,7 +247,7 @@ class TestCompose:
                 title="Value",
                 n_labels=5,
             ),
-            watermark="parapilot",
+            watermark="viznoir",
             theme="dark",
         )
         img = Image.open(io.BytesIO(result))
@@ -282,7 +282,7 @@ class TestCompose:
 
     def test_sample_colormap_else_branch(self):
         """Colormap with control points not reaching t=1.0 hits the else branch."""
-        import parapilot.engine.colormaps as cm_mod
+        import viznoir.engine.colormaps as cm_mod
         # Control points stop at t=0.3, so for t>0.3 the for loop's else fires
         mock_pts = [(0.0, 0.0, 0.0, 0.0), (0.3, 1.0, 0.0, 0.0)]
         cm_mod.COLORMAP_REGISTRY["_test_short"] = mock_pts

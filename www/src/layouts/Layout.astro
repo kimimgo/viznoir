@@ -5,12 +5,12 @@ interface Props {
 }
 
 const {
-  title = 'parapilot — Headless ParaView MCP Server',
+  title = 'viznoir — Headless ParaView MCP Server',
   description = 'Headless CAE post-processing MCP server for AI coding assistants. 18 tools, 11 resources, 1048 tests. Render CFD/FEA from your terminal.',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL('/parapilot/og-image.png', Astro.site);
+const ogImage = new URL('/viznoir/og-image.png', Astro.site);
 ---
 
 <!doctype html>
@@ -35,7 +35,7 @@ const ogImage = new URL('/parapilot/og-image.png', Astro.site);
     <meta name="twitter:image" content={ogImage} />
 
     <link rel="canonical" href={canonicalURL} />
-    <link rel="icon" type="image/svg+xml" href="/parapilot/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/viznoir/favicon.svg" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -1,19 +1,19 @@
 # MCP Registry Submissions Guide
 
-> parapilot v0.1.0 launch — 5 registries
+> viznoir v0.1.0 launch — 5 registries
 
 ## Project Info (Copy-Paste Ready)
 
 | Field | Value |
 |-------|-------|
-| Name | parapilot |
-| PyPI | mcp-server-parapilot |
+| Name | viznoir |
+| PyPI | mcp-server-viznoir |
 | Description | Headless CAE post-processing MCP server for AI coding assistants |
 | Long Description | Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. VTK-based headless rendering, 50+ mesh formats, no ParaView required. |
-| GitHub | https://github.com/kimimgo/parapilot |
-| Landing Page | https://kimimgo.github.io/parapilot |
+| GitHub | https://github.com/kimimgo/viznoir |
+| Landing Page | https://kimimgo.github.io/viznoir |
 | License | MIT |
-| Install | `pip install mcp-server-parapilot` |
+| Install | `pip install mcp-server-viznoir` |
 | Categories | Science, Engineering, Visualization, Simulation, CAE, CFD, FEA |
 | Stats | 13 tools, 10 resources, 3 prompts, 331 tests |
 
@@ -33,19 +33,19 @@
 ### Entry Text (1-line)
 
 ```markdown
-- [parapilot](https://github.com/kimimgo/parapilot) - Headless VTK post-processing for CFD/FEA simulations. 13 tools: render, slice, contour, clip, streamlines, animate. 50+ mesh formats.
+- [viznoir](https://github.com/kimimgo/viznoir) - Headless VTK post-processing for CFD/FEA simulations. 13 tools: render, slice, contour, clip, streamlines, animate. 50+ mesh formats.
 ```
 
 ### PR Title
 
 ```
-Add parapilot — CAE post-processing MCP server
+Add viznoir — CAE post-processing MCP server
 ```
 
 ### PR Body
 
 ```markdown
-## parapilot
+## viznoir
 
 Headless CAE post-processing MCP server for AI coding assistants.
 
@@ -56,9 +56,9 @@ Headless CAE post-processing MCP server for AI coding assistants.
 - **Headless rendering**: GPU (EGL) or CPU (OSMesa)
 - **331 tests**, MIT license
 
-GitHub: https://github.com/kimimgo/parapilot
-Landing: https://kimimgo.github.io/parapilot
-PyPI: https://pypi.org/project/mcp-server-parapilot/
+GitHub: https://github.com/kimimgo/viznoir
+Landing: https://kimimgo.github.io/viznoir
+PyPI: https://pypi.org/project/mcp-server-viznoir/
 ```
 
 ---
@@ -73,7 +73,7 @@ PyPI: https://pypi.org/project/mcp-server-parapilot/
 Already configured in project root with:
 - name, description, vendor, sourceUrl, homepage, license
 - 8 tags: vtk, cfd, cae, visualization, simulation, post-processing, headless-rendering, engineering
-- stdio startCommand with configSchema (PARAPILOT_DATA_DIR, OUTPUT_DIR, RENDER_BACKEND)
+- stdio startCommand with configSchema (VIZNOIR_DATA_DIR, OUTPUT_DIR, RENDER_BACKEND)
 
 ### Publish Command
 
@@ -88,7 +88,7 @@ npx @smithery/cli publish
 
 ### Verification
 
-After publish, check: `https://smithery.ai/server/parapilot`
+After publish, check: `https://smithery.ai/server/viznoir`
 
 ---
 
@@ -101,11 +101,11 @@ After publish, check: `https://smithery.ai/server/parapilot`
 
 | Field | Value |
 |-------|-------|
-| Server Name | parapilot |
+| Server Name | viznoir |
 | Description | Headless CAE post-processing MCP server for AI coding assistants. Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. |
-| GitHub URL | https://github.com/kimimgo/parapilot |
-| Website | https://kimimgo.github.io/parapilot |
-| Install Command | pip install mcp-server-parapilot |
+| GitHub URL | https://github.com/kimimgo/viznoir |
+| Website | https://kimimgo.github.io/viznoir |
+| Install Command | pip install mcp-server-viznoir |
 | Categories | Science, Engineering, Data Visualization |
 | Tags | vtk, cfd, cae, simulation, visualization, post-processing |
 | License | MIT |
@@ -121,13 +121,13 @@ After publish, check: `https://smithery.ai/server/parapilot`
 
 | Field | Value |
 |-------|-------|
-| GitHub Repository URL | https://github.com/kimimgo/parapilot |
-| Name | parapilot |
+| GitHub Repository URL | https://github.com/kimimgo/viznoir |
+| Name | viznoir |
 | Short Description | Headless CAE post-processing MCP server for AI coding assistants |
 | Long Description | Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. VTK-based headless rendering with GPU (EGL) or CPU (OSMesa) support. 50+ mesh formats via meshio. No ParaView dependency required. |
 | Categories | Science & Research, Engineering, Data Visualization |
-| Install | pip install mcp-server-parapilot |
-| Website | https://kimimgo.github.io/parapilot |
+| Install | pip install mcp-server-viznoir |
+| Website | https://kimimgo.github.io/viznoir |
 
 ---
 
@@ -140,11 +140,11 @@ After publish, check: `https://smithery.ai/server/parapilot`
 
 | Field | Value |
 |-------|-------|
-| Server Name | parapilot |
+| Server Name | viznoir |
 | Description | Headless CAE post-processing MCP server for AI coding assistants. 13 tools for CFD/FEA visualization: render, slice, contour, clip, streamlines, animate. VTK-based, 50+ mesh formats, GPU/CPU headless rendering. |
-| GitHub URL | https://github.com/kimimgo/parapilot |
-| Homepage | https://kimimgo.github.io/parapilot |
-| Install | pip install mcp-server-parapilot |
+| GitHub URL | https://github.com/kimimgo/viznoir |
+| Homepage | https://kimimgo.github.io/viznoir |
+| Install | pip install mcp-server-viznoir |
 | Category | Science & Research |
 | License | MIT |
 
@@ -165,10 +165,10 @@ After publish, check: `https://smithery.ai/server/parapilot`
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_RENDER_BACKEND": "auto"
+        "VIZNOIR_RENDER_BACKEND": "auto"
       }
     }
   }
@@ -180,11 +180,11 @@ After publish, check: `https://smithery.ai/server/parapilot`
 ```json
 {
   "mcpServers": {
-    "parapilot": {
+    "viznoir": {
       "command": "uvx",
-      "args": ["mcp-server-parapilot"],
+      "args": ["mcp-server-viznoir"],
       "env": {
-        "PARAPILOT_RENDER_BACKEND": "auto"
+        "VIZNOIR_RENDER_BACKEND": "auto"
       }
     }
   }

@@ -1,4 +1,4 @@
-"""Parapilot rendering performance benchmark suite.
+"""Viznoir rendering performance benchmark suite.
 
 Measures render/filter latency and detects regressions using the engine layer
 directly — no MCP server round-trip.  VTK Wavelet (vtkRTAnalyticSource) is
@@ -92,7 +92,7 @@ def bench_wavelet_render(benchmark: Callable | None = None) -> float:
         pytest-benchmark the fixture controls timing and the return value
         is ignored.
     """
-    from parapilot.engine.renderer import RenderConfig, VTKRenderer
+    from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
     data = _make_wavelet()
     renderer = VTKRenderer(RenderConfig(width=1280, height=720, array_name="RTData"))
@@ -130,8 +130,8 @@ def bench_wavelet_slice(benchmark: Callable | None = None) -> float:
     Returns:
         Elapsed time in seconds (standalone mode).
     """
-    from parapilot.engine.filters import slice_plane
-    from parapilot.engine.renderer import RenderConfig, VTKRenderer
+    from viznoir.engine.filters import slice_plane
+    from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
     data = _make_wavelet()
     renderer = VTKRenderer(RenderConfig(width=640, height=480))
@@ -169,8 +169,8 @@ def bench_wavelet_contour(benchmark: Callable | None = None) -> float:
     Returns:
         Elapsed time in seconds (standalone mode).
     """
-    from parapilot.engine.filters import contour
-    from parapilot.engine.renderer import RenderConfig, VTKRenderer
+    from viznoir.engine.filters import contour
+    from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
     data = _make_wavelet()
     renderer = VTKRenderer(RenderConfig(width=640, height=480, array_name="RTData"))
@@ -211,7 +211,7 @@ def bench_resolution_scaling(benchmark: Callable | None = None) -> dict[str, flo
     Returns:
         Dict mapping resolution label to elapsed seconds.
     """
-    from parapilot.engine.renderer import RenderConfig, VTKRenderer
+    from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
     data = _make_wavelet()
     timings: dict[str, float] = {}
@@ -267,7 +267,7 @@ def bench_colormap_switch(benchmark: Callable | None = None) -> dict[str, float]
     Returns:
         Dict mapping colormap name to elapsed seconds.
     """
-    from parapilot.engine.renderer import RenderConfig, VTKRenderer
+    from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
     data = _make_wavelet()
     timings: dict[str, float] = {}
@@ -336,7 +336,7 @@ try:
         With pytest-benchmark installed: measures mean/min/max latency over
         multiple rounds.  Without it: runs once and asserts a valid PNG.
         """
-        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
         renderer = VTKRenderer(RenderConfig(width=1280, height=720, array_name="RTData"))
         result = benchmark(renderer.render, wavelet_data)
@@ -347,8 +347,8 @@ try:
 
         Measures ``slice_plane()`` + ``VTKRenderer.render()`` combined latency.
         """
-        from parapilot.engine.filters import slice_plane
-        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        from viznoir.engine.filters import slice_plane
+        from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
         renderer = VTKRenderer(RenderConfig(width=640, height=480))
 
@@ -364,8 +364,8 @@ try:
 
         Extracts two isosurfaces (120, 200) from ``RTData`` then renders.
         """
-        from parapilot.engine.filters import contour
-        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        from viznoir.engine.filters import contour
+        from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
         renderer = VTKRenderer(RenderConfig(width=640, height=480, array_name="RTData"))
 
@@ -384,7 +384,7 @@ try:
         wavelet_data: object,
     ) -> None:
         """Render wavelet at each output resolution (480p / 720p / 1080p / 4K)."""
-        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
         w, h = wh
         renderer = VTKRenderer(RenderConfig(width=w, height=h, array_name="RTData"))
@@ -398,7 +398,7 @@ try:
         wavelet_data: object,
     ) -> None:
         """Render wavelet with each of the six built-in colormaps at 720p."""
-        from parapilot.engine.renderer import RenderConfig, VTKRenderer
+        from viznoir.engine.renderer import RenderConfig, VTKRenderer
 
         renderer = VTKRenderer(
             RenderConfig(width=1280, height=720, colormap=cmap, array_name="RTData")
@@ -425,7 +425,7 @@ def _run_all() -> None:
     """Run all benchmarks and print a summary table."""
     separator = "-" * 52
     print()
-    print("parapilot rendering benchmark")
+    print("viznoir rendering benchmark")
     print(separator)
 
     # 1. Basic render

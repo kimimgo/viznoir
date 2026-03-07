@@ -1,19 +1,19 @@
-# parapilot Code Owners
+# viznoir Code Owners
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Default owner for everything
 * @kimimgo
 
 # Engine layer — core VTK logic
-src/parapilot/engine/ @kimimgo
+src/viznoir/engine/ @kimimgo
 
 # MCP server + tools
-src/parapilot/server.py @kimimgo
-src/parapilot/tools/ @kimimgo
+src/viznoir/server.py @kimimgo
+src/viznoir/tools/ @kimimgo
 
 # Pipeline DSL
-src/parapilot/pipeline/ @kimimgo
-src/parapilot/core/ @kimimgo
+src/viznoir/pipeline/ @kimimgo
+src/viznoir/core/ @kimimgo
 
 # CI/CD and infrastructure
 .github/ @kimimgo

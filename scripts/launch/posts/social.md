@@ -4,15 +4,15 @@
 
 ## Twitter/X Post
 
-Introducing parapilot — an open-source MCP server that lets AI assistants render CFD/FEA simulations headlessly.
+Introducing viznoir — an open-source MCP server that lets AI assistants render CFD/FEA simulations headlessly.
 
 18 tools. Headless VTK. One pip install.
 
 Your AI can now slice, contour, animate, and extract stats from OpenFOAM/VTK data — no ParaView GUI needed.
 
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 
-https://github.com/kimimgo/parapilot
+https://github.com/kimimgo/viznoir
 
 #MCP #CFD #OpenSource #AI
 
@@ -20,15 +20,15 @@ https://github.com/kimimgo/parapilot
 
 ## LinkedIn Post
 
-### AI Meets Computational Engineering: Introducing parapilot
+### AI Meets Computational Engineering: Introducing viznoir
 
 Every computational engineer knows the workflow: run a simulation for hours (or days), then spend another chunk of time manually post-processing results in ParaView — clicking through menus, adjusting colormaps, setting up camera angles, exporting images. Multiply this by dozens of cases and it becomes a real bottleneck.
 
 This problem gets worse in modern development environments. Headless servers, CI/CD pipelines, SSH sessions, and AI-assisted coding workflows have no display server. Traditional GUI-based post-processing simply doesn't work there.
 
-I built **parapilot** to solve this.
+I built **viznoir** to solve this.
 
-parapilot is an open-source MCP (Model Context Protocol) server that turns VTK rendering into simple tool calls for AI coding assistants. Instead of launching a GUI, you describe what you want in natural language — and your AI assistant handles the rest.
+viznoir is an open-source MCP (Model Context Protocol) server that turns VTK rendering into simple tool calls for AI coding assistants. Instead of launching a GUI, you describe what you want in natural language — and your AI assistant handles the rest.
 
 **What it enables:**
 
@@ -49,13 +49,13 @@ parapilot is an open-source MCP (Model Context Protocol) server that turns VTK r
 
 Validated on the DrivAerML benchmark (8.8M cells) — a full pressure contour renders in approximately 4 seconds.
 
-Scientific visualization represents less than 0.03% of the 18,000+ MCP servers available today. parapilot aims to bridge the gap between computational engineering and AI-native tooling.
+Scientific visualization represents less than 0.03% of the 18,000+ MCP servers available today. viznoir aims to bridge the gap between computational engineering and AI-native tooling.
 
 MIT licensed. Contributions and feedback welcome.
 
-GitHub: https://github.com/kimimgo/parapilot
-Documentation: https://kimimgo.github.io/parapilot
-PyPI: https://pypi.org/project/mcp-server-parapilot/
+GitHub: https://github.com/kimimgo/viznoir
+Documentation: https://kimimgo.github.io/viznoir
+PyPI: https://pypi.org/project/mcp-server-viznoir/
 
 #ComputationalEngineering #CFD #FEA #MCP #AIAssistants #OpenSource #PostProcessing #VTK #SimulationEngineering
 
@@ -63,7 +63,7 @@ PyPI: https://pypi.org/project/mcp-server-parapilot/
 
 ## Discord/Slack Announcement
 
-Hey everyone! Just released **parapilot** — an open-source MCP server that lets AI coding assistants (Claude, Cursor, Windsurf) render CFD/FEA simulation results headlessly. No ParaView GUI needed.
+Hey everyone! Just released **viznoir** — an open-source MCP server that lets AI coding assistants (Claude, Cursor, Windsurf) render CFD/FEA simulation results headlessly. No ParaView GUI needed.
 
 Ask your AI to visualize OpenFOAM or VTK data in natural language, and it handles the rendering for you.
 
@@ -73,11 +73,11 @@ Ask your AI to visualize OpenFOAM or VTK data in natural language, and it handle
 - Pipeline DSL for multi-step workflows
 - Cinematic rendering with PBR, SSAO, 3-point lighting
 - 1,048 tests, 99% coverage, MIT license
-- One-line install: `pip install mcp-server-parapilot`
+- One-line install: `pip install mcp-server-viznoir`
 
 Tested on DrivAerML (8.8M cells) — renders in ~4 seconds.
 
-GitHub: https://github.com/kimimgo/parapilot
-PyPI: https://pypi.org/project/mcp-server-parapilot/
+GitHub: https://github.com/kimimgo/viznoir
+PyPI: https://pypi.org/project/mcp-server-viznoir/
 
 Feedback, issues, and PRs all welcome!

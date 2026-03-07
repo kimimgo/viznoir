@@ -7,7 +7,7 @@ dev:
 	pip install -e ".[dev]"
 
 test:
-	pytest --cov=parapilot --cov-report=term-missing -q
+	pytest --cov=viznoir --cov-report=term-missing -q
 
 lint:
 	ruff check src/ tests/
@@ -16,7 +16,7 @@ lint-fix:
 	ruff check src/ tests/ --fix
 
 type-check:
-	mypy src/parapilot/ --ignore-missing-imports
+	mypy src/viznoir/ --ignore-missing-imports
 
 ci: lint type-check test
 

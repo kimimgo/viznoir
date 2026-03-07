@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from parapilot.presets import CASE_PRESETS, get_preset, list_presets
-from parapilot.presets.registry import CAMERAS, COLORMAP_GUIDE, REPRESENTATION_GUIDE
+from viznoir.presets import CASE_PRESETS, get_preset, list_presets
+from viznoir.presets.registry import CAMERAS, COLORMAP_GUIDE, REPRESENTATION_GUIDE
 
 
 class TestCameraPresets:

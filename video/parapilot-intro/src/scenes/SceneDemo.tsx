@@ -18,7 +18,7 @@ const showcaseImages = [
 
 const conversation = [
   { role: "user" as const, text: 'Render the pressure field of my CFD simulation' },
-  { role: "ai" as const, text: 'Rendering with parapilot...' },
+  { role: "ai" as const, text: 'Rendering with viznoir...' },
 ];
 
 export const SceneDemo: React.FC = () => {

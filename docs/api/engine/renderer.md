@@ -2,4 +2,4 @@
 
 Offscreen VTK rendering engine.
 
-::: parapilot.engine.renderer
+::: viznoir.engine.renderer

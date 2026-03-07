@@ -17,7 +17,7 @@ body:
       label: Steps to Reproduce
       description: How can we reproduce this issue?
       placeholder: |
-        1. Run `mcp-server-parapilot`
+        1. Run `mcp-server-viznoir`
         2. Call the `render` tool with ...
         3. See error
     validations:

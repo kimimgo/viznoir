@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import vtk
 
-from parapilot.tools.compare import _compose_side_by_side
+from viznoir.tools.compare import _compose_side_by_side
 
 
 def _write_test_vtk(path: Path, radius: float = 1.0) -> None:
@@ -38,7 +38,7 @@ class TestComposeSideBySide:
         src = vtk.vtkSphereSource()
         src.Update()
 
-        from parapilot.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.renderer import RenderConfig, render_to_png
 
         config = RenderConfig(width=200, height=150)
         png_a = render_to_png(src.GetOutput(), config)
@@ -53,7 +53,7 @@ class TestComposeSideBySide:
         src = vtk.vtkSphereSource()
         src.Update()
 
-        from parapilot.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.renderer import RenderConfig, render_to_png
 
         config = RenderConfig(width=100, height=75)
         png = render_to_png(src.GetOutput(), config)
@@ -75,8 +75,8 @@ def two_test_files(tmp_path):
 class TestCompareImpl:
     def test_side_by_side_sync(self, two_test_files):
         """Integration test: compare two files side by side (sync path)."""
-        from parapilot.engine.readers import read_dataset
-        from parapilot.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.readers import read_dataset
+        from viznoir.engine.renderer import RenderConfig, render_to_png
 
         file_a, file_b = two_test_files
         data_a = read_dataset(file_a)

@@ -1,6 +1,6 @@
 # Tools Overview
 
-parapilot provides 18 MCP tools organized by function:
+viznoir provides 18 MCP tools organized by function:
 
 ## Visualization Tools
 

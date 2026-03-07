@@ -2,4 +2,4 @@
 
 VTK filter functions for slicing, clipping, contouring, and more.
 
-::: parapilot.engine.filters
+::: viznoir.engine.filters

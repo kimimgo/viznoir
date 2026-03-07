@@ -11,17 +11,17 @@ import pytest
 class TestCinematicRenderImpl:
     async def test_run_inner_function(self):
         """Test the inner _run function constructs correct configs."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.readers.get_timesteps"), \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.readers.get_timesteps"), \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG_test"
 
-            from parapilot.engine.renderer_cine import CinematicConfig
+            from viznoir.engine.renderer_cine import CinematicConfig
 
             # Simulate what cinematic_render_impl._run() does
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             # Call with await — it uses run_in_executor internally
@@ -75,15 +75,15 @@ class TestCinematicRenderImpl:
 
     async def test_latest_timestep_resolution(self):
         """Test that timestep='latest' resolves to last available step."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.readers.get_timesteps") as mock_ts, \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.readers.get_timesteps") as mock_ts, \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_ts.return_value = [0.0, 0.5, 1.0, 1.5]
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
 
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             await cinematic_render_impl(
@@ -97,13 +97,13 @@ class TestCinematicRenderImpl:
 
     async def test_string_timestep_conversion(self):
         """Test that string timestep is converted to float."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
 
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             await cinematic_render_impl(
@@ -116,13 +116,13 @@ class TestCinematicRenderImpl:
 
     async def test_no_scalar_range(self):
         """Test rendering without scalar_range."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
 
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             await cinematic_render_impl(
@@ -135,13 +135,13 @@ class TestCinematicRenderImpl:
 
     async def test_default_parameters(self):
         """Test that default parameters are applied correctly."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
 
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             await cinematic_render_impl(
@@ -162,15 +162,15 @@ class TestCinematicRenderImpl:
 
     async def test_latest_timestep_empty_steps(self):
         """Test timestep='latest' with no available timesteps."""
-        with patch("parapilot.engine.readers.read_dataset") as mock_read, \
-             patch("parapilot.engine.readers.get_timesteps") as mock_ts, \
-             patch("parapilot.engine.renderer_cine.cinematic_render") as mock_cine:
+        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
+             patch("viznoir.engine.readers.get_timesteps") as mock_ts, \
+             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine:
 
             mock_ts.return_value = []
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
 
-            from parapilot.tools.cinematic import cinematic_render_impl
+            from viznoir.tools.cinematic import cinematic_render_impl
             runner = MagicMock()
 
             await cinematic_render_impl(

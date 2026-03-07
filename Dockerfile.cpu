@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# parapilot: CPU-only headless rendering (OSMesa — no GPU needed)
+# viznoir: CPU-only headless rendering (OSMesa — no GPU needed)
 # ──────────────────────────────────────────────────────────────
 FROM python:3.10-slim AS base
 
@@ -19,7 +19,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 
-# Install parapilot with VTK (osmesa wheel)
+# Install viznoir with VTK (osmesa wheel)
 COPY pyproject.toml .
 COPY src/ ./src/
 RUN uv venv /opt/venv --python 3.10 \
@@ -31,10 +31,10 @@ ENV PATH="/opt/venv/bin:${PATH}"
 
 # ── Runtime directories ──
 RUN mkdir -p /data /output
-ENV PARAPILOT_DATA_DIR=/data
-ENV PARAPILOT_OUTPUT_DIR=/output
-ENV PARAPILOT_RENDER_BACKEND=cpu
-ENV PARAPILOT_VTK_BACKEND=osmesa
+ENV VIZNOIR_DATA_DIR=/data
+ENV VIZNOIR_OUTPUT_DIR=/output
+ENV VIZNOIR_RENDER_BACKEND=cpu
+ENV VIZNOIR_VTK_BACKEND=osmesa
 
 ENTRYPOINT []
-CMD ["mcp-server-parapilot"]
+CMD ["mcp-server-viznoir"]

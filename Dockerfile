@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# parapilot: ParaView MCP Server (GPU EGL headless rendering)
+# viznoir: ParaView MCP Server (GPU EGL headless rendering)
 # ──────────────────────────────────────────────────────────────
 FROM ubuntu:22.04 AS base
 
@@ -34,7 +34,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 
-# Install parapilot into a venv (separate from ParaView's Python)
+# Install viznoir into a venv (separate from ParaView's Python)
 COPY pyproject.toml .
 COPY src/ ./src/
 RUN uv venv /opt/venv --python 3.10 \
@@ -46,9 +46,9 @@ ENV PATH="/opt/venv/bin:${PATH}"
 
 # ── Runtime directories ──
 RUN mkdir -p /data /output
-ENV PARAPILOT_DATA_DIR=/data
-ENV PARAPILOT_OUTPUT_DIR=/output
-ENV PARAPILOT_RENDER_BACKEND=gpu
+ENV VIZNOIR_DATA_DIR=/data
+ENV VIZNOIR_OUTPUT_DIR=/output
+ENV VIZNOIR_RENDER_BACKEND=gpu
 
 ENTRYPOINT []
-CMD ["mcp-server-parapilot"]
+CMD ["mcp-server-viznoir"]

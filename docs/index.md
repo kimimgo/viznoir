@@ -1,8 +1,8 @@
-# parapilot
+# viznoir
 
 Headless CAE post-processing MCP server for AI coding assistants.
 
-**parapilot** lets AI assistants (Claude Code, Cursor, Gemini CLI) render CFD/FEA simulation results without a GUI. It uses VTK directly to produce PNG screenshots, statistics, and animations from OpenFOAM, VTK, CGNS, and 30+ other formats.
+**viznoir** lets AI assistants (Claude Code, Cursor, Gemini CLI) render CFD/FEA simulation results without a GUI. It uses VTK directly to produce PNG screenshots, statistics, and animations from OpenFOAM, VTK, CGNS, and 30+ other formats.
 
 ## Key Features
 
@@ -18,5 +18,5 @@ Headless CAE post-processing MCP server for AI coding assistants.
 - [Quick Start](getting-started/quickstart.md)
 - [Tools Overview](tools/overview.md)
 - [API Reference](api/server.md)
-- [GitHub](https://github.com/kimimgo/parapilot)
-- [PyPI](https://pypi.org/project/mcp-server-parapilot/)
+- [GitHub](https://github.com/kimimgo/viznoir)
+- [PyPI](https://pypi.org/project/mcp-server-viznoir/)

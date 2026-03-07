@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from parapilot.server import mcp
+from viznoir.server import mcp
 
 # Resources and prompts are now registered at module import time in server.py,
 # so no explicit registration is needed here.
@@ -76,17 +76,17 @@ class TestMCPResources:
         from fastmcp import Client
 
         expected_uris = {
-            "parapilot://formats",
-            "parapilot://filters",
-            "parapilot://colormaps",
-            "parapilot://representations",
-            "parapilot://case-presets",
-            "parapilot://cameras",
-            "parapilot://cinematic",
-            "parapilot://pipelines/cfd",
-            "parapilot://pipelines/fea",
-            "parapilot://pipelines/split-animate",
-            "parapilot://physics-defaults",
+            "viznoir://formats",
+            "viznoir://filters",
+            "viznoir://colormaps",
+            "viznoir://representations",
+            "viznoir://case-presets",
+            "viznoir://cameras",
+            "viznoir://cinematic",
+            "viznoir://pipelines/cfd",
+            "viznoir://pipelines/fea",
+            "viznoir://pipelines/split-animate",
+            "viznoir://physics-defaults",
         }
         async with Client(mcp) as client:
             resources = await client.list_resources()
@@ -97,7 +97,7 @@ class TestMCPResources:
         from fastmcp import Client
 
         async with Client(mcp) as client:
-            result = await client.read_resource("parapilot://formats")
+            result = await client.read_resource("viznoir://formats")
             # Result is a list of content items
             text = result[0].text if hasattr(result[0], "text") else str(result[0])
             data = json.loads(text)
@@ -108,7 +108,7 @@ class TestMCPResources:
         from fastmcp import Client
 
         async with Client(mcp) as client:
-            result = await client.read_resource("parapilot://colormaps")
+            result = await client.read_resource("viznoir://colormaps")
             text = result[0].text if hasattr(result[0], "text") else str(result[0])
             data = json.loads(text)
             assert "colormaps" in data
@@ -119,7 +119,7 @@ class TestMCPResources:
         from fastmcp import Client
 
         async with Client(mcp) as client:
-            result = await client.read_resource("parapilot://cameras")
+            result = await client.read_resource("viznoir://cameras")
             text = result[0].text if hasattr(result[0], "text") else str(result[0])
             data = json.loads(text)
             assert "presets" in data
@@ -129,7 +129,7 @@ class TestMCPResources:
         from fastmcp import Client
 
         async with Client(mcp) as client:
-            result = await client.read_resource("parapilot://physics-defaults")
+            result = await client.read_resource("viznoir://physics-defaults")
             text = result[0].text if hasattr(result[0], "text") else str(result[0])
             data = json.loads(text)
             assert "_usage" in data
@@ -199,13 +199,13 @@ class TestMCPTasksSupport:
 
     def test_tasks_available_flag(self):
         """_TASKS_AVAILABLE reflects FastMCP version."""
-        from parapilot.server import _TASKS_AVAILABLE, _has_mcp_tasks
+        from viznoir.server import _TASKS_AVAILABLE, _has_mcp_tasks
 
         assert _TASKS_AVAILABLE == _has_mcp_tasks()
 
     def test_has_mcp_tasks_returns_bool(self):
         """_has_mcp_tasks always returns a boolean."""
-        from parapilot.server import _has_mcp_tasks
+        from viznoir.server import _has_mcp_tasks
 
         result = _has_mcp_tasks()
         assert isinstance(result, bool)
@@ -229,19 +229,30 @@ class TestMCPTasksSupport:
         """Simulating FastMCP 2.x should return False."""
         from unittest.mock import patch
 
-        from parapilot.server import _has_mcp_tasks
+        from viznoir.server import _has_mcp_tasks
 
         with patch("importlib.metadata.version", return_value="2.14.5"):
             result = _has_mcp_tasks()
             assert result is False
 
     def test_has_mcp_tasks_with_mock_new_version(self):
-        """Simulating FastMCP 3.x should return True."""
+        """Simulating FastMCP 3.x with docket available should return True."""
+        from types import ModuleType
         from unittest.mock import patch
 
-        from parapilot.server import _has_mcp_tasks
+        from viznoir.server import _has_mcp_tasks
 
-        with patch("importlib.metadata.version", return_value="3.1.0"):
+        fake_docket = ModuleType("docket")
+        orig_import = __import__
+
+        def _import_with_docket(name, *args, **kwargs):
+            if name == "docket":
+                return fake_docket
+            return orig_import(name, *args, **kwargs)
+
+        with patch("importlib.metadata.version", return_value="3.1.0"), patch(
+            "importlib.import_module", side_effect=_import_with_docket
+        ):
             result = _has_mcp_tasks()
             assert result is True
 
@@ -249,7 +260,7 @@ class TestMCPTasksSupport:
         """Missing packaging should return False gracefully."""
         from unittest.mock import patch
 
-        from parapilot.server import _has_mcp_tasks
+        from viznoir.server import _has_mcp_tasks
 
         with patch("importlib.metadata.version", side_effect=Exception("no package")):
             result = _has_mcp_tasks()

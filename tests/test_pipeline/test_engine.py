@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from parapilot.pipeline.engine import validate_pipeline
-from parapilot.pipeline.models import (
+from viznoir.pipeline.engine import validate_pipeline
+from viznoir.pipeline.models import (
     DataOutputDef,
     FilterStep,
     OutputDef,
@@ -105,7 +105,7 @@ class TestValidatePipeline:
 
 
     def test_programmable_filter_blocked_by_default(self):
-        """ProgrammableFilter should be rejected when PARAPILOT_ALLOW_PROGRAMMABLE is not set."""
+        """ProgrammableFilter should be rejected when VIZNOIR_ALLOW_PROGRAMMABLE is not set."""
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[
@@ -120,11 +120,11 @@ class TestValidatePipeline:
         assert any("ProgrammableFilter is disabled" in e for e in errors)
 
     def test_programmable_filter_allowed_with_env(self, monkeypatch):
-        """ProgrammableFilter should be accepted when PARAPILOT_ALLOW_PROGRAMMABLE=1."""
-        monkeypatch.setenv("PARAPILOT_ALLOW_PROGRAMMABLE", "1")
+        """ProgrammableFilter should be accepted when VIZNOIR_ALLOW_PROGRAMMABLE=1."""
+        monkeypatch.setenv("VIZNOIR_ALLOW_PROGRAMMABLE", "1")
         import importlib
 
-        import parapilot.pipeline.engine as eng
+        import viznoir.pipeline.engine as eng
         importlib.reload(eng)
         try:
             pipeline = PipelineDefinition(
@@ -140,7 +140,7 @@ class TestValidatePipeline:
             errors = eng.validate_pipeline(pipeline)
             assert not any("ProgrammableFilter" in e for e in errors)
         finally:
-            monkeypatch.delenv("PARAPILOT_ALLOW_PROGRAMMABLE", raising=False)
+            monkeypatch.delenv("VIZNOIR_ALLOW_PROGRAMMABLE", raising=False)
             importlib.reload(eng)
 
 
@@ -163,7 +163,7 @@ class TestValidatePipeline:
         assert any("split_animation" in e for e in errors)
 
     def test_split_animation_valid(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             GraphPaneDef,
             GraphSeriesDef,
             LayoutDef,
@@ -193,7 +193,7 @@ class TestValidatePipeline:
         assert errors == []
 
     def test_split_animation_row_out_of_range(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             LayoutDef,
             PaneDef,
             RenderPaneDef,
@@ -217,7 +217,7 @@ class TestValidatePipeline:
         assert any("row 5 out of range" in e for e in errors)
 
     def test_split_animation_col_out_of_range(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             LayoutDef,
             PaneDef,
             RenderPaneDef,
@@ -241,7 +241,7 @@ class TestValidatePipeline:
         assert any("col 3 out of range" in e for e in errors)
 
     def test_split_animation_render_without_render_pane(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             LayoutDef,
             PaneDef,
             SplitAnimationDef,
@@ -263,7 +263,7 @@ class TestValidatePipeline:
         assert any("render_pane" in e for e in errors)
 
     def test_split_animation_graph_without_graph_pane(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             LayoutDef,
             PaneDef,
             RenderPaneDef,
@@ -288,7 +288,7 @@ class TestValidatePipeline:
         assert any("graph_pane" in e for e in errors)
 
     def test_split_animation_no_render_pane_at_all(self):
-        from parapilot.pipeline.models import (
+        from viznoir.pipeline.models import (
             GraphPaneDef,
             GraphSeriesDef,
             LayoutDef,
@@ -323,7 +323,7 @@ class TestCompileVideo:
         """compile_video should return error when ffmpeg is not available."""
         import shutil as _shutil
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         monkeypatch.setattr(_shutil, "which", lambda _cmd: None)
         video_bytes, error = await compile_video(
@@ -336,7 +336,7 @@ class TestCompileVideo:
     @pytest.mark.asyncio
     async def test_compile_video_no_frames(self):
         """compile_video should return error when no frame files found."""
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         video_bytes, error = await compile_video(
             {"result.json": b"{}"}, fps=24.0
@@ -358,7 +358,7 @@ class TestCompileVideo:
 
         from PIL import Image
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames: dict[str, bytes] = {}
         for i in range(3):
@@ -384,7 +384,7 @@ class TestCompileVideo:
 
         from PIL import Image
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames: dict[str, bytes] = {}
         for i in range(3):
@@ -411,7 +411,7 @@ class TestCompileVideo:
 
         from PIL import Image
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames: dict[str, bytes] = {}
         for i in range(3):
@@ -438,7 +438,7 @@ class TestCompileVideo:
 
         from PIL import Image
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames: dict[str, bytes] = {}
         for i in range(2):
@@ -470,7 +470,7 @@ class TestCompileVideo:
 
         from PIL import Image
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames: dict[str, bytes] = {}
         for i in range(3):
@@ -493,9 +493,9 @@ class TestExecutePipeline:
         """execute_pipeline runs compile→execute→parse flow."""
         from unittest.mock import AsyncMock, MagicMock
 
-        from parapilot.core.output import PipelineResult
-        from parapilot.core.runner import RunResult
-        from parapilot.pipeline.engine import execute_pipeline
+        from viznoir.core.output import PipelineResult
+        from viznoir.core.runner import RunResult
+        from viznoir.pipeline.engine import execute_pipeline
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -537,7 +537,7 @@ class TestExecutePipeline:
         """execute_pipeline raises ValueError on invalid pipeline."""
         from unittest.mock import MagicMock
 
-        from parapilot.pipeline.engine import execute_pipeline
+        from viznoir.pipeline.engine import execute_pipeline
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.xyz"),
@@ -554,10 +554,10 @@ class TestExecutePipeline:
         """execute_pipeline compiles video when animation output with frames."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.core.output import PipelineResult
-        from parapilot.core.runner import RunResult
-        from parapilot.pipeline.engine import execute_pipeline
-        from parapilot.pipeline.models import AnimationDef
+        from viznoir.core.output import PipelineResult
+        from viznoir.core.runner import RunResult
+        from viznoir.pipeline.engine import execute_pipeline
+        from viznoir.pipeline.models import AnimationDef
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -592,7 +592,7 @@ class TestExecutePipeline:
         )
 
         with patch(
-            "parapilot.pipeline.engine.compile_video",
+            "viznoir.pipeline.engine.compile_video",
             new_callable=AsyncMock,
             return_value=(b"fake_video_data", None),
         ):
@@ -607,10 +607,10 @@ class TestExecutePipeline:
         """execute_pipeline records video_error when compile_video fails."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.core.output import PipelineResult
-        from parapilot.core.runner import RunResult
-        from parapilot.pipeline.engine import execute_pipeline
-        from parapilot.pipeline.models import AnimationDef
+        from viznoir.core.output import PipelineResult
+        from viznoir.core.runner import RunResult
+        from viznoir.pipeline.engine import execute_pipeline
+        from viznoir.pipeline.models import AnimationDef
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -637,7 +637,7 @@ class TestExecutePipeline:
         )
 
         with patch(
-            "parapilot.pipeline.engine.compile_video",
+            "viznoir.pipeline.engine.compile_video",
             new_callable=AsyncMock,
             return_value=(None, "ffmpeg not found"),
         ):
@@ -651,9 +651,9 @@ class TestExecutePipeline:
         """execute_split_animation runs two-phase pipeline."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.core.runner import RunResult
-        from parapilot.pipeline.engine import execute_split_animation
-        from parapilot.pipeline.models import (
+        from viznoir.core.runner import RunResult
+        from viznoir.pipeline.engine import execute_split_animation
+        from viznoir.pipeline.models import (
             GraphPaneDef,
             GraphSeriesDef,
             LayoutDef,
@@ -707,7 +707,7 @@ class TestExecutePipeline:
         )
 
         with patch(
-            "parapilot.core.compositor.Compositor",
+            "viznoir.core.compositor.Compositor",
             return_value=mock_compositor,
         ):
             result = await execute_split_animation(
@@ -722,7 +722,7 @@ class TestExecutePipeline:
         """execute_split_animation raises on missing split_animation."""
         from unittest.mock import MagicMock
 
-        from parapilot.pipeline.engine import execute_split_animation
+        from viznoir.pipeline.engine import execute_split_animation
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -738,7 +738,7 @@ class TestExecutePipeline:
         """L107: split_animation is None after validation passes (defensive guard)."""
         from unittest.mock import MagicMock, patch
 
-        from parapilot.pipeline.engine import execute_split_animation
+        from viznoir.pipeline.engine import execute_split_animation
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -748,7 +748,7 @@ class TestExecutePipeline:
         )
         mock_runner = MagicMock()
         # Bypass validation to reach L107
-        with patch("parapilot.pipeline.engine.validate_pipeline", return_value=[]):
+        with patch("viznoir.pipeline.engine.validate_pipeline", return_value=[]):
             with pytest.raises(ValueError, match="split_animation definition is required"):
                 await execute_split_animation(pipeline, mock_runner)
 
@@ -761,7 +761,7 @@ class TestCompileVideoEdgeCases:
         """compile_video returns error on ffmpeg non-zero exit."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames = {"frame_000000.png": b"\x89PNG", "frame_000001.png": b"\x89PNG"}
 
@@ -786,7 +786,7 @@ class TestCompileVideoEdgeCases:
         """compile_video returns error when ffmpeg produces no output."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         frames = {"frame_000000.png": b"\x89PNG"}
 
@@ -814,10 +814,10 @@ class TestEffectiveFpsFromJsonData:
         """When result.json_data has effective_fps, use it for video compilation."""
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        from parapilot.core.output import PipelineResult
-        from parapilot.core.runner import RunResult
-        from parapilot.pipeline.engine import execute_pipeline
-        from parapilot.pipeline.models import AnimationDef
+        from viznoir.core.output import PipelineResult
+        from viznoir.core.runner import RunResult
+        from viznoir.pipeline.engine import execute_pipeline
+        from viznoir.pipeline.models import AnimationDef
 
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
@@ -845,7 +845,7 @@ class TestEffectiveFpsFromJsonData:
         )
 
         with patch(
-            "parapilot.pipeline.engine.compile_video",
+            "viznoir.pipeline.engine.compile_video",
             new_callable=AsyncMock,
             return_value=(b"video", None),
         ) as mock_compile:

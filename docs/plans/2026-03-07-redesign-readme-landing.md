@@ -80,7 +80,7 @@ release/1.0.0 (v1.0 작업 시 생성)
 
 ### Team A: README + Assets (2명)
 **Branch:** `feat/redesign-readme`
-**Worktree:** `/tmp/parapilot-readme`
+**Worktree:** `/tmp/viznoir-readme`
 
 | Role | Model | 담당 파일 |
 |------|-------|----------|
@@ -93,7 +93,7 @@ release/1.0.0 (v1.0 작업 시 생성)
 
 ### Team B: Landing Page (2명)
 **Branch:** `feat/redesign-landing`
-**Worktree:** `/tmp/parapilot-landing`
+**Worktree:** `/tmp/viznoir-landing`
 
 | Role | Model | 담당 파일 |
 |------|-------|----------|
@@ -120,7 +120,7 @@ release/1.0.0 (v1.0 작업 시 생성)
 ### Structure (순서 중요)
 
 ```markdown
-# parapilot
+# viznoir
 
 > Headless CAE/CFD post-processing for AI terminals. No ParaView. No GUI.
 
@@ -143,7 +143,7 @@ release/1.0.0 (v1.0 작업 시 생성)
 
 ## vs Alternatives
 
-[비교표: parapilot / ParaView(pvpython) / PyVista / VTK-direct]
+[비교표: viznoir / ParaView(pvpython) / PyVista / VTK-direct]
 [사실 기반, 존중적 톤]
 
 ## Contributing
@@ -164,13 +164,13 @@ MIT
 > 18 MCP tools that turn natural language into publication-ready renders.
 
 **설치 우선순위:**
-1. `claude install kimimgo/parapilot` (Claude Code 사용자)
-2. `pip install mcp-server-parapilot` (범용)
+1. `claude install kimimgo/viznoir` (Claude Code 사용자)
+2. `pip install mcp-server-viznoir` (범용)
 3. `docker compose up` (격리 환경)
 
 **비교표 (사실 기반):**
 
-| Feature | parapilot | ParaView (pvpython) | PyVista | VTK Python |
+| Feature | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |---------|-----------|---------------------|---------|------------|
 | MCP Integration | ✅ Native 18 tools | ❌ | ❌ | ❌ |
 | Headless | ✅ EGL/OSMesa | ✅ pvpython | ✅ | ⚠️ Manual |
@@ -202,7 +202,7 @@ MIT
 ┌──────────────────────────────────────────┐
 │  [왼쪽 50%]                 [오른쪽 50%]  │
 │                                          │
-│  parapilot                  ┌──────────┐ │
+│  viznoir                  ┌──────────┐ │
 │                             │ Terminal  │ │
 │  Post-process               │ Demo     │ │
 │  simulations from           │ (코드+   │ │
@@ -229,7 +229,7 @@ MIT
 │  ──────────────────────────────────────── │
 │                                          │
 │  Feature Matrix (checkmarks)             │
-│  parapilot vs ParaView vs PyVista        │
+│  viznoir vs ParaView vs PyVista        │
 └──────────────────────────────────────────┘
 ```
 
@@ -348,13 +348,13 @@ git push origin release/0.3.0
 git checkout release/0.3.0
 git checkout -b feat/redesign-readme
 git push origin feat/redesign-readme
-git worktree add /tmp/parapilot-readme feat/redesign-readme
+git worktree add /tmp/viznoir-readme feat/redesign-readme
 
 # Team B worktree
 git checkout release/0.3.0
 git checkout -b feat/redesign-landing
 git push origin feat/redesign-landing
-git worktree add /tmp/parapilot-landing feat/redesign-landing
+git worktree add /tmp/viznoir-landing feat/redesign-landing
 ```
 
 #### Task 0.5: Create Agent Teams
@@ -374,7 +374,7 @@ TeamCreate: landing-team
 ### Phase 1: Team A — README + Assets (병렬)
 
 #### Task 1.1: Write new README.md
-**Worktree:** `/tmp/parapilot-readme`
+**Worktree:** `/tmp/viznoir-readme`
 **Files:** `README.md`
 - Design Spec 기반 ~120줄 README 작성
 - 배지 5개 (CI, Coverage, PyPI, Python, License)
@@ -403,7 +403,7 @@ git push origin feat/redesign-readme
 ### Phase 2: Team B — Landing Page (Phase 1과 병렬)
 
 #### Task 2.1: Redesign Hero.astro
-**Worktree:** `/tmp/parapilot-landing`
+**Worktree:** `/tmp/viznoir-landing`
 **Files:** `www/src/components/Hero.astro`
 - 2-column layout (text left, demo right)
 - 배지 제거, CTA 2개
@@ -435,7 +435,7 @@ git push origin feat/redesign-readme
 
 #### Task 2.6: Build verification
 ```bash
-cd /tmp/parapilot-landing/www && npm install && npm run build
+cd /tmp/viznoir-landing/www && npm install && npm run build
 ```
 - Commit: `www: fix build issues from redesign` (필요시)
 
@@ -468,7 +468,7 @@ git merge feat/redesign-landing --no-ff -m "merge: Team B Landing Page redesign 
 #### Task 3.4: Quality Gate
 ```bash
 ruff check src/ tests/                          # G1: lint
-mypy src/parapilot/ --ignore-missing-imports     # G2: type check
+mypy src/viznoir/ --ignore-missing-imports     # G2: type check
 pytest -q                                        # G3: tests
 cd www && npm run build                          # G4: www build
 ```
@@ -503,8 +503,8 @@ gh release create v0.3.0 --title "v0.3.0: Public Face" --notes-from-tag
 
 #### Task 5.1: Remove worktrees and feature branches
 ```bash
-git worktree remove /tmp/parapilot-readme 2>/dev/null
-git worktree remove /tmp/parapilot-landing 2>/dev/null
+git worktree remove /tmp/viznoir-readme 2>/dev/null
+git worktree remove /tmp/viznoir-landing 2>/dev/null
 git branch -d feat/redesign-readme feat/redesign-landing
 git push origin --delete feat/redesign-readme feat/redesign-landing
 ```

@@ -63,7 +63,7 @@ export const SceneCTA: React.FC = () => {
         >
           <span style={{ color: colors.green }}>$ </span>
           <span style={{ color: colors.white }}>
-            pip install mcp-server-parapilot
+            pip install mcp-server-viznoir
           </span>
         </div>
       </div>
@@ -90,7 +90,7 @@ export const SceneCTA: React.FC = () => {
             fontWeight: 500,
           }}
         >
-          github.com/kimimgo/parapilot
+          github.com/kimimgo/viznoir
         </span>
       </div>
 

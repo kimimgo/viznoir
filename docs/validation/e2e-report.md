@@ -1,4 +1,4 @@
-# parapilot E2E Validation Report
+# viznoir E2E Validation Report
 
 **Date**: 2026-03-05 20:48:53
 **Validator**: automated (docs/validation/test_e2e.py)
@@ -65,7 +65,7 @@ No issues found.
 
 ## Output Files
 
-All output files saved to `/tmp/parapilot_test/output/`:
+All output files saved to `/tmp/viznoir_test/output/`:
 
 - [x] `render_wavelet.png` (188,428B)
 - [x] `render_sphere_viridis.png` (116,032B)

@@ -25,10 +25,10 @@ const clients = ['Claude Code', 'Cursor', 'Windsurf', 'Gemini CLI'];
           <h3 class="text-lg font-semibold text-text-primary">Install</h3>
         </div>
         <p class="text-sm text-text-secondary/70 mb-4">One-line pip install</p>
-        <CodeBlock code="pip install mcp-server-parapilot" lang="bash" />
+        <CodeBlock code="pip install mcp-server-viznoir" lang="bash" />
         <div class="mt-3">
           <p class="text-[11px] text-text-secondary/40 font-mono">Or with Claude Code:</p>
-          <code class="text-[11px] text-accent/60 font-mono">claude install kimimgo/parapilot</code>
+          <code class="text-[11px] text-accent/60 font-mono">claude install kimimgo/viznoir</code>
         </div>
       </div>
 
@@ -41,8 +41,8 @@ const clients = ['Claude Code', 'Cursor', 'Windsurf', 'Gemini CLI'];
         <p class="text-sm text-text-secondary/70 mb-4">Add to your MCP config</p>
         <CodeBlock code={`{
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }`} lang="json" filename=".mcp.json" />

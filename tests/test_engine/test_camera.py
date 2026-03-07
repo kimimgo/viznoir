@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from parapilot.engine.camera import (
+from viznoir.engine.camera import (
     CameraConfig,
     custom_camera,
     preset_camera,
@@ -168,7 +168,7 @@ class TestPresetCameraZeroDirection:
 
     def test_zero_direction_no_crash(self, monkeypatch):
         """If _PRESETS returned (0,0,0) direction, mag fallback to 1.0."""
-        from parapilot.engine import camera as cam_mod
+        from viznoir.engine import camera as cam_mod
 
         original = cam_mod._PRESETS.copy()
         cam_mod._PRESETS["zero"] = ((0.0, 0.0, 0.0), (0.0, 0.0, 1.0))
@@ -191,7 +191,7 @@ class TestApplyCamera:
         """apply_camera sets perspective mode correctly."""
         from unittest.mock import MagicMock
 
-        from parapilot.engine.camera import apply_camera
+        from viznoir.engine.camera import apply_camera
 
         renderer = MagicMock()
         camera = MagicMock()
@@ -215,7 +215,7 @@ class TestApplyCamera:
         """apply_camera sets parallel projection and scale."""
         from unittest.mock import MagicMock
 
-        from parapilot.engine.camera import apply_camera
+        from viznoir.engine.camera import apply_camera
 
         renderer = MagicMock()
         camera = MagicMock()
@@ -237,7 +237,7 @@ class TestApplyCamera:
         """apply_camera with parallel projection but no scale."""
         from unittest.mock import MagicMock
 
-        from parapilot.engine.camera import apply_camera
+        from viznoir.engine.camera import apply_camera
 
         renderer = MagicMock()
         camera = MagicMock()

@@ -35,17 +35,17 @@ class TestValidateFilePathProperties:
     """Property-based tests for _validate_file_path security guarantees."""
 
     def _reload_with_data_dir(self, data_dir: str | None = "/data"):
-        import parapilot.config
-        import parapilot.server
+        import viznoir.config
+        import viznoir.server
 
         if data_dir is not None:
-            os.environ["PARAPILOT_DATA_DIR"] = data_dir
+            os.environ["VIZNOIR_DATA_DIR"] = data_dir
         else:
-            os.environ.pop("PARAPILOT_DATA_DIR", None)
+            os.environ.pop("VIZNOIR_DATA_DIR", None)
 
-        importlib.reload(parapilot.config)
-        importlib.reload(parapilot.server)
-        return parapilot.server._validate_file_path
+        importlib.reload(viznoir.config)
+        importlib.reload(viznoir.server)
+        return viznoir.server._validate_file_path
 
     @given(
         segments=st.lists(
@@ -123,7 +123,7 @@ class TestColormapRegistryProperties:
     @settings(max_examples=200)
     def test_build_lut_never_crashes(self, name):
         """build_lut should never crash — unknown names fall back to Cool to Warm."""
-        from parapilot.engine.colormaps import build_lut
+        from viznoir.engine.colormaps import build_lut
 
         result = build_lut(name, scalar_range=(0.0, 1.0))
         assert result is not None
@@ -142,7 +142,7 @@ class TestColormapRegistryProperties:
     @settings(max_examples=50)
     def test_case_insensitive_lookup(self, name):
         """All case variants of known colormaps should resolve."""
-        from parapilot.engine.colormaps import build_lut
+        from viznoir.engine.colormaps import build_lut
 
         result = build_lut(name, scalar_range=(0.0, 100.0))
         assert result is not None
@@ -155,7 +155,7 @@ class TestColormapRegistryProperties:
     def test_scalar_range_never_crashes(self, lo, hi):
         """Any scalar range should produce a valid LUT."""
         assume(lo != hi)
-        from parapilot.engine.colormaps import build_lut
+        from viznoir.engine.colormaps import build_lut
 
         result = build_lut("viridis", scalar_range=(min(lo, hi), max(lo, hi)))
         assert result is not None
@@ -168,7 +168,7 @@ class TestColormapRegistryProperties:
     def test_log_scale_positive_range(self, lo, hi):
         """Log scale with positive range should work."""
         assume(lo < hi)
-        from parapilot.engine.colormaps import build_lut
+        from viznoir.engine.colormaps import build_lut
 
         result = build_lut("plasma", scalar_range=(lo, hi), log_scale=True)
         assert result is not None
@@ -189,7 +189,7 @@ class TestPipelineModelProperties:
     @settings(max_examples=100)
     def test_render_def_accepts_any_field_name(self, field, colormap):
         """RenderDef should accept any string as field name."""
-        from parapilot.pipeline.models import RenderDef
+        from viznoir.pipeline.models import RenderDef
 
         r = RenderDef(field=field, colormap=colormap)
         assert r.field == field
@@ -210,7 +210,7 @@ class TestPipelineModelProperties:
     @settings(max_examples=100)
     def test_filter_step_accepts_arbitrary_params(self, filter_name, params):
         """FilterStep should accept any dict as params."""
-        from parapilot.pipeline.models import FilterStep
+        from viznoir.pipeline.models import FilterStep
 
         f = FilterStep(filter=filter_name, params=params)
         assert f.filter == filter_name
@@ -222,7 +222,7 @@ class TestPipelineModelProperties:
     @settings(max_examples=50)
     def test_camera_def_zoom_range(self, zoom):
         """CameraDef should accept any positive zoom."""
-        from parapilot.pipeline.models import CameraDef
+        from viznoir.pipeline.models import CameraDef
 
         c = CameraDef(zoom=zoom)
         assert c.zoom == zoom
@@ -234,7 +234,7 @@ class TestPipelineModelProperties:
     @settings(max_examples=50)
     def test_render_def_resolution(self, w, h):
         """RenderDef should accept any positive resolution."""
-        from parapilot.pipeline.models import RenderDef
+        from viznoir.pipeline.models import RenderDef
 
         r = RenderDef(field="p", resolution=[w, h])
         assert r.resolution == [w, h]

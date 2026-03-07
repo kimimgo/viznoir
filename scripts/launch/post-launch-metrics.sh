@@ -6,7 +6,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/logs"
 METRICS_LOG="$LOG_DIR/metrics.csv"
-REPO="kimimgo/parapilot"
+REPO="kimimgo/viznoir"
 LAUNCH_DATE="2026-03-09"
 
 mkdir -p "$LOG_DIR"
@@ -30,7 +30,7 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 echo "$ts,D+$day_num,$stars,$forks,$open_issues,$views,$clones,$watchers" >> "$METRICS_LOG"
 
 # Terminal output
-echo "parapilot Metrics (D+$day_num, $ts)"
+echo "viznoir Metrics (D+$day_num, $ts)"
 echo "  Stars: $stars | Forks: $forks | Watchers: $watchers"
 echo "  Open Issues: $open_issues"
 echo "  Views (14d): $views | Clones (14d): $clones"

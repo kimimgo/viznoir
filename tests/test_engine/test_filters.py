@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from parapilot.engine.filters import (
+from viznoir.engine.filters import (
     _FILTER_REGISTRY,
     apply_filter,
     apply_filters,

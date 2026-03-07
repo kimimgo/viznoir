@@ -6,8 +6,8 @@ import os
 
 import pytest
 
-from parapilot.config import PVConfig
-from parapilot.core.compiler import ScriptCompiler
+from viznoir.config import PVConfig
+from viznoir.core.compiler import ScriptCompiler
 
 # ---------------------------------------------------------------------------
 # VTK rendering availability detection

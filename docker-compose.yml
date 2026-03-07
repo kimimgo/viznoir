@@ -1,14 +1,14 @@
 services:
-  parapilot:
+  viznoir:
     build: .
-    image: parapilot:latest
+    image: viznoir:latest
     volumes:
-      - ${PARAPILOT_DATA_DIR:-./data}:/data:ro
-      - ${PARAPILOT_OUTPUT_DIR:-./output}:/output
+      - ${VIZNOIR_DATA_DIR:-./data}:/data:ro
+      - ${VIZNOIR_OUTPUT_DIR:-./output}:/output
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
-      - PARAPILOT_RENDER_BACKEND=gpu
+      - VIZNOIR_RENDER_BACKEND=gpu
     deploy:
       resources:
         reservations:
@@ -19,17 +19,17 @@ services:
     # Uncomment for HTTP transport:
     # ports:
     #   - "8000:8000"
-    # command: ["mcp-server-parapilot", "--transport", "streamable-http", "--port", "8000"]
+    # command: ["mcp-server-viznoir", "--transport", "streamable-http", "--port", "8000"]
 
   # CPU-only variant — no GPU required (OSMesa software rendering)
-  parapilot-cpu:
+  viznoir-cpu:
     build:
       context: .
       dockerfile: Dockerfile.cpu
-    image: parapilot-cpu:latest
+    image: viznoir-cpu:latest
     volumes:
-      - ${PARAPILOT_DATA_DIR:-./data}:/data:ro
-      - ${PARAPILOT_OUTPUT_DIR:-./output}:/output
+      - ${VIZNOIR_DATA_DIR:-./data}:/data:ro
+      - ${VIZNOIR_OUTPUT_DIR:-./output}:/output
     environment:
-      - PARAPILOT_RENDER_BACKEND=cpu
-      - PARAPILOT_VTK_BACKEND=osmesa
+      - VIZNOIR_RENDER_BACKEND=cpu
+      - VIZNOIR_VTK_BACKEND=osmesa

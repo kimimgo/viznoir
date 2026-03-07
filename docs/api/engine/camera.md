@@ -2,6 +2,6 @@
 
 Camera presets and PCA-based auto-camera positioning.
 
-::: parapilot.engine.camera
+::: viznoir.engine.camera
 
-::: parapilot.engine.camera_auto
+::: viznoir.engine.camera_auto

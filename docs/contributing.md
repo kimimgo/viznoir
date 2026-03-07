@@ -1,12 +1,12 @@
 # Contributing
 
-Thank you for your interest in contributing to parapilot!
+Thank you for your interest in contributing to viznoir!
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/kimimgo/parapilot.git
-cd parapilot
+git clone https://github.com/kimimgo/viznoir.git
+cd viznoir
 pip install -e ".[dev]"
 ```
 
@@ -14,7 +14,7 @@ pip install -e ".[dev]"
 
 ```bash
 # All tests
-pytest --cov=parapilot --cov-report=term-missing -q
+pytest --cov=viznoir --cov-report=term-missing -q
 
 # Single test file
 pytest tests/test_engine/test_filters.py -q
@@ -33,24 +33,24 @@ ruff check src/ tests/
 ruff check src/ tests/ --fix
 
 # Type check
-mypy src/parapilot/ --ignore-missing-imports
+mypy src/viznoir/ --ignore-missing-imports
 ```
 
 ## Adding a New Filter
 
-1. Add the VTK filter function to `src/parapilot/engine/filters.py`
-2. Register it in `src/parapilot/core/registry.py` with PascalCase key
+1. Add the VTK filter function to `src/viznoir/engine/filters.py`
+2. Register it in `src/viznoir/core/registry.py` with PascalCase key
 3. Add tests to `tests/test_engine/test_filters.py`
 
 ## Adding a New Reader
 
-1. Add the file extension mapping to `src/parapilot/engine/readers.py`
+1. Add the file extension mapping to `src/viznoir/engine/readers.py`
 2. Add tests to `tests/test_engine/test_readers.py`
 
 ## Project Structure
 
 ```
-src/parapilot/
+src/viznoir/
   server.py          # FastMCP instance + tool registrations
   tools/             # Tool implementations
   engine/            # VTK rendering engine

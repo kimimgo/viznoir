@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from parapilot.core.output import PipelineResult
-from parapilot.core.runner import RunResult
+from viznoir.core.output import PipelineResult
+from viznoir.core.runner import RunResult
 
 
 def _mock_pipeline_result(**kwargs):
@@ -21,9 +21,9 @@ def _mock_pipeline_result(**kwargs):
 
 class TestAnimateImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.animate.execute_pipeline")
+    @patch("viznoir.tools.animate.execute_pipeline")
     async def test_animate_builds_pipeline(self, mock_exec):
-        from parapilot.tools.animate import animate_impl
+        from viznoir.tools.animate import animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -46,9 +46,9 @@ class TestAnimateImpl:
         assert pipeline_def.output.animation.render.field == "velocity"
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.animate.execute_pipeline")
+    @patch("viznoir.tools.animate.execute_pipeline")
     async def test_animate_time_range(self, mock_exec):
-        from parapilot.tools.animate import animate_impl
+        from viznoir.tools.animate import animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -66,9 +66,9 @@ class TestAnimateImpl:
         assert pipeline_def.output.animation.speed_factor == 2.0
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.animate.execute_pipeline")
+    @patch("viznoir.tools.animate.execute_pipeline")
     async def test_animate_video_output(self, mock_exec):
-        from parapilot.tools.animate import animate_impl
+        from viznoir.tools.animate import animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -89,9 +89,9 @@ class TestAnimateImpl:
         assert anim.text_overlay == "Test"
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.animate.execute_pipeline")
+    @patch("viznoir.tools.animate.execute_pipeline")
     async def test_animate_multi_file(self, mock_exec):
-        from parapilot.tools.animate import animate_impl
+        from viznoir.tools.animate import animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -115,9 +115,9 @@ class TestAnimateImpl:
 
 class TestSplitAnimateImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.split_animate.execute_split_animation")
+    @patch("viznoir.tools.split_animate.execute_split_animation")
     async def test_split_animate_builds_pipeline(self, mock_exec):
-        from parapilot.tools.split_animate import split_animate_impl
+        from viznoir.tools.split_animate import split_animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -145,9 +145,9 @@ class TestSplitAnimateImpl:
         assert pipeline_def.output.split_animation.fps == 30
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.split_animate.execute_split_animation")
+    @patch("viznoir.tools.split_animate.execute_split_animation")
     async def test_split_animate_with_layout(self, mock_exec):
-        from parapilot.tools.split_animate import split_animate_impl
+        from viznoir.tools.split_animate import split_animate_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -182,9 +182,9 @@ class TestSplitAnimateImpl:
 
 class TestIsosurfaceImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_success(self, mock_subprocess, tmp_path):
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
@@ -205,9 +205,9 @@ class TestIsosurfaceImpl:
         assert len(result["iso_files"]) == 2
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_failure(self, mock_subprocess, tmp_path):
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 1
@@ -218,10 +218,10 @@ class TestIsosurfaceImpl:
             await pv_isosurface_impl(str(tmp_path), str(tmp_path / "out"))
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_custom_params(self, mock_subprocess, tmp_path):
         """Custom docker_image, vars, and only_type parameters are passed correctly."""
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
@@ -245,10 +245,10 @@ class TestIsosurfaceImpl:
         assert "-onlytype:+all" in call_args
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_empty_output(self, mock_subprocess, tmp_path):
         """Zero output files returns count=0."""
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
@@ -265,10 +265,10 @@ class TestIsosurfaceImpl:
         assert result["stdout"] == ""
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_stdout_truncation(self, mock_subprocess, tmp_path):
         """Stdout is truncated to last 500 chars."""
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
@@ -284,10 +284,10 @@ class TestIsosurfaceImpl:
         assert len(result["stdout"]) == 500
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_error_includes_exit_code(self, mock_subprocess, tmp_path):
         """Error message includes the exit code."""
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 137
@@ -298,10 +298,10 @@ class TestIsosurfaceImpl:
             await pv_isosurface_impl(str(tmp_path), str(tmp_path / "out"))
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.isosurface.asyncio.create_subprocess_exec")
+    @patch("viznoir.tools.isosurface.asyncio.create_subprocess_exec")
     async def test_isosurface_creates_output_dir(self, mock_subprocess, tmp_path):
         """Output directory is created automatically if it doesn't exist."""
-        from parapilot.tools.isosurface import pv_isosurface_impl
+        from viznoir.tools.isosurface import pv_isosurface_impl
 
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
@@ -323,9 +323,9 @@ class TestIsosurfaceImpl:
 
 class TestExtractImpls:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.extract.execute_pipeline")
+    @patch("viznoir.tools.extract.execute_pipeline")
     async def test_integrate_surface_with_boundary(self, mock_exec):
-        from parapilot.tools.extract import integrate_surface_impl
+        from viznoir.tools.extract import integrate_surface_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -343,9 +343,9 @@ class TestExtractImpls:
         assert pipeline_def.pipeline[0].params["selector"] == "inlet"
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.extract.execute_pipeline")
+    @patch("viznoir.tools.extract.execute_pipeline")
     async def test_integrate_surface_no_boundary(self, mock_exec):
-        from parapilot.tools.extract import integrate_surface_impl
+        from viznoir.tools.extract import integrate_surface_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -366,10 +366,10 @@ class TestExtractImpls:
 
 class TestPreview3dImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.preview3d.export_gltf")
-    @patch("parapilot.tools.preview3d.read_dataset")
+    @patch("viznoir.tools.preview3d.export_gltf")
+    @patch("viznoir.tools.preview3d.read_dataset")
     async def test_preview_3d_basic(self, mock_read, mock_export, tmp_path):
-        from parapilot.tools.preview3d import preview_3d_impl
+        from viznoir.tools.preview3d import preview_3d_impl
 
         mock_read.return_value = MagicMock()
         mock_export.return_value = {
@@ -380,7 +380,7 @@ class TestPreview3dImpl:
         runner = MagicMock()
 
         import os
-        with patch.dict(os.environ, {"PARAPILOT_OUTPUT_DIR": str(tmp_path)}):
+        with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             result = await preview_3d_impl(
                 file_path="/data/case.vtk",
                 runner=runner,
@@ -392,11 +392,11 @@ class TestPreview3dImpl:
         mock_export.assert_called_once()
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.preview3d.get_timesteps")
-    @patch("parapilot.tools.preview3d.export_gltf")
-    @patch("parapilot.tools.preview3d.read_dataset")
+    @patch("viznoir.tools.preview3d.get_timesteps")
+    @patch("viznoir.tools.preview3d.export_gltf")
+    @patch("viznoir.tools.preview3d.read_dataset")
     async def test_preview_3d_latest_timestep(self, mock_read, mock_export, mock_ts, tmp_path):
-        from parapilot.tools.preview3d import preview_3d_impl
+        from viznoir.tools.preview3d import preview_3d_impl
 
         mock_ts.return_value = [0.0, 1.0, 2.0]
         mock_read.return_value = MagicMock()
@@ -404,7 +404,7 @@ class TestPreview3dImpl:
         runner = MagicMock()
 
         import os
-        with patch.dict(os.environ, {"PARAPILOT_OUTPUT_DIR": str(tmp_path)}):
+        with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             await preview_3d_impl(
                 file_path="/data/case.vtk",
                 runner=runner,
@@ -414,18 +414,18 @@ class TestPreview3dImpl:
         mock_read.assert_called_once_with("/data/case.vtk", timestep=2.0)
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.preview3d.export_gltf")
-    @patch("parapilot.tools.preview3d.read_dataset")
+    @patch("viznoir.tools.preview3d.export_gltf")
+    @patch("viznoir.tools.preview3d.read_dataset")
     async def test_preview_3d_string_timestep(self, mock_read, mock_export, tmp_path):
         """String timestep (not 'latest') is converted to float."""
-        from parapilot.tools.preview3d import preview_3d_impl
+        from viznoir.tools.preview3d import preview_3d_impl
 
         mock_read.return_value = MagicMock()
         mock_export.return_value = {"path": "p.glb", "format": ".glb", "size_bytes": 512}
         runner = MagicMock()
 
         import os
-        with patch.dict(os.environ, {"PARAPILOT_OUTPUT_DIR": str(tmp_path)}):
+        with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             await preview_3d_impl(
                 file_path="/data/case.vtk",
                 runner=runner,
@@ -441,9 +441,9 @@ class TestPreview3dImpl:
 
 class TestSliceImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.filters.execute_pipeline")
+    @patch("viznoir.tools.filters.execute_pipeline")
     async def test_slice_with_zoom(self, mock_exec):
-        from parapilot.tools.filters import slice_impl
+        from viznoir.tools.filters import slice_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -459,9 +459,9 @@ class TestSliceImpl:
         assert pipeline_def.output.render.camera.zoom == 2.0
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.filters.execute_pipeline")
+    @patch("viznoir.tools.filters.execute_pipeline")
     async def test_slice_basic(self, mock_exec):
-        from parapilot.tools.filters import slice_impl
+        from viznoir.tools.filters import slice_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -479,9 +479,9 @@ class TestSliceImpl:
 
 class TestStreamlinesImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.filters.execute_pipeline")
+    @patch("viznoir.tools.filters.execute_pipeline")
     async def test_streamlines_with_zoom(self, mock_exec):
-        from parapilot.tools.filters import streamlines_impl
+        from viznoir.tools.filters import streamlines_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -497,9 +497,9 @@ class TestStreamlinesImpl:
         assert pipeline_def.output.render.camera.zoom == 1.5
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.filters.execute_pipeline")
+    @patch("viznoir.tools.filters.execute_pipeline")
     async def test_streamlines_basic(self, mock_exec):
-        from parapilot.tools.filters import streamlines_impl
+        from viznoir.tools.filters import streamlines_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -521,9 +521,9 @@ class TestStreamlinesImpl:
 
 class TestRenderImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.render.execute_pipeline")
+    @patch("viznoir.tools.render.execute_pipeline")
     async def test_render_builds_pipeline(self, mock_exec):
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -541,9 +541,9 @@ class TestRenderImpl:
         assert pipeline_def.output.render.field == "pressure"
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.render.execute_pipeline")
+    @patch("viznoir.tools.render.execute_pipeline")
     async def test_render_with_zoom(self, mock_exec):
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -559,9 +559,9 @@ class TestRenderImpl:
         assert pipeline_def.output.render.camera.zoom == 2.5
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.render.execute_pipeline")
+    @patch("viznoir.tools.render.execute_pipeline")
     async def test_render_with_background(self, mock_exec):
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -577,9 +577,9 @@ class TestRenderImpl:
         assert pipeline_def.output.render.background == [0.1, 0.2, 0.3]
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.render.execute_pipeline")
+    @patch("viznoir.tools.render.execute_pipeline")
     async def test_render_with_all_options(self, mock_exec):
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -621,9 +621,9 @@ class TestRenderImpl:
 
 class TestProbeTimeseriesImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.probe.execute_pipeline")
+    @patch("viznoir.tools.probe.execute_pipeline")
     async def test_probe_builds_pipeline(self, mock_exec):
-        from parapilot.tools.probe import probe_timeseries_impl
+        from viznoir.tools.probe import probe_timeseries_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -644,9 +644,9 @@ class TestProbeTimeseriesImpl:
         assert pipeline_def.output.type == "data"
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.probe.execute_pipeline")
+    @patch("viznoir.tools.probe.execute_pipeline")
     async def test_probe_with_files(self, mock_exec):
-        from parapilot.tools.probe import probe_timeseries_impl
+        from viznoir.tools.probe import probe_timeseries_impl
 
         mock_exec.return_value = _mock_pipeline_result()
         runner = MagicMock()
@@ -667,10 +667,10 @@ class TestProbeTimeseriesImpl:
 
 class TestBatchRenderImpl:
     @pytest.mark.asyncio
-    @patch("parapilot.tools.batch.cinematic_render")
-    @patch("parapilot.tools.batch.read_dataset")
+    @patch("viznoir.tools.batch.cinematic_render")
+    @patch("viznoir.tools.batch.read_dataset")
     async def test_batch_render_basic(self, mock_read, mock_cine):
-        from parapilot.tools.batch import batch_render_impl
+        from viznoir.tools.batch import batch_render_impl
 
         mock_read.return_value = MagicMock()
         mock_cine.return_value = b"\x89PNG\r\n\x1a\nfake"
@@ -691,11 +691,11 @@ class TestBatchRenderImpl:
             assert img["size_bytes"] > 0
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.batch.cinematic_render")
-    @patch("parapilot.tools.batch.read_dataset")
-    @patch("parapilot.tools.batch.get_timesteps")
+    @patch("viznoir.tools.batch.cinematic_render")
+    @patch("viznoir.tools.batch.read_dataset")
+    @patch("viznoir.tools.batch.get_timesteps")
     async def test_batch_render_latest_timestep(self, mock_ts, mock_read, mock_cine):
-        from parapilot.tools.batch import batch_render_impl
+        from viznoir.tools.batch import batch_render_impl
 
         mock_ts.return_value = [0.0, 1.0, 2.0]
         mock_read.return_value = MagicMock()
@@ -714,10 +714,10 @@ class TestBatchRenderImpl:
         mock_read.assert_called_with("/data/case.vtk", timestep=2.0)
 
     @pytest.mark.asyncio
-    @patch("parapilot.tools.batch.cinematic_render")
-    @patch("parapilot.tools.batch.read_dataset")
+    @patch("viznoir.tools.batch.cinematic_render")
+    @patch("viznoir.tools.batch.read_dataset")
     async def test_batch_render_string_timestep(self, mock_read, mock_cine):
-        from parapilot.tools.batch import batch_render_impl
+        from viznoir.tools.batch import batch_render_impl
 
         mock_read.return_value = MagicMock()
         mock_cine.return_value = b"\x89PNG\r\n\x1a\nfake"

@@ -5,7 +5,7 @@ import { SceneDemo } from "./scenes/SceneDemo";
 import { SceneFeatures } from "./scenes/SceneFeatures";
 import { SceneCTA } from "./scenes/SceneCTA";
 
-export const ParapilotIntro: React.FC = () => {
+export const ViznoirIntro: React.FC = () => {
   return (
     <AbsoluteFill>
       <Series>

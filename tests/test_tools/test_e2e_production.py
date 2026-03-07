@@ -11,8 +11,8 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.core.output import PipelineResult
-from parapilot.core.runner import VTKRunner
+from viznoir.core.output import PipelineResult
+from viznoir.core.runner import VTKRunner
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -85,7 +85,7 @@ def _assert_pipeline_result_has_image(result: PipelineResult) -> None:
 class TestInspectDataE2E:
     @pytest.mark.asyncio
     async def test_inspect_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.inspect import inspect_data_impl
+        from viznoir.tools.inspect import inspect_data_impl
 
         result = await inspect_data_impl(wavelet_vti, runner)
         assert isinstance(result, dict), f"Expected dict, got {type(result)}"
@@ -94,7 +94,7 @@ class TestInspectDataE2E:
 
     @pytest.mark.asyncio
     async def test_inspect_polydata(self, superquadric_vtp: str, runner: VTKRunner) -> None:
-        from parapilot.tools.inspect import inspect_data_impl
+        from viznoir.tools.inspect import inspect_data_impl
 
         result = await inspect_data_impl(superquadric_vtp, runner)
         assert isinstance(result, dict)
@@ -109,7 +109,7 @@ class TestInspectDataE2E:
 class TestRenderE2E:
     @pytest.mark.asyncio
     async def test_render_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         result = await render_impl(
             file_path=wavelet_vti,
@@ -124,7 +124,7 @@ class TestRenderE2E:
 
     @pytest.mark.asyncio
     async def test_render_with_viridis(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         result = await render_impl(
             file_path=wavelet_vti,
@@ -138,7 +138,7 @@ class TestRenderE2E:
 
     @pytest.mark.asyncio
     async def test_render_polydata(self, superquadric_vtp: str, runner: VTKRunner) -> None:
-        from parapilot.tools.render import render_impl
+        from viznoir.tools.render import render_impl
 
         result = await render_impl(
             file_path=superquadric_vtp,
@@ -159,7 +159,7 @@ class TestRenderE2E:
 class TestSliceE2E:
     @pytest.mark.asyncio
     async def test_slice_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.filters import slice_impl
+        from viznoir.tools.filters import slice_impl
 
         result = await slice_impl(
             file_path=wavelet_vti,
@@ -182,7 +182,7 @@ class TestSliceE2E:
 class TestContourE2E:
     @pytest.mark.asyncio
     async def test_contour_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.filters import contour_impl
+        from viznoir.tools.filters import contour_impl
 
         result = await contour_impl(
             file_path=wavelet_vti,
@@ -204,7 +204,7 @@ class TestContourE2E:
 class TestClipE2E:
     @pytest.mark.asyncio
     async def test_clip_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.filters import clip_impl
+        from viznoir.tools.filters import clip_impl
 
         result = await clip_impl(
             file_path=wavelet_vti,
@@ -227,7 +227,7 @@ class TestClipE2E:
 class TestExtractStatsE2E:
     @pytest.mark.asyncio
     async def test_extract_wavelet_stats(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.extract import extract_stats_impl
+        from viznoir.tools.extract import extract_stats_impl
 
         result = await extract_stats_impl(
             file_path=wavelet_vti,
@@ -245,7 +245,7 @@ class TestExtractStatsE2E:
 class TestPlotOverLineE2E:
     @pytest.mark.asyncio
     async def test_plot_over_line_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.extract import plot_over_line_impl
+        from viznoir.tools.extract import plot_over_line_impl
 
         result = await plot_over_line_impl(
             file_path=wavelet_vti,
@@ -266,7 +266,7 @@ class TestPlotOverLineE2E:
 class TestStreamlinesE2E:
     @pytest.mark.asyncio
     async def test_streamlines_wavelet(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.filters import streamlines_impl
+        from viznoir.tools.filters import streamlines_impl
 
         result = await streamlines_impl(
             file_path=wavelet_vti,
@@ -293,7 +293,7 @@ class TestStreamlinesE2E:
 class TestExecutePipelineE2E:
     @pytest.mark.asyncio
     async def test_pipeline_dsl(self, wavelet_vti: str, runner: VTKRunner) -> None:
-        from parapilot.tools.pipeline import execute_pipeline_impl
+        from viznoir.tools.pipeline import execute_pipeline_impl
 
         result = await execute_pipeline_impl(
             pipeline_json={

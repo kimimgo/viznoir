@@ -2,11 +2,11 @@
 
 ## Title
 
-Show HN: parapilot – Headless CAE post-processing server that speaks MCP
+Show HN: viznoir – Headless CAE post-processing server that speaks MCP
 
 ## Body
 
-I built parapilot because I got tired of opening ParaView every time I needed to check CFD results. It's a headless VTK-based post-processing server that exposes 13 MCP tools — so AI coding assistants (Claude Code, Cursor, Codex CLI) can render slices, contours, streamlines, and animations directly from simulation data.
+I built viznoir because I got tired of opening ParaView every time I needed to check CFD results. It's a headless VTK-based post-processing server that exposes 13 MCP tools — so AI coding assistants (Claude Code, Cursor, Codex CLI) can render slices, contours, streamlines, and animations directly from simulation data.
 
 **What it does:**
 
@@ -20,7 +20,7 @@ I built parapilot because I got tired of opening ParaView every time I needed to
 **Install:**
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 **Try it:**
@@ -29,8 +29,8 @@ pip install mcp-server-parapilot
 // .mcp.json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }
@@ -38,8 +38,8 @@ pip install mcp-server-parapilot
 
 Then ask your AI assistant: "Render a slice of my simulation at z=0.5 with the pressure field"
 
-Landing page: https://kimimgo.github.io/parapilot
-GitHub: https://github.com/kimimgo/parapilot
+Landing page: https://kimimgo.github.io/viznoir
+GitHub: https://github.com/kimimgo/viznoir
 
 331 tests, MIT license. Feedback welcome.
 

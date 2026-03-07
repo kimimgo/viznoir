@@ -1,4 +1,4 @@
-# parapilot Cinematic Rendering — 영화 수준 과학 영상 기능 설계
+# viznoir Cinematic Rendering — 영화 수준 과학 영상 기능 설계
 
 > "자연어를 찰떡같이 알아듣고 고품질 영화수준의 과학영상을 생성하는 것"
 
@@ -11,7 +11,7 @@ User: "이 CFD 결과를 영화처럼 아름답게 렌더해줘.
        pressure를 쿨웜으로, 뒤쪽 3/4 앵글에서,
        살짝 심도 흐림 넣고, 바닥면에 그림자 깔아줘"
 
-parapilot: → 시네마틱 조명 + SSAO + PBR 재질 + DOF
+viznoir: → 시네마틱 조명 + SSAO + PBR 재질 + DOF
            → 자동 프레이밍 (rule of thirds)
            → 그라디언트 배경 + 바닥 그림자
            → 4K PNG (3840×2160)
@@ -519,7 +519,7 @@ User: "이 메쉬를 시네마틱하게 회전하는 5초 영상으로 만들어
 
 ## 경쟁 우위 분석
 
-| | ParaView GUI | LLNL/paraview_mcp | Blender | **parapilot cinematic** |
+| | ParaView GUI | LLNL/paraview_mcp | Blender | **viznoir cinematic** |
 |---|---|---|---|---|
 | 시네마틱 렌더 | OSPRay (수동설정) | 없음 | 최고 품질 | VTK native (자동) |
 | 자연어 제어 | 없음 | 없음 | 없음 | **유일** |

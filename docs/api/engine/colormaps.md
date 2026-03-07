@@ -2,4 +2,4 @@
 
 Colormap presets for VTK rendering.
 
-::: parapilot.engine.colormaps
+::: viznoir.engine.colormaps

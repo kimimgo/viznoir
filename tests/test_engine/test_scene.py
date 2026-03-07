@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.scene import (
+from viznoir.engine.scene import (
     BACKGROUND_PRESETS,
     add_ground_plane,
     apply_background,

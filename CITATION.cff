@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "parapilot: Headless CAE Post-Processing MCP Server"
+title: "viznoir: Headless CAE Post-Processing MCP Server"
 message: "If you use this software, please cite it as below."
 type: software
 authors:
@@ -9,8 +9,8 @@ authors:
 version: 0.1.0
 date-released: "2026-03-04"
 license: MIT
-repository-code: https://github.com/kimimgo/parapilot
-url: https://kimimgo.github.io/parapilot
+repository-code: https://github.com/kimimgo/viznoir
+url: https://kimimgo.github.io/viznoir
 keywords:
   - mcp
   - vtk

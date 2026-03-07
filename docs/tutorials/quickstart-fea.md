@@ -13,14 +13,14 @@
 
 구조역학 과제로 외팔보(cantilever beam)에 하중을 가한 유한요소 해석을 수행했습니다.
 결과 파일(`beam.vtu`)에 변위(displacement), 응력(von Mises stress) 필드가 저장되어 있습니다.
-parapilot으로 변형 형상, 응력 분포, 내부 단면을 시각화하고 보고서에 넣을 이미지를 생성합니다.
+viznoir으로 변형 형상, 응력 분포, 내부 단면을 시각화하고 보고서에 넣을 이미지를 생성합니다.
 
 ---
 
 ## Step 1: 설치 및 MCP 설정
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 `.mcp.json` 설정:
@@ -28,10 +28,10 @@ pip install mcp-server-parapilot
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_OUTPUT_DIR": "./output"
+        "VIZNOIR_OUTPUT_DIR": "./output"
       }
     }
   }
@@ -493,4 +493,4 @@ execute_pipeline   →  복합 필터 + CSV 내보내기
 - [CFD 엔지니어 튜토리얼](quickstart-cfd.md) — OpenFOAM 유동 시각화
 - [의료 영상 CT 튜토리얼](quickstart-medical.md) — 볼륨 렌더링과 등치면
 - [Pipeline DSL 레퍼런스](../api/pipeline-dsl.md) — 전체 필터/출력 옵션 가이드
-- [FEA 파이프라인 예제](../api/fea-pipelines.md) — `parapilot://pipelines/fea` 전체 목록
+- [FEA 파이프라인 예제](../api/fea-pipelines.md) — `viznoir://pipelines/fea` 전체 목록

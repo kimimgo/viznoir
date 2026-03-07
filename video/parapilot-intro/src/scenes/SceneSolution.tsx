@@ -37,7 +37,7 @@ export const SceneSolution: React.FC = () => {
   });
 
   // Terminal typing animation
-  const pipCommand = "pip install mcp-server-parapilot";
+  const pipCommand = "pip install mcp-server-viznoir";
   const terminalOpacity = interpolate(frame, [80, 100], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",

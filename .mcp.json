@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_PYTHON_BIN": "/bin/python3",
-        "PARAPILOT_RENDER_BACKEND": "auto",
-        "PARAPILOT_WORK_DIR": "/tmp/parapilot"
+        "VIZNOIR_PYTHON_BIN": "/bin/python3",
+        "VIZNOIR_RENDER_BACKEND": "auto",
+        "VIZNOIR_WORK_DIR": "/tmp/viznoir"
       }
     }
   }

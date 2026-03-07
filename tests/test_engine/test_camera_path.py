@@ -7,7 +7,7 @@ import math
 import numpy as np
 import pytest
 
-from parapilot.engine.camera_path import (
+from viznoir.engine.camera_path import (
     CameraKeyframe,
     CameraPath,
     _catmull_rom,

@@ -36,7 +36,7 @@ def _multiblock() -> vtk.vtkMultiBlockDataSet:
 
 class TestInspectDataset:
     def test_inspect_imagedata(self):
-        from parapilot.engine.export import inspect_dataset
+        from viznoir.engine.export import inspect_dataset
         info = inspect_dataset(_wavelet())
         assert "ImageData" in info["type"]
         assert info["num_points"] > 0
@@ -46,13 +46,13 @@ class TestInspectDataset:
         assert info["point_arrays"][0]["name"] == "RTData"
 
     def test_inspect_polydata(self):
-        from parapilot.engine.export import inspect_dataset
+        from viznoir.engine.export import inspect_dataset
         info = inspect_dataset(_sphere())
         assert "PolyData" in info["type"]
         assert info["num_points"] > 0
 
     def test_inspect_multiblock(self):
-        from parapilot.engine.export import inspect_dataset
+        from viznoir.engine.export import inspect_dataset
         info = inspect_dataset(_multiblock())
         assert info["multiblock"] is not None
         assert len(info["multiblock"]) == 2
@@ -60,7 +60,7 @@ class TestInspectDataset:
         assert info["multiblock"][1]["name"] == "sphere"
 
     def test_inspect_multiblock_nested(self):
-        from parapilot.engine.export import inspect_dataset
+        from viznoir.engine.export import inspect_dataset
         outer = vtk.vtkMultiBlockDataSet()
         inner = vtk.vtkMultiBlockDataSet()
         inner.SetBlock(0, _wavelet())
@@ -69,7 +69,7 @@ class TestInspectDataset:
         assert info["multiblock"][0].get("children") is not None
 
     def test_inspect_multiblock_with_none_block(self):
-        from parapilot.engine.export import inspect_dataset
+        from viznoir.engine.export import inspect_dataset
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetBlock(0, None)
         mb.SetBlock(1, _wavelet())
@@ -84,7 +84,7 @@ class TestInspectDataset:
 
 class TestExtractStats:
     def test_stats_scalar(self):
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         stats = extract_stats(_wavelet(), fields=["RTData"])
         assert "RTData" in stats
         s = stats["RTData"]
@@ -93,13 +93,13 @@ class TestExtractStats:
         assert s["components"] == 1
 
     def test_stats_all_fields(self):
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         stats = extract_stats(_wavelet())
         assert "RTData" in stats
 
     def test_stats_vector(self):
         """Test vector field stats with per-component + magnitude."""
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         # Create dataset with vector field
         data = _wavelet()
         calc = vtk.vtkArrayCalculator()
@@ -118,13 +118,13 @@ class TestExtractStats:
         assert "magnitude" in s
 
     def test_stats_multiblock(self):
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         stats = extract_stats(_multiblock())
         # Should extract from first leaf block
         assert "RTData" in stats
 
     def test_stats_nonexistent_field(self):
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         stats = extract_stats(_wavelet(), fields=["nonexistent"])
         assert "nonexistent" not in stats
 
@@ -135,14 +135,14 @@ class TestExtractStats:
 
 class TestExtractData:
     def test_extract_basic(self):
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         data = extract_data(_wavelet(), fields=["RTData"])
         assert "RTData" in data
         assert isinstance(data["RTData"], list)
         assert len(data["RTData"]) > 0
 
     def test_extract_with_coords(self):
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         data = extract_data(_wavelet(), fields=["RTData"], include_coords=True)
         assert "x" in data
         assert "y" in data
@@ -150,12 +150,12 @@ class TestExtractData:
         assert len(data["x"]) == len(data["RTData"])
 
     def test_extract_all_fields(self):
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         data = extract_data(_wavelet())
         assert "RTData" in data
 
     def test_extract_multiblock(self):
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         data = extract_data(_multiblock())
         assert "RTData" in data
 
@@ -166,7 +166,7 @@ class TestExtractData:
 
 class TestExportFile:
     def test_export_vtu(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "test.vtu"
         # Need unstructured grid
         conv = vtk.vtkDataSetTriangleFilter()
@@ -178,21 +178,21 @@ class TestExportFile:
         assert out.exists()
 
     def test_export_vtp(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "test.vtp"
         result = export_file(_sphere(), out)
         assert result["format"] == ".vtp"
         assert out.exists()
 
     def test_export_stl(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "test.stl"
         result = export_file(_sphere(), out)
         assert result["format"] == ".stl"
         assert out.exists()
 
     def test_export_csv(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "test.csv"
         result = export_file(_wavelet(), out)
         assert result["format"] == ".csv"
@@ -201,12 +201,12 @@ class TestExportFile:
         assert "RTData" in content
 
     def test_export_unsupported_format(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         with pytest.raises(ValueError, match="Unsupported export format"):
             export_file(_wavelet(), tmp_path / "test.xyz")
 
     def test_export_vtk_generic(self, tmp_path):
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "test.vtk"
         result = export_file(_wavelet(), out)
         assert result["format"] == ".vtk"
@@ -214,7 +214,7 @@ class TestExportFile:
 
     def test_export_stl_auto_convert(self, tmp_path):
         """STL export auto-converts non-polydata to polydata."""
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         out = tmp_path / "converted.stl"
         result = export_file(_wavelet(), out)
         assert result["format"] == ".stl"
@@ -227,18 +227,18 @@ class TestExportFile:
 
 class TestGetLeafBlock:
     def test_leaf_from_multiblock(self):
-        from parapilot.engine.export import get_leaf_block
+        from viznoir.engine.export import get_leaf_block
         leaf = get_leaf_block(_multiblock())
         assert leaf is not None
         assert leaf.GetNumberOfPoints() > 0
 
     def test_leaf_from_dataset(self):
-        from parapilot.engine.export import get_leaf_block
+        from viznoir.engine.export import get_leaf_block
         leaf = get_leaf_block(_wavelet())
         assert leaf is _wavelet() or leaf is not None
 
     def test_leaf_empty_multiblock(self):
-        from parapilot.engine.export import get_leaf_block
+        from viznoir.engine.export import get_leaf_block
         mb = vtk.vtkMultiBlockDataSet()
         leaf = get_leaf_block(mb)
         assert leaf is None
@@ -251,7 +251,7 @@ class TestGetLeafBlock:
 class TestExportCsvVector:
     def test_csv_with_vector_field(self, tmp_path):
         """CSV export with multi-component vector field (lines 333-339)."""
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         data = _wavelet()
         calc = vtk.vtkArrayCalculator()
         calc.SetInputData(data)
@@ -273,8 +273,8 @@ class TestExportCsvVector:
 class TestExportCellData:
     def test_stats_cell_data(self):
         """extract_stats with cell-associated data (lines 475-477)."""
-        from parapilot.engine.export import extract_stats
-        from parapilot.engine.filters import point_to_cell
+        from viznoir.engine.export import extract_stats
+        from viznoir.engine.filters import point_to_cell
         data = point_to_cell(_wavelet())
         stats = extract_stats(data, fields=["RTData"])
         assert "RTData" in stats
@@ -282,8 +282,8 @@ class TestExportCellData:
 
     def test_extract_cell_data(self):
         """extract_data with cell-associated data (lines 475-477)."""
-        from parapilot.engine.export import extract_data
-        from parapilot.engine.filters import point_to_cell
+        from viznoir.engine.export import extract_data
+        from viznoir.engine.filters import point_to_cell
         data = point_to_cell(_wavelet())
         result = extract_data(data, fields=["RTData"])
         assert "RTData" in result
@@ -293,7 +293,7 @@ class TestExportCellData:
 class TestEnsureDatasetNonDataset:
     def test_non_dataset_returns_none(self):
         """_ensure_dataset with non-dataset returns None (line 421)."""
-        from parapilot.engine.export import _ensure_dataset
+        from viznoir.engine.export import _ensure_dataset
         result = _ensure_dataset("not a dataset")
         assert result is None
 
@@ -307,7 +307,7 @@ class TestArrayInfoList:
 
     def test_array_info_none_attrs(self):
         """L73: _array_info_list with None attrs returns empty list."""
-        from parapilot.engine.export import _array_info_list
+        from viznoir.engine.export import _array_info_list
         result = _array_info_list(None)
         assert result == []
 
@@ -316,7 +316,7 @@ class TestArrayInfoList:
         # Create a vtkFieldData with an array that has no name
         import vtk as _vtk
 
-        from parapilot.engine.export import _array_info_list
+        from viznoir.engine.export import _array_info_list
         fd = _vtk.vtkFieldData()
         arr = _vtk.vtkFloatArray()
         arr.SetName("")  # empty name → GetArrayName returns ""
@@ -337,7 +337,7 @@ class TestArrayInfoList:
 
     def test_array_info_none_array(self):
         """L82: Arrays where GetArray returns None are skipped."""
-        from parapilot.engine.export import _array_info_list
+        from viznoir.engine.export import _array_info_list
 
         class _FakeAttrs:
             def GetNumberOfArrays(self):
@@ -362,7 +362,7 @@ class TestExtractStatsEmpty:
         # Use a plain vtkDataObject (not a dataset)
         import vtk as _vtk
 
-        from parapilot.engine.export import extract_stats
+        from viznoir.engine.export import extract_stats
         obj = _vtk.vtkDataObject()  # Not vtkDataSet, not vtkMultiBlockDataSet → _ensure_dataset returns None
         result = extract_stats(obj)
         assert result == {}
@@ -377,7 +377,7 @@ class TestExtractDataEmpty:
         """L214: _ensure_dataset returns None → returns {}."""
         import vtk as _vtk
 
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         obj = _vtk.vtkDataObject()
         result = extract_data(obj)
         assert result == {}
@@ -392,7 +392,7 @@ class TestExportFileEmpty:
         """L231: export CSV with empty vtkDataObject raises ValueError."""
         import vtk as _vtk
 
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
         obj = _vtk.vtkDataObject()
         out = tmp_path / "empty.csv"
         with pytest.raises(ValueError, match="Cannot export empty dataset to CSV"):
@@ -408,7 +408,7 @@ class TestWriterClassNone:
         """L286-287: writer_class is None (VTK class missing) raises RuntimeError."""
         import vtk as _vtk
 
-        from parapilot.engine import export as export_mod
+        from viznoir.engine import export as export_mod
 
         # Patch vtk module used inside export_file to not have vtkGenericDataObjectWriter
         original_getattr = getattr
@@ -434,7 +434,7 @@ class TestExportCsvEdgeCases:
         """L326-327: dataset with no point data → ValueError 'No data to export'."""
         import vtk as _vtk
 
-        from parapilot.engine.export import _export_csv
+        from viznoir.engine.export import _export_csv
         # Create an empty polydata with points but no arrays, no coordinates
         # To hit "n == 0" we need data with no arrays and no coords
         # Use UnstructuredGrid with 0 points → extract_data returns {} → n == 0
@@ -449,7 +449,7 @@ class TestExportCsvEdgeCases:
         """L333, 336-339: CSV with multi-component vector field expands to key_0, key_1, key_2."""
         import vtk as _vtk
 
-        from parapilot.engine.export import export_file
+        from viznoir.engine.export import export_file
 
         # Create wavelet with vector array via vtkArrayCalculator
         data = _wavelet()
@@ -482,7 +482,7 @@ class TestEnsureDataset:
         """L421: vtkDataObject that is not vtkDataSet or vtkMultiBlockDataSet → None."""
         import vtk as _vtk
 
-        from parapilot.engine.export import _ensure_dataset
+        from viznoir.engine.export import _ensure_dataset
         obj = _vtk.vtkDataObject()
         result = _ensure_dataset(obj)
         assert result is None
@@ -495,8 +495,8 @@ class TestEnsureDataset:
 class TestAllArrayNames:
     def test_all_array_names_cell_data(self):
         """L448-451: _all_array_names includes cell data arrays."""
-        from parapilot.engine.export import _all_array_names
-        from parapilot.engine.filters import point_to_cell
+        from viznoir.engine.export import _all_array_names
+        from viznoir.engine.filters import point_to_cell
 
         # point_to_cell converts point arrays to cell arrays
         data = point_to_cell(_wavelet())
@@ -508,7 +508,7 @@ class TestAllArrayNames:
         """Cell array not in point arrays gets added."""
         import vtk as _vtk
 
-        from parapilot.engine.export import _all_array_names
+        from viznoir.engine.export import _all_array_names
 
         sphere = _sphere()
         # Add a cell array
@@ -529,8 +529,8 @@ class TestAllArrayNames:
 class TestGetNumpyArray:
     def test_get_numpy_array_cell_data(self):
         """L475-477: _get_numpy_array falls through to cell data."""
-        from parapilot.engine.export import _get_numpy_array
-        from parapilot.engine.filters import point_to_cell
+        from viznoir.engine.export import _get_numpy_array
+        from viznoir.engine.filters import point_to_cell
 
         data = point_to_cell(_wavelet())
         arr, assoc = _get_numpy_array(data, "RTData")
@@ -545,7 +545,7 @@ class TestGetNumpyArray:
 class TestGetCoordinates:
     def test_get_coordinates_returns_nx3(self):
         """L488: _get_coordinates returns Nx3 numpy array."""
-        from parapilot.engine.export import _get_coordinates
+        from viznoir.engine.export import _get_coordinates
         coords = _get_coordinates(_sphere())
         assert coords is not None
         assert coords.ndim == 2
@@ -555,7 +555,7 @@ class TestGetCoordinates:
         """_get_coordinates returns None for dataset with no points."""
         import vtk as _vtk
 
-        from parapilot.engine.export import _get_coordinates
+        from viznoir.engine.export import _get_coordinates
         empty = _vtk.vtkPolyData()
         result = _get_coordinates(empty)
         assert result is None
@@ -570,7 +570,7 @@ class TestExportGltf:
         """L515-516: vtkGLTFExporter not available raises RuntimeError."""
         import vtk as _vtk
 
-        from parapilot.engine import export as export_mod
+        from viznoir.engine import export as export_mod
 
         # Remove vtkGLTFExporter from vtk module
         monkeypatch.delattr(_vtk, "vtkGLTFExporter", raising=False)
@@ -583,7 +583,7 @@ class TestExportGltf:
         import vtk as _vtk
         if not hasattr(_vtk, "vtkGLTFExporter"):
             pytest.skip("vtkGLTFExporter not available")
-        from parapilot.engine.export import export_gltf
+        from viznoir.engine.export import export_gltf
         out = tmp_path / "test.glb"
         result = export_gltf(_sphere(), out)
         assert result["format"] in (".glb", ".gltf")
@@ -603,7 +603,7 @@ class TestGetLeafBlockNonDataset:
         """L378: get_leaf_block returns None for non-dataset non-multiblock."""
         import vtk as _vtk
 
-        from parapilot.engine.export import get_leaf_block
+        from viznoir.engine.export import get_leaf_block
         obj = _vtk.vtkDataObject()
         result = get_leaf_block(obj)
         assert result is None
@@ -616,7 +616,7 @@ class TestGetLeafBlockNonDataset:
 class TestSupportedExportFormats:
     def test_supported_formats_returns_sorted_list(self):
         """L555: supported_export_formats returns sorted list of extensions."""
-        from parapilot.engine.export import supported_export_formats
+        from viznoir.engine.export import supported_export_formats
         formats = supported_export_formats()
         assert isinstance(formats, list)
         assert ".csv" in formats
@@ -627,7 +627,7 @@ class TestSupportedExportFormats:
 class TestExtractDataNonexistentField:
     def test_extract_data_skips_missing_field(self):
         """L231: fields with no array → skipped, not included in result."""
-        from parapilot.engine.export import extract_data
+        from viznoir.engine.export import extract_data
         result = extract_data(_wavelet(), fields=["nonexistent_field"])
         assert "nonexistent_field" not in result
         assert result == {}
@@ -642,7 +642,7 @@ class TestExportCsvLengthMismatch:
         """L333: _export_csv skips columns whose len != n (not isinstance list or len mismatch).
         Achieved by injecting a fake extract_data result."""
 
-        from parapilot.engine import export as export_mod
+        from viznoir.engine import export as export_mod
 
         # We monkeypatch extract_data to return a dict with a mismatched-length entry
         original_extract_data = export_mod.extract_data

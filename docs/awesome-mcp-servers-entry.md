@@ -3,13 +3,13 @@
 ## Entry (add to Science category, alphabetical order)
 
 ```markdown
-- [kimimgo/parapilot](https://github.com/kimimgo/parapilot) 🐍 🏠 🐧 - Headless CAE post-processing with VTK: render, slice, contour, streamlines, cinematic visualization for CFD/FEA simulations (18 tools, 50+ formats).
+- [kimimgo/viznoir](https://github.com/kimimgo/viznoir) 🐍 🏠 🐧 - Headless CAE post-processing with VTK: render, slice, contour, streamlines, cinematic visualization for CFD/FEA simulations (18 tools, 50+ formats).
 ```
 
 ## PR Title
 
 ```
-Add parapilot - headless CAE/CFD post-processing MCP server
+Add viznoir - headless CAE/CFD post-processing MCP server
 ```
 
 ## PR Body
@@ -17,7 +17,7 @@ Add parapilot - headless CAE/CFD post-processing MCP server
 ```markdown
 ## What does this server do?
 
-parapilot is a headless CAE post-processing MCP server that lets AI assistants
+viznoir is a headless CAE post-processing MCP server that lets AI assistants
 (Claude Code, Cursor, Gemini CLI) render CFD/FEA simulation results without a
 GUI. It uses VTK directly to produce PNG screenshots, statistics, and animations
 from OpenFOAM, VTK, CGNS, and 50+ other formats.
@@ -33,7 +33,7 @@ from OpenFOAM, VTK, CGNS, and 50+ other formats.
 - **50+ file formats** via VTK + meshio fallback
 - **Docker images**: GPU (EGL) and CPU-only (OSMesa)
 - **1128 tests, 99% coverage**, CodeQL + pip-audit security scanning
-- **Claude Code plugin**: `claude install kimimgo/parapilot`
+- **Claude Code plugin**: `claude install kimimgo/viznoir`
 
 ## Category
 
@@ -41,7 +41,7 @@ Science (simulation post-processing / scientific visualization)
 
 ## Links
 
-- **Repository**: https://github.com/kimimgo/parapilot
-- **PyPI**: https://pypi.org/project/mcp-server-parapilot/
-- **Docs**: https://kimimgo.github.io/parapilot/docs/
+- **Repository**: https://github.com/kimimgo/viznoir
+- **PyPI**: https://pypi.org/project/mcp-server-viznoir/
+- **Docs**: https://kimimgo.github.io/viznoir/docs/
 ```

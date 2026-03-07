@@ -1,8 +1,8 @@
-site_name: parapilot
+site_name: viznoir
 site_description: Headless CAE post-processing MCP server for AI coding assistants
-site_url: https://kimimgo.github.io/parapilot/docs/
-repo_url: https://github.com/kimimgo/parapilot
-repo_name: kimimgo/parapilot
+site_url: https://kimimgo.github.io/viznoir/docs/
+repo_url: https://github.com/kimimgo/viznoir
+repo_name: kimimgo/viznoir
 
 theme:
   name: material
@@ -85,6 +85,6 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/kimimgo/parapilot
+      link: https://github.com/kimimgo/viznoir
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/mcp-server-parapilot/
+      link: https://pypi.org/project/mcp-server-viznoir/

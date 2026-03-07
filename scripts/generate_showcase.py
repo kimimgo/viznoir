@@ -36,8 +36,8 @@ RENDERS: dict[str, str] = {
     # 1. Geometry: Stanford Dragon with Elevation (FEATURED)
     "dragon": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkPLYReader()
         reader.SetFileName(DATA_DIR + '/dragon.ply')
@@ -67,9 +67,9 @@ RENDERS: dict[str, str] = {
     # 2. Medical: CT skull isosurface with Inferno + Elevation
     "ct_head_contour": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import apply_filter
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import apply_filter
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkXMLImageDataReader()
         reader.SetFileName(DATA_DIR + '/head.vti')
@@ -102,9 +102,9 @@ RENDERS: dict[str, str] = {
     # 3. Flow: Carotid blood flow streamlines with tubes
     "streamlines": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import streamlines
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import streamlines
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkStructuredPointsReader()
         reader.SetFileName(DATA_DIR + '/carotid.vtk')
@@ -143,9 +143,9 @@ RENDERS: dict[str, str] = {
     # 4. Geometry: Armadillo clipped at X-plane
     "armadillo_clip": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import clip_plane
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import clip_plane
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkPLYReader()
         reader.SetFileName(DATA_DIR + '/Armadillo.ply')
@@ -176,9 +176,9 @@ RENDERS: dict[str, str] = {
     # 5. CFD: office room airflow streamlines
     "office_flow": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import streamlines
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import streamlines
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkStructuredGridReader()
         reader.SetFileName(DATA_DIR + '/office.binary.vtk')
@@ -219,9 +219,9 @@ RENDERS: dict[str, str] = {
     # 6. Medical: head CT axial slice
     "ct_head_slice": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import apply_filter
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import apply_filter
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkXMLImageDataReader()
         reader.SetFileName(DATA_DIR + '/head.vti')
@@ -240,9 +240,9 @@ RENDERS: dict[str, str] = {
     # 7. Molecular: Iron Protein electron density isosurfaces
     "ironprot": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import apply_filter
-        from parapilot.engine.renderer import RenderConfig, render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.filters import apply_filter
+        from viznoir.engine.renderer import RenderConfig, render_to_png
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkStructuredPointsReader()
         reader.SetFileName(DATA_DIR + '/ironProt.vtk')
@@ -283,8 +283,8 @@ ORBIT_RENDERS: dict[str, str] = {
     # Dragon orbit — plasma + elevation, no scalar bar for cleaner animation
     "dragon_orbit": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.camera import CameraConfig
 
         reader = vtk.vtkPLYReader()
         reader.SetFileName(DATA_DIR + '/dragon.ply')
@@ -321,8 +321,8 @@ ORBIT_RENDERS: dict[str, str] = {
     # CT skull orbit — inferno + elevation
     "ct_skull_orbit": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import apply_filter
-        from parapilot.engine.renderer import RenderConfig
+        from viznoir.engine.filters import apply_filter
+        from viznoir.engine.renderer import RenderConfig
 
         reader = vtk.vtkXMLImageDataReader()
         reader.SetFileName(DATA_DIR + '/head.vti')
@@ -358,8 +358,8 @@ ORBIT_RENDERS: dict[str, str] = {
     # Iron protein orbit — plasma + elevation
     "ironprot_orbit": textwrap.dedent("""\
         import vtk
-        from parapilot.engine.filters import apply_filter
-        from parapilot.engine.renderer import RenderConfig
+        from viznoir.engine.filters import apply_filter
+        from viznoir.engine.renderer import RenderConfig
 
         reader = vtk.vtkStructuredPointsReader()
         reader.SetFileName(DATA_DIR + '/ironProt.vtk')
@@ -487,8 +487,8 @@ def run_orbit_render(name: str, code: str) -> bool:
     postamble = textwrap.dedent(f"""\
 
         # --- Orbit rendering loop ---
-        from parapilot.engine.renderer import render_to_png
-        from parapilot.engine.camera import CameraConfig
+        from viznoir.engine.renderer import render_to_png
+        from viznoir.engine.camera import CameraConfig
         from PIL import Image
 
         n_frames = {n_frames}
@@ -578,7 +578,7 @@ def verify_showcase() -> bool:
 
     # Extract all image references from Showcase.astro
     refs: list[str] = []
-    for match in re.finditer(r"'/parapilot/showcase/([^']+)'", content):
+    for match in re.finditer(r"'/viznoir/showcase/([^']+)'", content):
         refs.append(match.group(1))
 
     refs = sorted(set(refs))
@@ -642,7 +642,7 @@ def verify_showcase() -> bool:
 
 def main() -> None:
     import argparse
-    parser = argparse.ArgumentParser(description="Generate or verify parapilot showcase renders")
+    parser = argparse.ArgumentParser(description="Generate or verify viznoir showcase renders")
     parser.add_argument("--verify", action="store_true", help="Verify existing showcase images only")
     args = parser.parse_args()
 

@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and solutions when using parapilot.
+Common issues and solutions when using viznoir.
 
 ## Rendering Backend Issues
 
@@ -29,7 +29,7 @@ ls /usr/lib/x86_64-linux-gnu/libEGL_nvidia.so*
 ```bash
 export VTK_DEFAULT_OPENGL_WINDOW=vtkOSOpenGLRenderWindow
 # Or use the CPU Docker image
-docker run --rm -v /data:/data ghcr.io/kimimgo/parapilot:cpu
+docker run --rm -v /data:/data ghcr.io/kimimgo/viznoir:cpu
 ```
 
 ### SIGSEGV on render
@@ -48,7 +48,7 @@ docker run --rm -v /data:/data ghcr.io/kimimgo/parapilot:cpu
 
 **Symptom**: `FileNotFoundError: File not found: '/data/case.foam'`
 
-**Cause**: File doesn't exist at the specified path, or `PARAPILOT_DATA_DIR` restricts access.
+**Cause**: File doesn't exist at the specified path, or `VIZNOIR_DATA_DIR` restricts access.
 
 **Solution**:
 ```bash
@@ -58,8 +58,8 @@ ls -la /data/case.foam
 # If using Docker, ensure the volume is mounted
 docker run -v /path/to/cases:/data ...
 
-# Check PARAPILOT_DATA_DIR setting
-echo $PARAPILOT_DATA_DIR
+# Check VIZNOIR_DATA_DIR setting
+echo $VIZNOIR_DATA_DIR
 ```
 
 ### Unknown file format
@@ -70,7 +70,7 @@ echo $PARAPILOT_DATA_DIR
 
 **Solution**: Check supported formats via the MCP resource:
 ```
-parapilot://formats
+viznoir://formats
 ```
 Supported: `.vtk`, `.vtu`, `.vtp`, `.vts`, `.vti`, `.vtr`, `.vtm`, `.pvd`, `.foam`, `.stl`, `.ply`, `.obj`, `.csv`, `.cgns`, `.exo`, `.e`, `.case`, `.dat`, `.xdmf`, `.xmf`
 
@@ -102,7 +102,7 @@ sudo apt install nvidia-container-toolkit
 sudo systemctl restart docker
 
 # Run with GPU access
-docker run --gpus all -v /data:/data ghcr.io/kimimgo/parapilot
+docker run --gpus all -v /data:/data ghcr.io/kimimgo/viznoir
 ```
 
 ### Permission denied on output
@@ -114,11 +114,11 @@ docker run --gpus all -v /data:/data ghcr.io/kimimgo/parapilot
 **Solution**:
 ```bash
 # Create output directory with correct permissions
-mkdir -p /tmp/parapilot-output
+mkdir -p /tmp/viznoir-output
 docker run --gpus all \
   -v /data:/data \
-  -v /tmp/parapilot-output:/output \
-  ghcr.io/kimimgo/parapilot
+  -v /tmp/viznoir-output:/output \
+  ghcr.io/kimimgo/viznoir
 ```
 
 ### Large output files filling disk
@@ -127,9 +127,9 @@ docker run --gpus all \
 
 **Cause**: Animations and batch renders create many temporary files.
 
-**Solution**: Set `PARAPILOT_OUTPUT_DIR` to a location with sufficient space:
+**Solution**: Set `VIZNOIR_OUTPUT_DIR` to a location with sufficient space:
 ```bash
-export PARAPILOT_OUTPUT_DIR=/mnt/large-disk/parapilot-output
+export VIZNOIR_OUTPUT_DIR=/mnt/large-disk/viznoir-output
 ```
 
 ---
@@ -145,19 +145,19 @@ export PARAPILOT_OUTPUT_DIR=/mnt/large-disk/parapilot-output
 **Solution**:
 ```bash
 # Install the package
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 
 # Verify the entry point works
-mcp-server-parapilot --version
+mcp-server-viznoir --version
 
 # Add to Claude Code settings (stdio transport)
 # In .mcp.json:
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_DATA_DIR": "/path/to/data"
+        "VIZNOIR_DATA_DIR": "/path/to/data"
       }
     }
   }
@@ -173,10 +173,10 @@ mcp-server-parapilot --version
 **Solution**:
 ```bash
 # SSE transport (Server-Sent Events)
-mcp-server-parapilot --transport sse --port 8000
+mcp-server-viznoir --transport sse --port 8000
 
 # Streamable HTTP transport
-mcp-server-parapilot --transport streamable-http --port 8000
+mcp-server-viznoir --transport streamable-http --port 8000
 ```
 
 ### Timeout on large files
@@ -187,7 +187,7 @@ mcp-server-parapilot --transport streamable-http --port 8000
 
 **Solution**:
 ```bash
-export PARAPILOT_TIMEOUT=1800  # 30 minutes
+export VIZNOIR_TIMEOUT=1800  # 30 minutes
 ```
 
 ---
@@ -196,9 +196,9 @@ export PARAPILOT_TIMEOUT=1800  # 30 minutes
 
 If your issue isn't listed here:
 
-1. Check the [GitHub Issues](https://github.com/kimimgo/parapilot/issues) for similar reports
+1. Check the [GitHub Issues](https://github.com/kimimgo/viznoir/issues) for similar reports
 2. Open a new issue with:
-   - parapilot version (`mcp-server-parapilot --version`)
+   - viznoir version (`mcp-server-viznoir --version`)
    - Python version (`python --version`)
    - VTK version (`python -c "import vtk; print(vtk.vtkVersion.GetVTKVersion())"`)
    - Full error traceback

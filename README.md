@@ -1,23 +1,23 @@
-# parapilot
+# viznoir
 
 **English** | [한국어](README.ko.md)
 
 > Headless CAE/CFD post-processing for AI terminals. No ParaView. No GUI.
 
-[![CI](https://github.com/kimimgo/parapilot/actions/workflows/ci.yml/badge.svg)](https://github.com/kimimgo/parapilot/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/kimimgo/parapilot/branch/main/graph/badge.svg)](https://codecov.io/gh/kimimgo/parapilot)
-[![PyPI](https://img.shields.io/pypi/v/mcp-server-parapilot)](https://pypi.org/project/mcp-server-parapilot/)
-[![Python](https://img.shields.io/pypi/pyversions/mcp-server-parapilot)](https://pypi.org/project/mcp-server-parapilot/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/kimimgo/parapilot/blob/main/LICENSE)
+[![CI](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml/badge.svg)](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kimimgo/viznoir/branch/main/graph/badge.svg)](https://codecov.io/gh/kimimgo/viznoir)
+[![PyPI](https://img.shields.io/pypi/v/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
+[![Python](https://img.shields.io/pypi/pyversions/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/kimimgo/viznoir/blob/main/LICENSE)
 
-![DrivAerML Automotive CFD](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/drivaerml_cp.webp)
+![DrivAerML Automotive CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp)
 
 ## Quick Start
 
 **Claude Code plugin:**
 
 ```bash
-claude install kimimgo/parapilot
+claude install kimimgo/viznoir
 ```
 
 Then in a conversation:
@@ -27,7 +27,7 @@ Then in a conversation:
 **pip:**
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 **Docker (GPU headless):**
@@ -36,15 +36,15 @@ pip install mcp-server-parapilot
 docker compose up -d
 ```
 
-Requires NVIDIA Container Toolkit. For CPU-only: `docker compose up parapilot-cpu -d`
+Requires NVIDIA Container Toolkit. For CPU-only: `docker compose up viznoir-cpu -d`
 
 **MCP config for Cursor / other clients:**
 
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }
@@ -67,16 +67,16 @@ All renders from single MCP tool calls — no post-processing.
 
 | | | |
 |---|---|---|
-| ![Automotive CFD](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/drivaerml_cp.webp) | ![Medical CT](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/ct_head_contour.webp) | ![Blood Flow](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/streamlines.webp) |
+| ![Automotive CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp) | ![Medical CT](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/ct_head_contour.webp) | ![Blood Flow](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/streamlines.webp) |
 | Automotive CFD | Medical CT | Blood flow |
-| ![HVAC](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/office_flow.webp) | ![Structural FEA](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/arch_structural.webp) | ![Stanford Dragon](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/dragon.webp) |
+| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![Structural FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/arch_structural.webp) | ![Stanford Dragon](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
 | HVAC airflow | Structural FEA | Stanford Dragon |
 
-[Full Gallery →](https://kimimgo.github.io/parapilot)
+[Full Gallery →](https://kimimgo.github.io/viznoir)
 
 ## vs Alternatives
 
-| Feature | parapilot | ParaView (pvpython) | PyVista | VTK Python |
+| Feature | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |---------|-----------|---------------------|---------|------------|
 | MCP Integration | Native 18 tools | — | — | — |
 | Headless | EGL/OSMesa | pvpython | Yes | Manual |
@@ -89,8 +89,8 @@ All renders from single MCP tool calls — no post-processing.
 ## Contributing
 
 ```bash
-git clone https://github.com/kimimgo/parapilot
-cd parapilot && pip install -e ".[dev]"
+git clone https://github.com/kimimgo/viznoir
+cd viznoir && pip install -e ".[dev]"
 pytest  # 1134 tests, 99% coverage
 ```
 

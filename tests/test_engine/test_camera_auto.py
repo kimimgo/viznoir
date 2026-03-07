@@ -7,8 +7,8 @@ import math
 import numpy as np
 import pytest
 
-from parapilot.engine.camera import CameraConfig
-from parapilot.engine.camera_auto import (
+from viznoir.engine.camera import CameraConfig
+from viznoir.engine.camera_auto import (
     ShapeAnalysis,
     _angles_to_direction,
     _classify_shape,
@@ -350,7 +350,7 @@ class TestAutoCameraWithVTK:
         """auto_camera with empty polydata falls back to bounds."""
         import vtk
 
-        from parapilot.engine.camera_auto import auto_camera
+        from viznoir.engine.camera_auto import auto_camera
 
         pd = vtk.vtkPolyData()
         # No points set → empty
@@ -361,7 +361,7 @@ class TestAutoCameraWithVTK:
         """auto_camera with real polydata produces valid camera."""
         import vtk
 
-        from parapilot.engine.camera_auto import auto_camera
+        from viznoir.engine.camera_auto import auto_camera
 
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()
@@ -379,7 +379,7 @@ class TestAutoCameraWithVTK:
         """auto_camera with orthographic projection."""
         import vtk
 
-        from parapilot.engine.camera_auto import auto_camera
+        from viznoir.engine.camera_auto import auto_camera
 
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()

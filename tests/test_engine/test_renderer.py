@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from parapilot.engine.renderer import RenderConfig
+from viznoir.engine.renderer import RenderConfig
 
 
 class TestRenderConfig:

@@ -10,7 +10,7 @@ I built an MCP server that lets AI render OpenFOAM/VTK results headlessly — no
 ### Body
 Hey r/CFD,
 
-I've been working on **parapilot**, an open-source MCP server that turns VTK rendering
+I've been working on **viznoir**, an open-source MCP server that turns VTK rendering
 into simple tool calls for AI coding assistants (Claude, Cursor, etc.).
 
 **The problem**: Post-processing simulation results usually means launching ParaView,
@@ -25,13 +25,13 @@ environments, CI/CD pipelines, or when you just want a quick slice of your flow 
 - `animate`: Time series or orbit animations
 - `compare`: Side-by-side or diff comparison of two cases
 
-All headless via EGL (GPU) or OSMesa (CPU). Just `pip install mcp-server-parapilot`.
+All headless via EGL (GPU) or OSMesa (CPU). Just `pip install mcp-server-viznoir`.
 
 Tested on DrivAerML (8.8M cells) — renders a full pressure contour in ~4 seconds.
 
 1048 tests, 99% coverage, MIT license.
 
-GitHub: https://github.com/kimimgo/parapilot
+GitHub: https://github.com/kimimgo/viznoir
 
 Would love feedback from the CFD community!
 
@@ -43,7 +43,7 @@ Would love feedback from the CFD community!
 Headless post-processing for .foam files via Claude/Cursor — no ParaView needed
 
 ### Body
-Built an MCP server called **parapilot** that lets AI assistants render OpenFOAM
+Built an MCP server called **viznoir** that lets AI assistants render OpenFOAM
 results headlessly.
 
 Instead of opening ParaView, you can just ask your AI:
@@ -57,13 +57,13 @@ contour, streamlines), and renders to PNG — all without a display server.
 Works with Claude Code, Cursor, Windsurf, or any MCP-compatible client.
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 18 tools, 1048 tests, GPU EGL or CPU OSMesa rendering.
 MIT license, contributions welcome.
 
-https://github.com/kimimgo/parapilot
+https://github.com/kimimgo/viznoir
 
 ---
 
@@ -73,12 +73,12 @@ https://github.com/kimimgo/parapilot
 MCP server for scientific visualization — AI-native CAE post-processing (18 tools, 1048 tests)
 
 ### Body
-Sharing **parapilot**, an MCP server that gives AI coding assistants the ability
+Sharing **viznoir**, an MCP server that gives AI coding assistants the ability
 to render engineering simulation data (CFD, FEA, scientific visualization).
 
 **Why this matters for ML/AI**:
 The Model Context Protocol (MCP) lets AI assistants call external tools.
-parapilot implements 18 tools for headless VTK rendering, so your AI can:
+viznoir implements 18 tools for headless VTK rendering, so your AI can:
 - Inspect simulation datasets (fields, bounds, timesteps)
 - Render visualizations to PNG
 - Apply physics-aware filters (slice, contour, streamlines)
@@ -95,4 +95,4 @@ parapilot implements 18 tools for headless VTK rendering, so your AI can:
 This fills a gap in the MCP ecosystem — scientific visualization is <0.03%
 of the 18,000+ MCP servers that exist today.
 
-GitHub: https://github.com/kimimgo/parapilot
+GitHub: https://github.com/kimimgo/viznoir

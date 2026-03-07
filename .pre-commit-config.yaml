@@ -12,7 +12,7 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies: [fastmcp>=2.0.0, pydantic>=2.0]
-        files: ^src/parapilot/
+        files: ^src/viznoir/
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

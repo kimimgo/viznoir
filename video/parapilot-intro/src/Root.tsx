@@ -1,11 +1,11 @@
 import { Composition } from "remotion";
-import { ParapilotIntro } from "./ParapilotIntro";
+import { ViznoirIntro } from "./ViznoirIntro";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <Composition
-      id="parapilot-intro"
-      component={ParapilotIntro}
+      id="viznoir-intro"
+      component={ViznoirIntro}
       durationInFrames={30 * 55}
       fps={30}
       width={1920}

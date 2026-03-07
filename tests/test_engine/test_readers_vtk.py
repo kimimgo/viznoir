@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.readers import (
+from viznoir.engine.readers import (
     DataReader,
     DatasetInfo,
     _extract_info,

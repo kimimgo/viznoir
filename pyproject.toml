@@ -1,7 +1,7 @@
 [project]
-name = "mcp-server-parapilot"
+name = "mcp-server-viznoir"
 version = "0.3.0"
-description = "Headless VTK/ParaView post-processing MCP server for CFD/CAE simulations"
+description = "VTK is all you need. Cinema-quality science visualization for AI agents."
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -38,7 +38,7 @@ docs = [
     "mkdocstrings[python]>=0.27",
 ]
 tasks = ["fastmcp[tasks]>=3.0.0"]
-all = ["mcp-server-parapilot[mesh,composite,tasks]"]
+all = ["mcp-server-viznoir[mesh,composite,tasks]"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
@@ -52,21 +52,21 @@ dev = [
 ]
 
 [project.scripts]
-mcp-server-parapilot = "parapilot.server:main"
+mcp-server-viznoir = "viznoir.server:main"
 
 [project.urls]
-Homepage = "https://kimimgo.github.io/parapilot"
-Repository = "https://github.com/kimimgo/parapilot"
-Documentation = "https://kimimgo.github.io/parapilot/docs/"
-Issues = "https://github.com/kimimgo/parapilot/issues"
-Changelog = "https://github.com/kimimgo/parapilot/blob/main/CHANGELOG.md"
+Homepage = "https://kimimgo.github.io/viznoir"
+Repository = "https://github.com/kimimgo/viznoir"
+Documentation = "https://kimimgo.github.io/viznoir/docs/"
+Issues = "https://github.com/kimimgo/viznoir/issues"
+Changelog = "https://github.com/kimimgo/viznoir/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/parapilot"]
+packages = ["src/viznoir"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [
@@ -110,7 +110,7 @@ disallow_any_generics = false
 warn_unused_ignores = false
 
 [tool.mutmut]
-paths_to_mutate = "src/parapilot/config.py"
+paths_to_mutate = "src/viznoir/config.py"
 tests_dir = "tests/"
 runner = "python -m pytest tests/test_core/test_config.py tests/test_property.py -x -q --tb=no"
 

@@ -15,8 +15,8 @@
 All gates are enforced by CI. Check these locally before pushing:
 
 - [ ] `ruff check src/ tests/` — zero lint errors
-- [ ] `mypy src/parapilot/ --ignore-missing-imports` — zero type errors
-- [ ] `pytest --cov=parapilot -q` — all tests pass, coverage >= 80%
+- [ ] `mypy src/viznoir/ --ignore-missing-imports` — zero type errors
+- [ ] `pytest --cov=viznoir -q` — all tests pass, coverage >= 80%
 - [ ] No secrets or credentials in the diff
 - [ ] CHANGELOG.md updated (if user-facing change)
 

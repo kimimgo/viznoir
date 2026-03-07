@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from parapilot.engine.physics import (
+from viznoir.engine.physics import (
     REPRESENTATION_TYPES,
     SmartCamera,
     SmartDefaults,
@@ -393,7 +393,7 @@ class TestSmartDefaultsDataclass:
 
 vtk = pytest.importorskip("vtk")
 
-from parapilot.engine.physics import (  # noqa: E402
+from viznoir.engine.physics import (  # noqa: E402
     _auto_glyph_scale,
     _auto_seed_line,
     _auto_warp_scale,
@@ -712,7 +712,7 @@ class TestSmartRepresentationEdgeCases:
 
     def test_surface_with_edges_physics(self):
         """Physics with surface_with_edges → edges on."""
-        from parapilot.engine.physics import PhysicsType
+        from viznoir.engine.physics import PhysicsType
         grid = _make_3d_grid()
         physics = PhysicsType(
             name="stress", category="scalar", colormap="turbo",
@@ -738,7 +738,7 @@ class TestSmartRepresentationEdgeCases:
         pts = vtk.vtkPoints()
         pts.InsertNextPoint(0, 0, 0)
         grid.SetPoints(pts)
-        from parapilot.engine.physics import _auto_point_size
+        from viznoir.engine.physics import _auto_point_size
         assert _auto_point_size(grid) == 5.0
 
 

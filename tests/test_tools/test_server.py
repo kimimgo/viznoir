@@ -11,20 +11,20 @@ class TestValidateFilePath:
     """Test _validate_file_path path traversal prevention."""
 
     def _reload_with_data_dir(self, data_dir: str | None = "/data"):
-        """Reload server module with PARAPILOT_DATA_DIR set."""
+        """Reload server module with VIZNOIR_DATA_DIR set."""
         import importlib
 
-        import parapilot.config
-        import parapilot.server
+        import viznoir.config
+        import viznoir.server
 
         if data_dir is not None:
-            os.environ["PARAPILOT_DATA_DIR"] = data_dir
+            os.environ["VIZNOIR_DATA_DIR"] = data_dir
         else:
-            os.environ.pop("PARAPILOT_DATA_DIR", None)
+            os.environ.pop("VIZNOIR_DATA_DIR", None)
 
-        importlib.reload(parapilot.config)
-        importlib.reload(parapilot.server)
-        return parapilot.server._validate_file_path
+        importlib.reload(viznoir.config)
+        importlib.reload(viznoir.server)
+        return viznoir.server._validate_file_path
 
     def test_valid_path_within_data_dir(self, tmp_path):
         data_dir = str(tmp_path / "data")
@@ -71,7 +71,7 @@ class TestValidateFilePath:
         assert result == data_dir
 
     def test_no_data_dir_allows_any_path(self, tmp_path):
-        """When PARAPILOT_DATA_DIR is unset, any path is allowed."""
+        """When VIZNOIR_DATA_DIR is unset, any path is allowed."""
         test_file = str(tmp_path / "test.vtk")
         open(test_file, "w").close()  # noqa: SIM115
         validate = self._reload_with_data_dir(None)
@@ -79,7 +79,7 @@ class TestValidateFilePath:
         assert result == test_file
 
     def test_no_data_dir_allows_absolute_paths(self, tmp_path):
-        """When PARAPILOT_DATA_DIR is unset, absolute paths work."""
+        """When VIZNOIR_DATA_DIR is unset, absolute paths work."""
         test_file = str(tmp_path / "case.foam")
         open(test_file, "w").close()  # noqa: SIM115
         validate = self._reload_with_data_dir(None)
@@ -167,57 +167,57 @@ class TestMainVersionFlag:
     """Test --version flag on the CLI entry point."""
 
     def test_version_flag_prints_version(self):
-        """mcp-server-parapilot --version should print version and exit."""
+        """mcp-server-viznoir --version should print version and exit."""
         import subprocess
         import sys
 
         result = subprocess.run(
-            [sys.executable, "-m", "parapilot.server", "--version"],
+            [sys.executable, "-m", "viznoir.server", "--version"],
             capture_output=True,
             text=True,
             timeout=10,
         )
         assert result.returncode == 0
-        assert "mcp-server-parapilot" in result.stdout
+        assert "mcp-server-viznoir" in result.stdout
         # Version string should match importlib.metadata
         from importlib.metadata import version
 
-        pkg_version = version("mcp-server-parapilot")
+        pkg_version = version("mcp-server-viznoir")
         assert pkg_version in result.stdout
 
-    def test_python_m_parapilot_version(self):
-        """python -m parapilot --version should also work."""
+    def test_python_m_viznoir_version(self):
+        """python -m viznoir --version should also work."""
         import subprocess
         import sys
 
         result = subprocess.run(
-            [sys.executable, "-m", "parapilot", "--version"],
+            [sys.executable, "-m", "viznoir", "--version"],
             capture_output=True,
             text=True,
             timeout=10,
         )
         assert result.returncode == 0
-        assert "mcp-server-parapilot" in result.stdout
+        assert "mcp-server-viznoir" in result.stdout
 
     def test_main_module_imports_and_calls_main(self):
         """__main__.py should import and call main()."""
         from unittest.mock import patch
 
-        with patch("parapilot.server.main") as mock_main:
+        with patch("viznoir.server.main") as mock_main:
             import importlib
 
-            import parapilot.__main__
+            import viznoir.__main__
 
-            importlib.reload(parapilot.__main__)
+            importlib.reload(viznoir.__main__)
             mock_main.assert_called()
 
     def test_server_main_guard(self):
         """server.py if __name__ == '__main__' guard should call main()."""
         from unittest.mock import patch
 
-        import parapilot.server  # noqa: F811
+        import viznoir.server  # noqa: F811
 
-        with patch("parapilot.server.main") as mock_main:
+        with patch("viznoir.server.main") as mock_main:
             # Simulate __name__ == "__main__" by executing the guard
-            parapilot.server.main()
+            viznoir.server.main()
             mock_main.assert_called()

@@ -1,6 +1,6 @@
-# Contributing to parapilot
+# Contributing to viznoir
 
-Thank you for your interest in contributing to parapilot! This guide will help you get started.
+Thank you for your interest in contributing to viznoir! This guide will help you get started.
 
 ## Development Setup
 
@@ -13,8 +13,8 @@ Thank you for your interest in contributing to parapilot! This guide will help y
 ### Install
 
 ```bash
-git clone https://github.com/kimimgo/parapilot.git
-cd parapilot
+git clone https://github.com/kimimgo/viznoir.git
+cd viznoir
 pip install -e ".[dev]"
 ```
 
@@ -30,7 +30,7 @@ pip install -e ".[all]"        # everything
 
 ```bash
 # Full test suite (1128 tests)
-pytest --cov=parapilot --cov-report=term-missing -q
+pytest --cov=viznoir --cov-report=term-missing -q
 
 # Single test file
 pytest tests/test_engine/test_filters.py -q
@@ -51,7 +51,7 @@ ruff check src/ tests/
 ruff check src/ tests/ --fix
 
 # Type check
-mypy src/parapilot/ --ignore-missing-imports
+mypy src/viznoir/ --ignore-missing-imports
 ```
 
 Ruff config: `target-version = "py310"`, `line-length = 120`.
@@ -59,7 +59,7 @@ Ruff config: `target-version = "py310"`, `line-length = 120`.
 ## Project Structure
 
 ```
-src/parapilot/
+src/viznoir/
 ├── server.py          # FastMCP instance + tool registration
 ├── config.py          # Environment-based configuration
 ├── tools/             # Tool implementations (render_impl, slice_impl, etc.)
@@ -84,7 +84,7 @@ Filters live in two places (dual registry pattern):
 
 ### 1. Implement the filter function
 
-Add a function to `src/parapilot/engine/filters.py`:
+Add a function to `src/viznoir/engine/filters.py`:
 
 ```python
 def my_filter(dataset, param1: float = 1.0, param2: str = "default"):
@@ -100,7 +100,7 @@ def my_filter(dataset, param1: float = 1.0, param2: str = "default"):
 
 ### 2. Register in the filter registry
 
-Add entry to `_FILTER_REGISTRY` dict in `src/parapilot/engine/filters.py`:
+Add entry to `_FILTER_REGISTRY` dict in `src/viznoir/engine/filters.py`:
 
 ```python
 _FILTER_REGISTRY = {
@@ -111,7 +111,7 @@ _FILTER_REGISTRY = {
 
 ### 3. Add PascalCase schema to core registry
 
-Add the filter schema in `src/parapilot/core/registry.py`:
+Add the filter schema in `src/viznoir/core/registry.py`:
 
 ```python
 "MyFilter": {
@@ -131,7 +131,7 @@ Add tests in `tests/test_engine/test_filters.py`:
 ```python
 def test_my_filter():
     from tests.fixtures.create_data import create_wavelet
-    from parapilot.engine.filters import my_filter
+    from viznoir.engine.filters import my_filter
 
     dataset = create_wavelet()
     result = my_filter(dataset, param1=2.0)
@@ -143,7 +143,7 @@ def test_my_filter():
 
 ### 1. Add reader function
 
-Add to `src/parapilot/engine/readers.py`:
+Add to `src/viznoir/engine/readers.py`:
 
 ```python
 def _read_my_format(path: str):
@@ -176,8 +176,8 @@ Create a minimal test fixture if needed and add tests in `tests/test_engine/test
 4. **Run the full check suite** before submitting:
    ```bash
    ruff check src/ tests/
-   mypy src/parapilot/ --ignore-missing-imports
-   pytest --cov=parapilot --cov-report=term-missing -q
+   mypy src/viznoir/ --ignore-missing-imports
+   pytest --cov=viznoir --cov-report=term-missing -q
    ```
 5. **Keep commits focused** — one logical change per commit, [Conventional Commits](https://www.conventionalcommits.org/) format
 6. **Open a PR** against `main` with a clear description
@@ -240,11 +240,11 @@ To add a contributor: `@all-contributors please add @username for code, test`
 
 ## Good First Issues
 
-Look for issues labeled [`good first issue`](https://github.com/kimimgo/parapilot/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) — these are curated for newcomers with clear scope and guidance.
+Look for issues labeled [`good first issue`](https://github.com/kimimgo/viznoir/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) — these are curated for newcomers with clear scope and guidance.
 
 ## Reporting Issues
 
-Use [GitHub Issues](https://github.com/kimimgo/parapilot/issues) to report bugs or request features. Please include:
+Use [GitHub Issues](https://github.com/kimimgo/viznoir/issues) to report bugs or request features. Please include:
 
 - Steps to reproduce
 - Expected vs actual behavior

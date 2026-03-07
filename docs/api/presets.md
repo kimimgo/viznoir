@@ -2,4 +2,4 @@
 
 Case-type rendering presets for different simulation domains.
 
-::: parapilot.presets.registry
+::: viznoir.presets.registry

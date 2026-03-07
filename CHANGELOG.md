@@ -35,14 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 5 new VTK filters: SmoothMesh, ProbePoint, CleanPolyData, Shrink, Tube
 - HTTP/SSE transport mode (`--transport sse|streamable-http`)
 - MCP Tasks support: `animate`, `split_animate`, `execute_pipeline` as async background tasks (FastMCP 3.x, backward-compatible with 2.x)
-- `pip install mcp-server-parapilot[tasks]` for FastMCP 3.x with MCP Tasks
+- `pip install mcp-server-viznoir[tasks]` for FastMCP 3.x with MCP Tasks
 - 8 path traversal security tests: symlink escape, null byte injection, prefix attack
 - Dockerfile.cpu for CPU-only (OSMesa) deployment without GPU
 - MkDocs Material API documentation site (16 pages)
 - Thermal analysis workflow example (`examples/thermal_analysis.json`)
 - JOSS paper draft (`paper/paper.md`)
-- Structured logging framework (`PARAPILOT_LOG_LEVEL` env var)
-- Custom exception hierarchy (`ParapilotError`, `FileFormatError`, etc.)
+- Structured logging framework (`VIZNOIR_LOG_LEVEL` env var)
+- Custom exception hierarchy (`ViznoirError`, `FileFormatError`, etc.)
 - Render window auto-regeneration (every 100 renders) to prevent GPU memory leaks
 - Python 3.11/3.13 CI test matrix
 - Codecov coverage reporting
@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PLY/OBJ/STL integration tests (real VTK I/O roundtrip)
 - Troubleshooting guide (docs/troubleshooting.md, 10 common issues)
 - CODE_OF_CONDUCT.md (Contributor Covenant v2.1)
-- `__main__.py` for `python -m parapilot` support
+- `__main__.py` for `python -m viznoir` support
 - Blue to Red Rainbow and X Ray colormaps (16 → 18 colormaps)
 - Colormap resource enhanced with field-type recommendations
 
@@ -122,10 +122,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-center origin for slice and clip operations
 - Empty output guard with data range diagnostics for contour
 - `_protect_stdout()` to shield MCP JSON-RPC stream from VTK C-level stdout pollution
-- Path traversal prevention when `PARAPILOT_DATA_DIR` is set
+- Path traversal prevention when `VIZNOIR_DATA_DIR` is set
 - Landing page (Astro 5 + Tailwind) with interactive showcase gallery
 
-[Unreleased]: https://github.com/kimimgo/parapilot/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/kimimgo/parapilot/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/kimimgo/parapilot/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/kimimgo/parapilot/releases/tag/v0.1.0
+[Unreleased]: https://github.com/kimimgo/viznoir/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/kimimgo/viznoir/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/kimimgo/viznoir/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/kimimgo/viznoir/releases/tag/v0.1.0

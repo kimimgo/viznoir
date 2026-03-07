@@ -20,7 +20,7 @@
 ## Step 1: 설치 및 MCP 설정
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 `.mcp.json` 설정 (Claude Code / Cursor 공통):
@@ -28,10 +28,10 @@ pip install mcp-server-parapilot
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_OUTPUT_DIR": "./output"
+        "VIZNOIR_OUTPUT_DIR": "./output"
       }
     }
   }
@@ -104,7 +104,7 @@ render(
 
 ### 볼륨 렌더링 모드
 
-parapilot의 `execute_pipeline`을 사용하면 representation을 volume으로 지정할 수 있습니다:
+viznoir의 `execute_pipeline`을 사용하면 representation을 volume으로 지정할 수 있습니다:
 
 ```
 execute_pipeline({
@@ -394,7 +394,7 @@ execute_pipeline →  고급 필터 조합
 
 ## VTI 이외의 의료 영상 포맷
 
-parapilot은 VTI 외에도 다양한 포맷을 지원합니다:
+viznoir은 VTI 외에도 다양한 포맷을 지원합니다:
 
 | 포맷 | 확장자 | 비고 |
 |------|--------|------|

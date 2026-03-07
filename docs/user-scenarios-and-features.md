@@ -1,4 +1,4 @@
-# parapilot — 실사용자 시나리오 & 기능 정의
+# viznoir — 실사용자 시나리오 & 기능 정의
 
 > 리서치 기반: Reddit r/CFD, r/OpenFOAM, CFD Engine, ScienceDirect, 업계 자료 종합
 
@@ -14,7 +14,7 @@
 - 특히 transient (시계열) 데이터는 수천 개 timestep → 메모리 폭발
 - HPC 클러스터에서 돌린 결과를 로컬로 옮기는 것 자체가 병목
 
-**parapilot 대응**: 헤드리스 → GUI 없음, 메모리 효율적, 원격 서버에서 직접 렌더
+**viznoir 대응**: 헤드리스 → GUI 없음, 메모리 효율적, 원격 서버에서 직접 렌더
 
 ### 2. "post-processing 스크립트 짜기 귀찮다" — 자동화 진입장벽
 > "State files are a very low barrier to automation, and scripting is also good"
@@ -24,7 +24,7 @@
 - pvbatch/pvpython 스크립트 작성 → 디버깅 → 반복 수정 사이클이 김
 - OpenFOAM functionObjects → 설정 복잡, 런타임 전용
 
-**parapilot 대응**: 자연어로 요청 → AI가 tool 호출 → 결과 즉시 반환. 스크립트 불필요.
+**viznoir 대응**: 자연어로 요청 → AI가 tool 호출 → 결과 즉시 반환. 스크립트 불필요.
 
 ### 3. "그래프는 ParaView 말고 Python으로" — 도구 분산
 > "I highly recommend learning something like Python (matplotlib) for graphs"
@@ -35,7 +35,7 @@
 - 3개 도구를 오가며 작업 → context switching 비용 높음
 - 일관된 스타일 유지 어려움
 
-**parapilot 대응**: render + plot_over_line + extract_stats → 단일 인터페이스에서 3D/2D/수치 모두
+**viznoir 대응**: render + plot_over_line + extract_stats → 단일 인터페이스에서 3D/2D/수치 모두
 
 ### 4. "보고서 이미지 대량 생성" — 반복 작업
 > "For certain problem types we use standardized post-processing and reporting"
@@ -45,7 +45,7 @@
 - 설계 비교 (Case A vs B vs C) → 동일 뷰포인트에서 N개 케이스 렌더
 - "표준화된 보고서" 니즈 → 템플릿 기반 자동화
 
-**parapilot 대응**: execute_pipeline DSL로 표준 파이프라인 정의 → 케이스만 바꿔서 반복 실행
+**viznoir 대응**: execute_pipeline DSL로 표준 파이프라인 정의 → 케이스만 바꿔서 반복 실행
 
 ### 5. "transient 데이터 실시간 확인" — 수렴/모니터링
 > "triggering an instance of paraview whenever a time folder is written"
@@ -56,7 +56,7 @@
 - 전체 데이터를 저장하지 않고 on-the-fly 시각화
 - 수렴 그래프, residual plot, force 모니터링
 
-**parapilot 대응**: ⚠️ 현재 미지원. functionObjects 데이터를 읽는 tool 필요.
+**viznoir 대응**: ⚠️ 현재 미지원. functionObjects 데이터를 읽는 tool 필요.
 
 ### 6. "ParaView 출력이 못생겼다" — 프레젠테이션 품질
 > "produces output that is very ugly by default"
@@ -67,7 +67,7 @@
 - 기본 컬러맵, 축 레이블, 범례 → 수동 조정 필요
 - 일관된 스타일 (폰트, 색상, 해상도) 유지
 
-**parapilot 대응**: colormap 프리셋 + 해상도 설정. 그러나 축/범례/주석은 현재 미약.
+**viznoir 대응**: colormap 프리셋 + 해상도 설정. 그러나 축/범례/주석은 현재 미약.
 
 ---
 
@@ -77,7 +77,7 @@
 **환경**: OpenFOAM/STAR-CCM+, HPC 클러스터, 수십 GB 결과
 **일상**: 시뮬레이션 제출 → 대기 → 결과 확인 → 보고서 → 회의
 
-| 시나리오 | 현재 워크플로우 | parapilot 워크플로우 |
+| 시나리오 | 현재 워크플로우 | viznoir 워크플로우 |
 |---------|-------------|-------------------|
 | 수렴 확인 | SSH → ParaView headless → pvbatch 스크립트 | "residual plot 보여줘" → plot_over_line |
 | 단면 비교 | ParaView GUI에서 수동 3개 단면 생성 | "x=0, 0.5, 1.0 에서 pressure 단면 3장" |
@@ -88,7 +88,7 @@
 **환경**: OpenFOAM/FEniCS, 학교 서버, 논문 작성
 **일상**: 메쉬 검증 → 시뮬레이션 → 후처리 → 논문 figure → 리뷰 대응
 
-| 시나리오 | 현재 워크플로우 | parapilot 워크플로우 |
+| 시나리오 | 현재 워크플로우 | viznoir 워크플로우 |
 |---------|-------------|-------------------|
 | 논문 figure | ParaView + matplotlib + Inkscape | render + plot_over_line + 스타일 프리셋 |
 | 격자 수렴 | 3개 메쉬 수동 비교 | "coarse/medium/fine 메쉬 L2 에러 비교" |
@@ -98,7 +98,7 @@
 **환경**: 강의 과제, 처음 CFD/FEA 접함
 **일상**: 튜토리얼 따라하기 → 결과 확인 → 보고서 제출
 
-| 시나리오 | 현재 워크플로우 | parapilot 워크플로우 |
+| 시나리오 | 현재 워크플로우 | viznoir 워크플로우 |
 |---------|-------------|-------------------|
 | 첫 결과 확인 | ParaView 설치 → 인터페이스 어려움 → 포기 | "결과 파일 분석해줘" → inspect_data |
 | 과제 보고서 | 스크린샷 → Word | "보고서용 이미지 세트 생성" |
@@ -107,7 +107,7 @@
 **환경**: CI/CD 파이프라인, 시뮬레이션 자동화
 **일상**: 시뮬레이션 결과 자동 검증 → 대시보드 → 알림
 
-| 시나리오 | 현재 워크플로우 | parapilot 워크플로우 |
+| 시나리오 | 현재 워크플로우 | viznoir 워크플로우 |
 |---------|-------------|-------------------|
 | CI 검증 | pvbatch 스크립트 → 이미지 diff | MCP tool → 이미지 + 통계 자동 검증 |
 | 대시보드 | 커스텀 VTK 스크립트 | execute_pipeline → JSON 결과 → Grafana |
@@ -202,7 +202,7 @@
 - 격자 수렴 연구, 솔버 검증
 
 **Sprint 4 (v0.5.0)**: F9 section_report + F13 residual_plot
-- 자동 보고서 = "이것만으로도 parapilot 쓸 이유"
+- 자동 보고서 = "이것만으로도 viznoir 쓸 이유"
 - 산업계 도입의 마지막 퍼즐
 
 ---

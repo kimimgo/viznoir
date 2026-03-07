@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from parapilot.core.runner import RunResult, VTKRunner
+from viznoir.core.runner import RunResult, VTKRunner
 
 
 class TestDockerContainerCleanup:
@@ -25,9 +25,9 @@ class TestDockerContainerCleanup:
         mock_proc.kill = MagicMock()
 
         with (
-            patch("parapilot.core.runner.asyncio.create_subprocess_exec", return_value=mock_proc),
+            patch("viznoir.core.runner.asyncio.create_subprocess_exec", return_value=mock_proc),
             patch.object(runner, "_stop_container", new_callable=AsyncMock) as mock_stop,
-            patch("parapilot.core.runner.uuid") as mock_uuid,
+            patch("viznoir.core.runner.uuid") as mock_uuid,
         ):
             mock_uuid.uuid4.return_value = MagicMock(hex="abcdef123456")
             import tempfile
@@ -44,14 +44,14 @@ class TestDockerContainerCleanup:
         assert result.exit_code == -1
         assert "timed out" in result.stderr
         mock_proc.kill.assert_called_once()
-        mock_stop.assert_awaited_once_with("parapilot_abcdef123456")
+        mock_stop.assert_awaited_once_with("viznoir_abcdef123456")
 
     @pytest.mark.asyncio
     async def test_docker_run_includes_container_name(self) -> None:
-        """docker run args must include --name parapilot_*."""
+        """docker run args must include --name viznoir_*."""
         from pathlib import Path
 
-        from parapilot.config import PVConfig
+        from viznoir.config import PVConfig
 
         config = PVConfig(data_dir=Path("/data"))
         runner = VTKRunner(mode="docker", config=config)
@@ -66,8 +66,8 @@ class TestDockerContainerCleanup:
             return mock_proc
 
         with (
-            patch("parapilot.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
-            patch("parapilot.core.runner.uuid") as mock_uuid,
+            patch("viznoir.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
+            patch("viznoir.core.runner.uuid") as mock_uuid,
         ):
             mock_uuid.uuid4.return_value = MagicMock(hex="abcdef123456")
             import tempfile
@@ -83,17 +83,17 @@ class TestDockerContainerCleanup:
 
         assert "--name" in captured_args
         name_idx = captured_args.index("--name")
-        assert captured_args[name_idx + 1] == "parapilot_abcdef123456"
+        assert captured_args[name_idx + 1] == "viznoir_abcdef123456"
 
     @pytest.mark.asyncio
     async def test_stop_container_best_effort(self) -> None:
         """_stop_container should not raise even if docker commands fail."""
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=OSError("docker not found"),
         ):
             # Should not raise
-            await VTKRunner._stop_container("parapilot_test")
+            await VTKRunner._stop_container("viznoir_test")
 
     @pytest.mark.asyncio
     async def test_cleanup_orphaned_no_containers(self) -> None:
@@ -102,7 +102,7 @@ class TestDockerContainerCleanup:
         mock_proc.communicate = AsyncMock(return_value=(b"", b""))
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -126,7 +126,7 @@ class TestDockerContainerCleanup:
             return mock_proc
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=fake_subprocess,
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -139,7 +139,7 @@ class TestFfmpegTimeout:
     @pytest.mark.asyncio
     async def test_compile_video_ffmpeg_timeout(self) -> None:
         """compile_video should return error on ffmpeg timeout, not crash."""
-        from parapilot.pipeline.engine import compile_video
+        from viznoir.pipeline.engine import compile_video
 
         # First call raises TimeoutError (inside wait_for), second returns normally (post-kill drain)
         mock_proc = AsyncMock()
@@ -148,7 +148,7 @@ class TestFfmpegTimeout:
 
         with (
             patch("shutil.which", return_value="/usr/bin/ffmpeg"),
-            patch("parapilot.pipeline.engine.asyncio.create_subprocess_exec", return_value=mock_proc),
+            patch("viznoir.pipeline.engine.asyncio.create_subprocess_exec", return_value=mock_proc),
         ):
             video_bytes, error = await compile_video(
                 {"frame_000000.png": b"fake", "frame_000001.png": b"fake"},
@@ -223,7 +223,7 @@ class TestStdoutProtection:
         import os
         import sys
 
-        from parapilot.server import _protect_stdout
+        from viznoir.server import _protect_stdout
 
         # Save original state
         orig_stdout = sys.stdout
@@ -285,7 +285,7 @@ class TestExecuteLocalEdgeCases:
             return mock_proc
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=capture_subprocess,
         ):
             result = await runner.execute(
@@ -307,7 +307,7 @@ class TestExecuteLocalEdgeCases:
         mock_proc.returncode = 0
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
             result = await runner.execute("pass")
@@ -325,7 +325,7 @@ class TestExecuteLocalEdgeCases:
         mock_proc.returncode = 0
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
             result = await runner.execute("pass")
@@ -343,7 +343,7 @@ class TestExecuteLocalEdgeCases:
         mock_proc.kill = MagicMock()
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
             result = await runner.execute("pass", timeout=1.0)
@@ -354,7 +354,7 @@ class TestExecuteLocalEdgeCases:
     @pytest.mark.asyncio
     async def test_osmesa_backend_env(self):
         """OSMesa backend sets correct env var."""
-        from parapilot.config import PVConfig
+        from viznoir.config import PVConfig
 
         config = PVConfig(vtk_backend="osmesa", render_backend="cpu")
         runner = VTKRunner(mode="local", config=config)
@@ -369,7 +369,7 @@ class TestExecuteLocalEdgeCases:
             return mock_proc
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=capture_subprocess,
         ):
             await runner.execute("pass")
@@ -382,7 +382,7 @@ class TestDockerModeNoGPU:
         """Docker mode without GPU sets OSMesa env."""
         from pathlib import Path
 
-        from parapilot.config import PVConfig
+        from viznoir.config import PVConfig
 
         config = PVConfig(data_dir=Path("/data"), render_backend="cpu")
         runner = VTKRunner(mode="docker", config=config)
@@ -397,8 +397,8 @@ class TestDockerModeNoGPU:
             return mock_proc
 
         with (
-            patch("parapilot.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
-            patch("parapilot.core.runner.uuid") as mock_uuid,
+            patch("viznoir.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
+            patch("viznoir.core.runner.uuid") as mock_uuid,
         ):
             mock_uuid.uuid4.return_value = MagicMock(hex="abcdef123456")
             import tempfile
@@ -444,7 +444,7 @@ class TestOutputFilePermissionError:
 
         with (
             patch(
-                "parapilot.core.runner.asyncio.create_subprocess_exec",
+                "viznoir.core.runner.asyncio.create_subprocess_exec",
                 side_effect=fake_subprocess,
             ),
             patch.object(Path, "read_bytes", patched_read_bytes),
@@ -482,7 +482,7 @@ class TestDockerExtraMounts:
     async def test_extra_mounts_in_docker_args(self) -> None:
         from pathlib import Path
 
-        from parapilot.config import PVConfig
+        from viznoir.config import PVConfig
 
         config = PVConfig(data_dir=Path("/data"))
         runner = VTKRunner(mode="docker", config=config)
@@ -497,8 +497,8 @@ class TestDockerExtraMounts:
             return mock_proc
 
         with (
-            patch("parapilot.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
-            patch("parapilot.core.runner.uuid") as mock_uuid,
+            patch("viznoir.core.runner.asyncio.create_subprocess_exec", side_effect=fake_subprocess),
+            patch("viznoir.core.runner.uuid") as mock_uuid,
         ):
             mock_uuid.uuid4.return_value = MagicMock(hex="mount123456")
             import tempfile
@@ -526,7 +526,7 @@ class TestCleanupOrphanedExceptions:
     async def test_cleanup_ps_timeout(self) -> None:
         """Timeout during 'docker ps' returns 0."""
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=asyncio.TimeoutError,
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -536,7 +536,7 @@ class TestCleanupOrphanedExceptions:
     async def test_cleanup_ps_oserror(self) -> None:
         """OSError during 'docker ps' returns 0."""
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=OSError("docker not found"),
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -560,7 +560,7 @@ class TestCleanupOrphanedExceptions:
             return mock_proc
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=fake_subprocess,
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -582,7 +582,7 @@ class TestCleanupOrphanedExceptions:
                 raise OSError("docker not found")
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             side_effect=fake_subprocess,
         ):
             count = await VTKRunner.cleanup_orphaned_containers()
@@ -595,11 +595,11 @@ class TestCleanupOrphanedExceptions:
         mock_proc.communicate = AsyncMock(side_effect=asyncio.TimeoutError)
 
         with patch(
-            "parapilot.core.runner.asyncio.create_subprocess_exec",
+            "viznoir.core.runner.asyncio.create_subprocess_exec",
             return_value=mock_proc,
         ):
             # Should not raise
-            await VTKRunner._stop_container("parapilot_test_timeout")
+            await VTKRunner._stop_container("viznoir_test_timeout")
 
 
 class TestDefaultTimeout:
@@ -607,14 +607,14 @@ class TestDefaultTimeout:
 
     def test_default_timeout_600(self) -> None:
         """PVConfig default_timeout should be 600s (not 120s)."""
-        from parapilot.config import PVConfig
+        from viznoir.config import PVConfig
 
         with patch.dict("os.environ", {}, clear=False):
             import os
-            old = os.environ.pop("PARAPILOT_TIMEOUT", None)
+            old = os.environ.pop("VIZNOIR_TIMEOUT", None)
             try:
                 config = PVConfig()
                 assert config.default_timeout == 600.0
             finally:
                 if old is not None:
-                    os.environ["PARAPILOT_TIMEOUT"] = old
+                    os.environ["VIZNOIR_TIMEOUT"] = old

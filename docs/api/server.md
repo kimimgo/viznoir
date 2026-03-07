@@ -2,7 +2,7 @@
 
 MCP server entry point with all tool registrations.
 
-::: parapilot.server
+::: viznoir.server
     options:
       members:
         - mcp

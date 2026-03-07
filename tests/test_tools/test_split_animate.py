@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from parapilot.core.compiler import ScriptCompiler
-from parapilot.pipeline.engine import validate_pipeline
-from parapilot.pipeline.models import (
+from viznoir.core.compiler import ScriptCompiler
+from viznoir.pipeline.engine import validate_pipeline
+from viznoir.pipeline.models import (
     GraphPaneDef,
     GraphSeriesDef,
     OutputDef,

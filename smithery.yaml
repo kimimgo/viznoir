@@ -1,8 +1,8 @@
-name: parapilot
+name: viznoir
 description: Headless CAE post-processing MCP server for AI coding assistants. Visualize CFD/FEA simulation results through 18 tools — render, slice, contour, clip, streamlines, cinematic, compare, batch, probe, preview_3d, and more.
 vendor: kimimgo
-sourceUrl: https://github.com/kimimgo/parapilot
-homepage: https://kimimgo.github.io/parapilot
+sourceUrl: https://github.com/kimimgo/viznoir
+homepage: https://kimimgo.github.io/viznoir
 license: MIT
 tags:
   - vtk
@@ -18,14 +18,14 @@ startCommand:
   configSchema:
     type: object
     properties:
-      PARAPILOT_DATA_DIR:
+      VIZNOIR_DATA_DIR:
         type: string
         description: Restrict file access to this directory (security sandbox)
-      PARAPILOT_OUTPUT_DIR:
+      VIZNOIR_OUTPUT_DIR:
         type: string
         default: /output
         description: Output directory for rendered images
-      PARAPILOT_RENDER_BACKEND:
+      VIZNOIR_RENDER_BACKEND:
         type: string
         enum: [gpu, cpu, auto]
         default: gpu
@@ -33,10 +33,10 @@ startCommand:
     required: []
   commandFunction: |-
     (config) => ({
-      command: 'mcp-server-parapilot',
+      command: 'mcp-server-viznoir',
       env: {
-        ...(config.PARAPILOT_DATA_DIR && { PARAPILOT_DATA_DIR: config.PARAPILOT_DATA_DIR }),
-        ...(config.PARAPILOT_OUTPUT_DIR && { PARAPILOT_OUTPUT_DIR: config.PARAPILOT_OUTPUT_DIR }),
-        ...(config.PARAPILOT_RENDER_BACKEND && { PARAPILOT_RENDER_BACKEND: config.PARAPILOT_RENDER_BACKEND }),
+        ...(config.VIZNOIR_DATA_DIR && { VIZNOIR_DATA_DIR: config.VIZNOIR_DATA_DIR }),
+        ...(config.VIZNOIR_OUTPUT_DIR && { VIZNOIR_OUTPUT_DIR: config.VIZNOIR_OUTPUT_DIR }),
+        ...(config.VIZNOIR_RENDER_BACKEND && { VIZNOIR_RENDER_BACKEND: config.VIZNOIR_RENDER_BACKEND }),
       }
     })

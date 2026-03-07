@@ -1,4 +1,4 @@
-# parapilot OSS Strategy
+# viznoir OSS Strategy
 
 > Last updated: 2026-03-06 | Status: Pre-launch
 
@@ -113,7 +113,7 @@ New contributor arrives
 
 | Action | Channel | Audience | Angle |
 |--------|---------|----------|-------|
-| Show HN | Hacker News | Developers | "Show HN: parapilot — render your CFD simulations with AI, no GUI needed" |
+| Show HN | Hacker News | Developers | "Show HN: viznoir — render your CFD simulations with AI, no GUI needed" |
 | r/CFD post | Reddit | CFD engineers | "I built a headless tool that lets AI render your simulation results" |
 | r/OpenFOAM post | Reddit | OpenFOAM users | "Render OpenFOAM cases from your terminal via Claude/Cursor" |
 | r/Python post | Reddit | Python devs | "MCP server that gives LLMs eyes for VTK simulation data" |
@@ -185,7 +185,7 @@ scientific-visualization, ai-tools, engineering
 
 | Element | Value |
 |---------|-------|
-| Name | **parapilot** |
+| Name | **viznoir** |
 | Tagline | "Headless CAE post-processing for AI assistants" |
 | One-liner | "Ask your AI to render your simulation" |
 | Accent | `#00d4ff` |
@@ -205,7 +205,7 @@ scientific-visualization, ai-tools, engineering
   ←──────────────── + ──────────────────→
    Few tools        |              Many tools
                     |
-     LLNL           |       parapilot
+     LLNL           |       viznoir
      paraview_mcp   |       (headless, 18 tools,
      (GUI-attached) |        1048 tests, plugin)
                     |
@@ -327,7 +327,7 @@ Things competitors cannot easily replicate:
 | **Physics-aware defaults** | Field name → physical quantity auto-detection |
 | **Split-pane animation** | Synchronized multi-view + time-series graph GIF |
 | **Dual execution** | Local VTK + Docker GPU seamless switching |
-| **Claude Code plugin** | One-line install: `claude install kimimgo/parapilot` |
+| **Claude Code plugin** | One-line install: `claude install kimimgo/viznoir` |
 | **Cinematic renderer** | PCA auto-camera + 3-point lighting + SSAO + PBR |
 
 ---

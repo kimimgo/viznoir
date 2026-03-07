@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from parapilot.core.output import PipelineResult
-from parapilot.core.runner import ParaViewRunner, RunResult
+from viznoir.core.output import PipelineResult
+from viznoir.core.runner import ParaViewRunner, RunResult
 
 
 @pytest.fixture
@@ -31,8 +31,8 @@ def mock_result():
 class TestSliceImpl:
     @pytest.mark.asyncio
     async def test_builds_correct_pipeline(self, mock_runner, mock_result):
-        with patch("parapilot.tools.filters.execute_pipeline", return_value=mock_result) as mock_exec:
-            from parapilot.tools.filters import slice_impl
+        with patch("viznoir.tools.filters.execute_pipeline", return_value=mock_result) as mock_exec:
+            from viznoir.tools.filters import slice_impl
 
             await slice_impl(
                 file_path="/data/case.vtk",
@@ -54,8 +54,8 @@ class TestSliceImpl:
 class TestRenderImpl:
     @pytest.mark.asyncio
     async def test_builds_correct_pipeline(self, mock_runner, mock_result):
-        with patch("parapilot.tools.render.execute_pipeline", return_value=mock_result):
-            from parapilot.tools.render import render_impl
+        with patch("viznoir.tools.render.execute_pipeline", return_value=mock_result):
+            from viznoir.tools.render import render_impl
 
             result = await render_impl(
                 file_path="/data/case.foam",
@@ -76,8 +76,8 @@ class TestExtractStatsImpl:
             json_data={"type": "data", "fields": {"p": {"min": 0, "max": 100}}},
             raw=RunResult(stdout="", stderr="", exit_code=0),
         )
-        with patch("parapilot.tools.extract.execute_pipeline", return_value=data_result) as mock_exec:
-            from parapilot.tools.extract import extract_stats_impl
+        with patch("viznoir.tools.extract.execute_pipeline", return_value=data_result) as mock_exec:
+            from viznoir.tools.extract import extract_stats_impl
 
             await extract_stats_impl(
                 file_path="/data/case.vtk",
@@ -95,8 +95,8 @@ class TestExtractStatsImpl:
 class TestExecutePipelineImpl:
     @pytest.mark.asyncio
     async def test_parses_json_definition(self, mock_runner, mock_result):
-        with patch("parapilot.tools.pipeline.execute_pipeline", return_value=mock_result):
-            from parapilot.tools.pipeline import execute_pipeline_impl
+        with patch("viznoir.tools.pipeline.execute_pipeline", return_value=mock_result):
+            from viznoir.tools.pipeline import execute_pipeline_impl
 
             result = await execute_pipeline_impl(
                 pipeline_json={

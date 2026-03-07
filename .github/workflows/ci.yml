@@ -27,7 +27,7 @@ jobs:
         run: ruff check src/ tests/
 
       - name: Type check (mypy)
-        run: mypy src/parapilot/ --ignore-missing-imports
+        run: mypy src/viznoir/ --ignore-missing-imports
 
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -52,7 +52,7 @@ jobs:
       - name: Test (pytest)
         env:
           VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
-        run: pytest --cov=parapilot --cov-report=term-missing --cov-report=xml -q
+        run: pytest --cov=viznoir --cov-report=term-missing --cov-report=xml -q
 
       - name: Coverage threshold check
         if: matrix.python-version == '3.12'

@@ -2,13 +2,13 @@
 
 ## MCP Client Configuration
 
-Add parapilot to your MCP client's configuration:
+Add viznoir to your MCP client's configuration:
 
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }
@@ -52,21 +52,21 @@ The `inspect_data` tool returns bounds, point/cell arrays with ranges, timestep 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PARAPILOT_DATA_DIR` | None | Restrict file access to this directory |
-| `PARAPILOT_OUTPUT_DIR` | `/output` | Output directory for rendered files |
-| `PARAPILOT_RENDER_BACKEND` | `gpu` | `gpu`, `cpu`, or `auto` |
-| `PARAPILOT_VTK_BACKEND` | `auto` | `egl`, `osmesa`, or `auto` |
-| `PARAPILOT_TIMEOUT` | `600` | Script execution timeout (seconds) |
+| `VIZNOIR_DATA_DIR` | None | Restrict file access to this directory |
+| `VIZNOIR_OUTPUT_DIR` | `/output` | Output directory for rendered files |
+| `VIZNOIR_RENDER_BACKEND` | `gpu` | `gpu`, `cpu`, or `auto` |
+| `VIZNOIR_VTK_BACKEND` | `auto` | `egl`, `osmesa`, or `auto` |
+| `VIZNOIR_TIMEOUT` | `600` | Script execution timeout (seconds) |
 
 ## Transport Modes
 
 ```bash
 # Default: stdio (local MCP clients)
-mcp-server-parapilot
+mcp-server-viznoir
 
 # SSE (remote access)
-mcp-server-parapilot --transport sse --port 8000
+mcp-server-viznoir --transport sse --port 8000
 
 # StreamableHTTP (FastMCP 2.0+)
-mcp-server-parapilot --transport streamable-http --port 8000
+mcp-server-viznoir --transport streamable-http --port 8000
 ```

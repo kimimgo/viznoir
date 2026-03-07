@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.postfx import (
+from viznoir.engine.postfx import (
     PostFXConfig,
     apply_fxaa,
     apply_postfx,

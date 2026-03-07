@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import vtk
 
-from parapilot.engine.renderer import (
+from viznoir.engine.renderer import (
     RenderConfig,
     VTKRenderer,
     _apply_representation,

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from parapilot.engine.readers import (
+from viznoir.engine.readers import (
     _READER_MAP,
     _parse_pvd,
     _parse_series,
@@ -158,13 +158,13 @@ class TestParseSeries:
 
 class TestDataReaderInit:
     def test_file_not_found_raises(self):
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         with pytest.raises(FileNotFoundError, match="File not found"):
             DataReader("/nonexistent/file.vtk")
 
     def test_accepts_existing_file(self, tmp_path):
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         vtk_file = tmp_path / "test.vtk"
         vtk_file.write_text("# vtk DataFile Version 2.0\n")
@@ -173,8 +173,8 @@ class TestDataReaderInit:
         assert reader.path == vtk_file.resolve()
 
     def test_unsupported_extension_no_meshio(self, tmp_path):
-        from parapilot.engine.readers import DataReader
-        from parapilot.errors import FileFormatError
+        from viznoir.engine.readers import DataReader
+        from viznoir.errors import FileFormatError
 
         xyz_file = tmp_path / "file.xyz"
         xyz_file.write_text("data")
@@ -185,21 +185,21 @@ class TestDataReaderInit:
                 reader.read()
 
     def test_unsupported_extension_hint_message(self, tmp_path):
-        from parapilot.engine.readers import DataReader
-        from parapilot.errors import FileFormatError
+        from viznoir.engine.readers import DataReader
+        from viznoir.errors import FileFormatError
 
         xyz_file = tmp_path / "file.xyz"
         xyz_file.write_text("data")
 
         reader = DataReader(xyz_file)
         with patch.dict("sys.modules", {"meshio": None}):
-            with pytest.raises(FileFormatError, match="pip install mcp-server-parapilot"):
+            with pytest.raises(FileFormatError, match="pip install mcp-server-viznoir"):
                 reader.read()
 
     def test_typo_extension_suggests_match(self, tmp_path):
         """Test that a typo'd extension like .vtt gets a 'Did you mean .vtu?' suggestion."""
-        from parapilot.engine.readers import DataReader
-        from parapilot.errors import FileFormatError
+        from viznoir.engine.readers import DataReader
+        from viznoir.errors import FileFormatError
 
         typo_file = tmp_path / "file.vtt"
         typo_file.write_text("data")
@@ -212,17 +212,17 @@ class TestDataReaderInit:
 
 class TestFormatSuggestion:
     def test_close_match(self):
-        from parapilot.engine.readers import _format_suggestion
+        from viznoir.engine.readers import _format_suggestion
 
         assert _format_suggestion(".vtt") in (".vtk", ".vtp", ".vtu")
 
     def test_no_match(self):
-        from parapilot.engine.readers import _format_suggestion
+        from viznoir.engine.readers import _format_suggestion
 
         assert _format_suggestion(".zzz") is None
 
     def test_exact_match_not_needed(self):
-        from parapilot.engine.readers import _format_suggestion
+        from viznoir.engine.readers import _format_suggestion
 
         # .stll is close to .stl
         result = _format_suggestion(".stll")
@@ -241,7 +241,7 @@ class TestMeshioFallback:
         """Test the _meshio_to_vtk helper with a mock meshio.Mesh."""
         import numpy as np
 
-        from parapilot.engine.readers import _meshio_to_vtk
+        from viznoir.engine.readers import _meshio_to_vtk
 
         mesh = MagicMock()
         mesh.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
@@ -260,7 +260,7 @@ class TestMeshioFallback:
         """Test 2D mesh is padded to 3D."""
         import numpy as np
 
-        from parapilot.engine.readers import _meshio_to_vtk
+        from viznoir.engine.readers import _meshio_to_vtk
 
         mesh = MagicMock()
         mesh.points = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
@@ -277,7 +277,7 @@ class TestMeshioFallback:
         """Test that unknown cell types are skipped gracefully."""
         import numpy as np
 
-        from parapilot.engine.readers import _meshio_to_vtk
+        from viznoir.engine.readers import _meshio_to_vtk
 
         mesh = MagicMock()
         mesh.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
@@ -293,7 +293,7 @@ class TestMeshioFallback:
 
     def test_meshio_cell_type_map(self):
         """Test that common cell types are mapped."""
-        from parapilot.engine.readers import _MESHIO_TO_VTK_TYPE
+        from viznoir.engine.readers import _MESHIO_TO_VTK_TYPE
 
         expected = {"vertex", "line", "triangle", "quad", "tetra", "hexahedron", "wedge", "pyramid"}
         assert expected.issubset(set(_MESHIO_TO_VTK_TYPE.keys()))
@@ -302,7 +302,7 @@ class TestMeshioFallback:
         """Test meshio fallback success path (lines 258-267)."""
         import numpy as np
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         med_file = tmp_path / "mesh.med"
         med_file.write_text("mesh data")
@@ -328,8 +328,8 @@ class TestMeshioFallback:
 
     def test_meshio_fallback_read_fails(self, tmp_path):
         """Test meshio fallback when meshio is available but read fails."""
-        from parapilot.engine.readers import DataReader
-        from parapilot.errors import FileFormatError
+        from viznoir.engine.readers import DataReader
+        from viznoir.errors import FileFormatError
 
         bad_file = tmp_path / "file.med"
         bad_file.write_text("not a real mesh")
@@ -344,8 +344,8 @@ class TestMeshioFallback:
 
     def test_meshio_fallback_read_fails_with_hint(self, tmp_path):
         """meshio fail + typo extension includes 'Did you mean' hint."""
-        from parapilot.engine.readers import DataReader
-        from parapilot.errors import FileFormatError
+        from viznoir.engine.readers import DataReader
+        from viznoir.errors import FileFormatError
 
         typo_file = tmp_path / "file.stll"  # close to .stl
         typo_file.write_text("data")
@@ -371,7 +371,7 @@ class TestPvdReader:
         """DataReader reads PVD files that reference real VTK files."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         # Create a simple VTU file
         pts = vtk.vtkPoints()
@@ -402,7 +402,7 @@ class TestPvdReader:
 
     def test_pvd_empty_raises(self, tmp_path):
         """PVD with no entries raises ValueError."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         pvd_content = """<?xml version="1.0"?>
 <VTKFile type="Collection"><Collection></Collection></VTKFile>"""
@@ -415,7 +415,7 @@ class TestPvdReader:
 
     def test_pvd_missing_file_raises(self, tmp_path):
         """PVD referencing nonexistent file raises FileNotFoundError."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         pvd_content = """<?xml version="1.0"?>
 <VTKFile type="Collection">
@@ -438,7 +438,7 @@ class TestSeriesReader:
         """DataReader reads .vtu.series files."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         # Create VTU file
         pts = vtk.vtkPoints()
@@ -466,7 +466,7 @@ class TestSeriesReader:
 
     def test_series_empty_raises(self, tmp_path):
         """Series with no entries raises ValueError."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         series_data = {"file-series-version": "1.0", "files": []}
         series_path = tmp_path / "empty.vtu.series"
@@ -478,7 +478,7 @@ class TestSeriesReader:
 
     def test_series_missing_file_raises(self, tmp_path):
         """Series referencing nonexistent file raises FileNotFoundError."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         series_data = {
             "file-series-version": "1.0",
@@ -498,7 +498,7 @@ class TestSeriesReader:
 
 class TestDataReaderProperties:
     def test_close_releases_reader(self, tmp_path):
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         vtk_file = tmp_path / "test.vtk"
         vtk_file.write_text("# vtk DataFile Version 2.0\n")
@@ -507,7 +507,7 @@ class TestDataReaderProperties:
         assert reader.timesteps == []
 
     def test_path_property(self, tmp_path):
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         vtk_file = tmp_path / "test.vtk"
         vtk_file.write_text("# vtk\n")
@@ -525,7 +525,7 @@ class TestExtractInfo:
     def test_extract_info_from_polydata(self):
         import vtk
 
-        from parapilot.engine.readers import _extract_info
+        from viznoir.engine.readers import _extract_info
 
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()
@@ -541,7 +541,7 @@ class TestExtractInfo:
     def test_extract_info_from_multiblock(self):
         import vtk
 
-        from parapilot.engine.readers import _extract_info
+        from viznoir.engine.readers import _extract_info
 
         mb = vtk.vtkMultiBlockDataSet()
         pd = vtk.vtkPolyData()
@@ -557,7 +557,7 @@ class TestExtractInfo:
     def test_extract_info_empty_multiblock(self):
         import vtk
 
-        from parapilot.engine.readers import _extract_info
+        from viznoir.engine.readers import _extract_info
 
         mb = vtk.vtkMultiBlockDataSet()
         info = _extract_info(mb, "/test.vtm", "vtkXMLMultiBlockDataReader", [])
@@ -571,7 +571,7 @@ class TestGetBlockNames:
     def test_named_blocks(self):
         import vtk
 
-        from parapilot.engine.readers import _get_block_names
+        from viznoir.engine.readers import _get_block_names
 
         mb = vtk.vtkMultiBlockDataSet()
         pd = vtk.vtkPolyData()
@@ -584,7 +584,7 @@ class TestGetBlockNames:
     def test_unnamed_blocks(self):
         import vtk
 
-        from parapilot.engine.readers import _get_block_names
+        from viznoir.engine.readers import _get_block_names
 
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetBlock(0, vtk.vtkPolyData())
@@ -598,7 +598,7 @@ class TestFirstLeaf:
     def test_first_leaf_simple(self):
         import vtk
 
-        from parapilot.engine.readers import _first_leaf
+        from viznoir.engine.readers import _first_leaf
 
         mb = vtk.vtkMultiBlockDataSet()
         pd = vtk.vtkPolyData()
@@ -608,7 +608,7 @@ class TestFirstLeaf:
     def test_first_leaf_nested(self):
         import vtk
 
-        from parapilot.engine.readers import _first_leaf
+        from viznoir.engine.readers import _first_leaf
 
         outer = vtk.vtkMultiBlockDataSet()
         inner = vtk.vtkMultiBlockDataSet()
@@ -620,7 +620,7 @@ class TestFirstLeaf:
     def test_first_leaf_empty(self):
         import vtk
 
-        from parapilot.engine.readers import _first_leaf
+        from viznoir.engine.readers import _first_leaf
 
         mb = vtk.vtkMultiBlockDataSet()
         assert _first_leaf(mb) is None
@@ -628,7 +628,7 @@ class TestFirstLeaf:
     def test_first_leaf_skips_none(self):
         import vtk
 
-        from parapilot.engine.readers import _first_leaf
+        from viznoir.engine.readers import _first_leaf
 
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetNumberOfBlocks(2)
@@ -644,7 +644,7 @@ class TestExtractBlocks:
     def test_extract_named_block(self):
         import vtk
 
-        from parapilot.engine.readers import _extract_blocks
+        from viznoir.engine.readers import _extract_blocks
 
         mb = vtk.vtkMultiBlockDataSet()
         pd1 = vtk.vtkPolyData()
@@ -663,7 +663,7 @@ class TestExtractBlocks:
     def test_extract_blocks_fallback(self):
         import vtk
 
-        from parapilot.engine.readers import _extract_blocks
+        from viznoir.engine.readers import _extract_blocks
 
         mb = vtk.vtkMultiBlockDataSet()
         pd = vtk.vtkPolyData()
@@ -678,7 +678,7 @@ class TestGetArrayNames:
     vtk = pytest.importorskip("vtk")
 
     def test_none_input(self):
-        from parapilot.engine.readers import _get_array_names
+        from viznoir.engine.readers import _get_array_names
 
         assert _get_array_names(None) == []
 
@@ -687,7 +687,7 @@ class TestGetArrayNames:
         import vtk
         from vtk.util.numpy_support import numpy_to_vtk
 
-        from parapilot.engine.readers import _get_array_names
+        from viznoir.engine.readers import _get_array_names
 
         pd = vtk.vtkPolyData()
         arr = numpy_to_vtk(np.array([1.0, 2.0, 3.0]))
@@ -704,14 +704,14 @@ class TestPublicApiFunctions:
 
     def test_read_dataset_basic(self):
         """read_dataset returns data from DataReader."""
-        from parapilot.engine.readers import read_dataset
+        from viznoir.engine.readers import read_dataset
 
         mock_grid = self.vtk.vtkUnstructuredGrid()
         pts = self.vtk.vtkPoints()
         pts.InsertNextPoint(0, 0, 0)
         mock_grid.SetPoints(pts)
 
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.read.return_value = mock_grid
             mock_dr.return_value = inst
@@ -722,9 +722,9 @@ class TestPublicApiFunctions:
 
     def test_read_dataset_with_timestep(self):
         """read_dataset passes timestep through."""
-        from parapilot.engine.readers import read_dataset
+        from viznoir.engine.readers import read_dataset
 
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.read.return_value = MagicMock()
             mock_dr.return_value = inst
@@ -734,14 +734,14 @@ class TestPublicApiFunctions:
 
     def test_read_dataset_with_blocks(self):
         """read_dataset extracts blocks from multiblock."""
-        from parapilot.engine.readers import read_dataset
+        from viznoir.engine.readers import read_dataset
 
         mb = self.vtk.vtkMultiBlockDataSet()
         child = self.vtk.vtkUnstructuredGrid()
         mb.SetBlock(0, child)
         mb.GetMetaData(0).Set(self.vtk.vtkCompositeDataSet.NAME(), "internalMesh")
 
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.read.return_value = mb
             mock_dr.return_value = inst
@@ -751,9 +751,9 @@ class TestPublicApiFunctions:
 
     def test_get_timesteps(self):
         """get_timesteps returns timesteps list."""
-        from parapilot.engine.readers import get_timesteps
+        from viznoir.engine.readers import get_timesteps
 
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.read.return_value = MagicMock()
             inst.timesteps = [0.0, 1.0, 2.0]
@@ -764,7 +764,7 @@ class TestPublicApiFunctions:
 
     def test_list_arrays(self):
         """list_arrays returns dict with point/cell/field keys."""
-        from parapilot.engine.readers import DatasetInfo, list_arrays
+        from viznoir.engine.readers import DatasetInfo, list_arrays
 
         info = DatasetInfo(
             file_path="/fake.vtk",
@@ -780,7 +780,7 @@ class TestPublicApiFunctions:
             block_names=[],
             timesteps=[],
         )
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.get_info.return_value = info
             mock_dr.return_value = inst
@@ -792,7 +792,7 @@ class TestPublicApiFunctions:
 
     def test_list_blocks(self):
         """list_blocks returns block name list."""
-        from parapilot.engine.readers import DatasetInfo, list_blocks
+        from viznoir.engine.readers import DatasetInfo, list_blocks
 
         info = DatasetInfo(
             file_path="/fake.vtk",
@@ -808,7 +808,7 @@ class TestPublicApiFunctions:
             block_names=["internalMesh", "wall"],
             timesteps=[],
         )
-        with patch("parapilot.engine.readers.DataReader") as mock_dr:
+        with patch("viznoir.engine.readers.DataReader") as mock_dr:
             inst = MagicMock()
             inst.get_info.return_value = info
             mock_dr.return_value = inst
@@ -844,7 +844,7 @@ class TestExtractTimestepsWithData:
 
     def test_with_time_steps(self):
         """_extract_timesteps returns times when TIME_STEPS key is present."""
-        from parapilot.engine.readers import _extract_timesteps
+        from viznoir.engine.readers import _extract_timesteps
 
         exe = MagicMock()
         out_info = MagicMock()
@@ -865,7 +865,7 @@ class TestExtractTimesteps:
     def test_no_executive(self):
         from unittest.mock import MagicMock
 
-        from parapilot.engine.readers import _extract_timesteps
+        from viznoir.engine.readers import _extract_timesteps
 
         reader = MagicMock()
         reader.GetExecutive.return_value = None
@@ -874,7 +874,7 @@ class TestExtractTimesteps:
     def test_no_output_info(self):
         from unittest.mock import MagicMock
 
-        from parapilot.engine.readers import _extract_timesteps
+        from viznoir.engine.readers import _extract_timesteps
 
         exe = MagicMock()
         exe.GetOutputInformation.return_value = None
@@ -916,7 +916,7 @@ class TestPvdTimestepSwitch:
 
     def test_pvd_read_with_timestep(self, tmp_path):
         """PVD reader switches file when timestep is specified (lines 342-344, 357-364)."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         self._make_vtu(tmp_path, "step_0.vtu", 10.0)
         self._make_vtu(tmp_path, "step_1.vtu", 20.0)
@@ -945,7 +945,7 @@ class TestPvdTimestepSwitch:
 
     def test_pvd_timesteps_list(self, tmp_path):
         """PVD reader exposes timesteps list."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         self._make_vtu(tmp_path, "a.vtu", 1.0)
         self._make_vtu(tmp_path, "b.vtu", 2.0)
@@ -995,7 +995,7 @@ class TestSeriesTimestepSwitch:
 
     def test_series_read_with_timestep(self, tmp_path):
         """Series reader switches file when timestep is specified (lines 345-347, 366-373)."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         self._make_vtu(tmp_path, "out_0.vtu", 100.0)
         self._make_vtu(tmp_path, "out_1.vtu", 200.0)
@@ -1021,7 +1021,7 @@ class TestSeriesTimestepSwitch:
 
     def test_series_timesteps_list(self, tmp_path):
         """Series reader exposes timesteps list."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         self._make_vtu(tmp_path, "s0.vtu", 1.0)
         self._make_vtu(tmp_path, "s1.vtu", 2.0)
@@ -1054,7 +1054,7 @@ class TestDataReaderRealVTK:
         """DataReader reads real STL files."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         sphere = vtk.vtkSphereSource()
         sphere.Update()
@@ -1072,7 +1072,7 @@ class TestDataReaderRealVTK:
         """DataReader reads real VTP files."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         sphere = vtk.vtkSphereSource()
         sphere.Update()
@@ -1092,7 +1092,7 @@ class TestDataReaderRealVTK:
         """DataReader reads legacy VTK files."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         sphere = vtk.vtkSphereSource()
         sphere.Update()
@@ -1124,7 +1124,7 @@ class TestReaderEdgeCases:
         """L210-211: RuntimeError when VTK class is missing from build."""
         import sys
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         vtk_file = tmp_path / "test.vti"
         vtk_file.touch()
@@ -1146,7 +1146,7 @@ class TestReaderEdgeCases:
         """L216: EnSight reader calls SetCaseFileName instead of SetFileName."""
         import sys
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         case_file = tmp_path / "test.case"
         case_file.touch()
@@ -1172,7 +1172,7 @@ class TestReaderEdgeCases:
         """L222+275-288: OpenFOAM reader calls _setup_openfoam with full config."""
         import sys
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         foam_file = tmp_path / "test.foam"
         foam_file.touch()
@@ -1206,7 +1206,7 @@ class TestReaderEdgeCases:
         """L350-355: Timestep selection via VTK executive pipeline."""
         import sys
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         vtk_file = tmp_path / "test.vti"
         vtk_file.touch()
@@ -1260,7 +1260,7 @@ class TestMeshFormatIntegration:
         """Write PLY with VTK writer, read back with DataReader."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         polydata = self._create_sphere_polydata()
         path = str(tmp_path / "sphere.ply")
@@ -1278,7 +1278,7 @@ class TestMeshFormatIntegration:
         """Write STL with VTK writer, read back with DataReader."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         polydata = self._create_sphere_polydata()
         path = str(tmp_path / "sphere.stl")
@@ -1294,7 +1294,7 @@ class TestMeshFormatIntegration:
 
     def test_obj_roundtrip(self, tmp_path):
         """Write OBJ manually (ASCII), read back with DataReader."""
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         # OBJ is simple ASCII — create a minimal triangle
         obj_content = (
@@ -1316,7 +1316,7 @@ class TestMeshFormatIntegration:
         """PLY roundtrip should preserve point count."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         polydata = self._create_sphere_polydata()
         original_points = polydata.GetNumberOfPoints()
@@ -1334,7 +1334,7 @@ class TestMeshFormatIntegration:
         """STL roundtrip should preserve cell count."""
         import vtk
 
-        from parapilot.engine.readers import DataReader
+        from viznoir.engine.readers import DataReader
 
         polydata = self._create_sphere_polydata()
         original_cells = polydata.GetNumberOfCells()

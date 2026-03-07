@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from parapilot.core.registry import (
+from viznoir.core.registry import (
     FILTER_REGISTRY,
     FORMAT_REGISTRY,
     get_filter,

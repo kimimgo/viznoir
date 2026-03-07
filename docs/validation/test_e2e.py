@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""parapilot MCP E2E Validation — Tests all 13 tools with real VTK data.
+"""viznoir MCP E2E Validation — Tests all 13 tools with real VTK data.
 
 Usage:
     python docs/validation/test_e2e.py
 
-Requires: pip install -e ".[dev]" (parapilot + pyvista + vtk)
+Requires: pip install -e ".[dev]" (viznoir + pyvista + vtk)
 """
 
 from __future__ import annotations
@@ -22,9 +22,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 os.environ["VTK_DEFAULT_OPENGL_WINDOW"] = "vtkEGLRenderWindow"
-os.environ.setdefault("PARAPILOT_RENDER_BACKEND", "gpu")
+os.environ.setdefault("VIZNOIR_RENDER_BACKEND", "gpu")
 
-TEST_DIR = Path("/tmp/parapilot_test")
+TEST_DIR = Path("/tmp/viznoir_test")
 OUTPUT_DIR = TEST_DIR / "output"
 
 
@@ -163,8 +163,8 @@ async def _run_test(tool: str, dataset: str, coro, output_file: str = ""):
 
 async def run_all_tests(data: dict[str, str]):
     """Run all 13 tool tests."""
-    from parapilot.config import PVConfig
-    from parapilot.core.runner import VTKRunner
+    from viznoir.config import PVConfig
+    from viznoir.core.runner import VTKRunner
 
     config = PVConfig()
     runner = VTKRunner(config=config)
@@ -176,7 +176,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 1. inspect_data ---
     print("\n[1/13] inspect_data...")
-    from parapilot.tools.inspect import inspect_data_impl
+    from viznoir.tools.inspect import inspect_data_impl
     meta = await _run_test(
         "inspect_data", "wavelet",
         inspect_data_impl(wavelet, runner),
@@ -188,7 +188,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 2. render ---
     print("\n[2/13] render...")
-    from parapilot.tools.render import render_impl
+    from viznoir.tools.render import render_impl
     await _run_test(
         "render", "wavelet",
         render_impl(wavelet, "RTData", runner, width=800, height=600),
@@ -204,7 +204,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 3. slice ---
     print("\n[3/13] slice...")
-    from parapilot.tools.filters import slice_impl
+    from viznoir.tools.filters import slice_impl
     # Auto-origin (no origin specified — should use dataset center)
     await _run_test(
         "slice (auto-origin)", "wavelet",
@@ -220,7 +220,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 4. contour ---
     print("\n[4/13] contour...")
-    from parapilot.tools.filters import contour_impl
+    from viznoir.tools.filters import contour_impl
 
     # First inspect to get the data range for correct isovalues
     meta_w = await inspect_data_impl(wavelet, runner)
@@ -267,7 +267,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 5. clip ---
     print("\n[5/13] clip...")
-    from parapilot.tools.filters import clip_impl
+    from viznoir.tools.filters import clip_impl
     await _run_test(
         "clip (auto-origin)", "wavelet",
         clip_impl(wavelet, "RTData", runner, normal=[1, 0, 0], width=800, height=600),
@@ -281,7 +281,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 6. streamlines ---
     print("\n[6/13] streamlines...")
-    from parapilot.tools.filters import streamlines_impl
+    from viznoir.tools.filters import streamlines_impl
     # Auto seed points (no seed specified — should use dataset bounds)
     await _run_test(
         "streamlines (auto-seed)", "flow",
@@ -301,7 +301,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 7. plot_over_line ---
     print("\n[7/13] plot_over_line...")
-    from parapilot.tools.extract import plot_over_line_impl
+    from viznoir.tools.extract import plot_over_line_impl
     pol_result = await _run_test(
         "plot_over_line", "wavelet",
         plot_over_line_impl(
@@ -314,7 +314,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 8. extract_stats ---
     print("\n[8/13] extract_stats...")
-    from parapilot.tools.extract import extract_stats_impl
+    from viznoir.tools.extract import extract_stats_impl
     stats = await _run_test(
         "extract_stats", "wavelet",
         extract_stats_impl(wavelet, ["RTData"], runner),
@@ -324,7 +324,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 9. integrate_surface ---
     print("\n[9/13] integrate_surface...")
-    from parapilot.tools.extract import integrate_surface_impl
+    from viznoir.tools.extract import integrate_surface_impl
     integ = await _run_test(
         "integrate_surface", "sphere",
         integrate_surface_impl(sphere, "elevation", runner),
@@ -334,7 +334,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 10. animate (orbit mode — works with single timestep) ---
     print("\n[10/13] animate (orbit)...")
-    from parapilot.tools.animate import animate_impl
+    from viznoir.tools.animate import animate_impl
     anim = await _run_test(
         "animate (orbit/gif)", "wavelet",
         animate_impl(
@@ -349,7 +349,7 @@ async def run_all_tests(data: dict[str, str]):
 
     # --- 11. execute_pipeline (DSL) ---
     print("\n[11/13] execute_pipeline...")
-    from parapilot.tools.pipeline import execute_pipeline_impl
+    from viznoir.tools.pipeline import execute_pipeline_impl
     pipeline_json = {
         "source": {"file": wavelet},
         "pipeline": [
@@ -408,7 +408,7 @@ async def run_all_tests(data: dict[str, str]):
         has_composite = False
 
     if has_composite:
-        from parapilot.tools.split_animate import split_animate_impl
+        from viznoir.tools.split_animate import split_animate_impl
         panes = [
             {
                 "type": "render", "row": 0, "col": 0,
@@ -460,7 +460,7 @@ def generate_report(data: dict[str, str]) -> str:
     render_times = [r.elapsed for r in results if r.status == "PASS" and "render" in r.tool.lower() or "slice" in r.tool.lower() or "contour" in r.tool.lower() or "clip" in r.tool.lower() or "stream" in r.tool.lower()]
     avg_render = sum(render_times) / len(render_times) if render_times else 0
 
-    report = f"""# parapilot E2E Validation Report
+    report = f"""# viznoir E2E Validation Report
 
 **Date**: {time.strftime('%Y-%m-%d %H:%M:%S')}
 **Validator**: automated (docs/validation/test_e2e.py)
@@ -474,7 +474,7 @@ def generate_report(data: dict[str, str]) -> str:
 | PyVista | {__import__('pyvista').__version__} |
 | OS | {os.uname().sysname} {os.uname().release} |
 | GPU | RTX 4090 24GB (EGL headless) |
-| Render Backend | {os.environ.get('PARAPILOT_RENDER_BACKEND', 'gpu')} |
+| Render Backend | {os.environ.get('VIZNOIR_RENDER_BACKEND', 'gpu')} |
 
 ## Test Datasets
 
@@ -552,7 +552,7 @@ python docs/validation/test_e2e.py
 
 def main():
     print("=" * 60)
-    print("parapilot MCP E2E Validation")
+    print("viznoir MCP E2E Validation")
     print("=" * 60)
 
     print("\n>> Generating test data...")

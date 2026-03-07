@@ -2,4 +2,4 @@
 
 File format detection and VTK reader factory.
 
-::: parapilot.engine.readers
+::: viznoir.engine.readers

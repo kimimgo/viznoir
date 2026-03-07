@@ -20,11 +20,11 @@ jobs:
           issue-message: |
             Thanks for opening your first issue! We appreciate your feedback.
 
-            If you're looking to contribute, check out our [Contributing Guide](https://github.com/kimimgo/parapilot/blob/main/CONTRIBUTING.md) and issues labeled [`good first issue`](https://github.com/kimimgo/parapilot/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+            If you're looking to contribute, check out our [Contributing Guide](https://github.com/kimimgo/viznoir/blob/main/CONTRIBUTING.md) and issues labeled [`good first issue`](https://github.com/kimimgo/viznoir/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
           pr-message: |
-            Thanks for your first pull request! Welcome to the parapilot community.
+            Thanks for your first pull request! Welcome to the viznoir community.
 
             A maintainer will review your changes shortly. Please make sure:
             - `ruff check src/ tests/` passes
-            - `mypy src/parapilot/ --ignore-missing-imports` passes
+            - `mypy src/viznoir/ --ignore-missing-imports` passes
             - `pytest` passes

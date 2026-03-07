@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from parapilot.prompts import guides as _guides_mod
+from viznoir.prompts import guides as _guides_mod
 
 
 class TestPromptRegistration:

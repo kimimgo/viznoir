@@ -1,23 +1,23 @@
-# parapilot
+# viznoir
 
 [English](README.md) | **한국어**
 
 > AI 터미널을 위한 헤드리스 CAE/CFD 후처리. ParaView 불필요. GUI 불필요.
 
-[![CI](https://github.com/kimimgo/parapilot/actions/workflows/ci.yml/badge.svg)](https://github.com/kimimgo/parapilot/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/kimimgo/parapilot/branch/main/graph/badge.svg)](https://codecov.io/gh/kimimgo/parapilot)
-[![PyPI](https://img.shields.io/pypi/v/mcp-server-parapilot)](https://pypi.org/project/mcp-server-parapilot/)
-[![Python](https://img.shields.io/pypi/pyversions/mcp-server-parapilot)](https://pypi.org/project/mcp-server-parapilot/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/kimimgo/parapilot/blob/main/LICENSE)
+[![CI](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml/badge.svg)](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kimimgo/viznoir/branch/main/graph/badge.svg)](https://codecov.io/gh/kimimgo/viznoir)
+[![PyPI](https://img.shields.io/pypi/v/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
+[![Python](https://img.shields.io/pypi/pyversions/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/kimimgo/viznoir/blob/main/LICENSE)
 
-![DrivAerML 자동차 CFD](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/drivaerml_cp.webp)
+![DrivAerML 자동차 CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp)
 
 ## 빠른 시작
 
 **Claude Code 플러그인:**
 
 ```bash
-claude install kimimgo/parapilot
+claude install kimimgo/viznoir
 ```
 
 대화에서:
@@ -27,7 +27,7 @@ claude install kimimgo/parapilot
 **pip:**
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 **Docker (GPU 헤드리스):**
@@ -36,15 +36,15 @@ pip install mcp-server-parapilot
 docker compose up -d
 ```
 
-NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up parapilot-cpu -d`
+NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 
 **Cursor 등 다른 클라이언트용 MCP 설정:**
 
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }
@@ -67,16 +67,16 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up parapilot-cpu -d
 
 | | | |
 |---|---|---|
-| ![자동차 CFD](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/drivaerml_cp.webp) | ![의료 CT](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/ct_head_contour.webp) | ![혈류](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/streamlines.webp) |
+| ![자동차 CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp) | ![의료 CT](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/ct_head_contour.webp) | ![혈류](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/streamlines.webp) |
 | 자동차 CFD | 의료 CT | 혈류 시각화 |
-| ![HVAC](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/office_flow.webp) | ![구조 FEA](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/arch_structural.webp) | ![스탠포드 드래곤](https://raw.githubusercontent.com/kimimgo/parapilot/main/www/public/showcase/dragon.webp) |
+| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![구조 FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/arch_structural.webp) | ![스탠포드 드래곤](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
 | HVAC 기류 | 구조 FEA | 스탠포드 드래곤 |
 
-[전체 갤러리 →](https://kimimgo.github.io/parapilot)
+[전체 갤러리 →](https://kimimgo.github.io/viznoir)
 
 ## 대안 비교
 
-| 기능 | parapilot | ParaView (pvpython) | PyVista | VTK Python |
+| 기능 | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |------|-----------|---------------------|---------|------------|
 | MCP 통합 | 네이티브 18개 도구 | — | — | — |
 | 헤드리스 | EGL/OSMesa | pvpython | 지원 | 수동 설정 |
@@ -89,8 +89,8 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up parapilot-cpu -d
 ## 기여하기
 
 ```bash
-git clone https://github.com/kimimgo/parapilot
-cd parapilot && pip install -e ".[dev]"
+git clone https://github.com/kimimgo/viznoir
+cd viznoir && pip install -e ".[dev]"
 pytest  # 1134 테스트, 99% 커버리지
 ```
 

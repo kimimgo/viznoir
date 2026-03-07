@@ -2,16 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# parapilot
+# viznoir
 
 CAE post-processing MCP server for AI coding assistants.
 
 ## Project Info
-- **Repo**: kimimgo/parapilot
+- **Repo**: kimimgo/viznoir
 - **Language**: Python 3.10+
 - **MCP SDK**: fastmcp>=2.0.0
-- **PyPI**: mcp-server-parapilot
-- **Entry point**: `mcp-server-parapilot` → `parapilot.server:main`
+- **PyPI**: mcp-server-viznoir
+- **Entry point**: `mcp-server-viznoir` → `viznoir.server:main`
 
 ## Development Commands
 
@@ -20,7 +20,7 @@ CAE post-processing MCP server for AI coding assistants.
 pip install -e ".[dev]"
 
 # Run all tests (650 tests, async mode=auto)
-pytest --cov=parapilot --cov-report=term-missing -q
+pytest --cov=viznoir --cov-report=term-missing -q
 
 # Run a single test file
 pytest tests/test_engine/test_filters.py -q
@@ -35,7 +35,7 @@ ruff check src/ tests/
 ruff check src/ tests/ --fix
 
 # Type check
-mypy src/parapilot/ --ignore-missing-imports
+mypy src/viznoir/ --ignore-missing-imports
 
 # Install with optional deps (meshio/trimesh or pillow/matplotlib)
 pip install -e ".[mesh]"       # mesh format conversion
@@ -43,7 +43,7 @@ pip install -e ".[composite]"  # split_animate (Pillow + matplotlib)
 pip install -e ".[all]"        # everything
 
 # Run MCP server locally (stdio mode)
-mcp-server-parapilot
+mcp-server-viznoir
 
 # Landing page (www/)
 cd www && npm install && npm run dev    # dev server
@@ -65,7 +65,7 @@ Layer 3: Skills (자연어 인터페이스)        ← .claude-plugin/
 Layer 2: Agents (전문 서브에이전트)        ← agents/
   viz-agent (sonnet), mesh-agent (haiku)
 
-Layer 1: MCP Server (mcp-server-parapilot)  ← src/parapilot/
+Layer 1: MCP Server (mcp-server-viznoir)  ← src/viznoir/
   VTK direct API → 헤드리스 렌더링 (ParaView 불필요)
   meshio → 50+ 형식 변환, trimesh → STL/OBJ/PLY 분석
 ```
@@ -110,22 +110,22 @@ server.py (MCP tool)
 
 | 변수 | 기본값 | 설명 |
 |------|--------|------|
-| `PARAPILOT_DATA_DIR` | None (무제한) | 데이터 디렉토리 제한 (Docker 보안) |
-| `PARAPILOT_OUTPUT_DIR` | `/output` | 출력 디렉토리 |
-| `PARAPILOT_PYTHON_BIN` | `sys.executable` | VTK 스크립트 실행 Python |
-| `PARAPILOT_RENDER_BACKEND` | `gpu` | gpu/cpu/auto |
-| `PARAPILOT_VTK_BACKEND` | `auto` | egl/osmesa/auto |
-| `PARAPILOT_TIMEOUT` | `600` | 스크립트 실행 타임아웃 (초) |
+| `VIZNOIR_DATA_DIR` | None (무제한) | 데이터 디렉토리 제한 (Docker 보안) |
+| `VIZNOIR_OUTPUT_DIR` | `/output` | 출력 디렉토리 |
+| `VIZNOIR_PYTHON_BIN` | `sys.executable` | VTK 스크립트 실행 Python |
+| `VIZNOIR_RENDER_BACKEND` | `gpu` | gpu/cpu/auto |
+| `VIZNOIR_VTK_BACKEND` | `auto` | egl/osmesa/auto |
+| `VIZNOIR_TIMEOUT` | `600` | 스크립트 실행 타임아웃 (초) |
 
 ## Naming Convention
 
 | 항목 | 값 |
 |------|-----|
-| Python package | `parapilot` |
-| PyPI name | `mcp-server-parapilot` |
-| MCP server name | `parapilot` |
-| Resource URI scheme | `parapilot://` |
-| ENV prefix | `PARAPILOT_*` |
+| Python package | `viznoir` |
+| PyPI name | `mcp-server-viznoir` |
+| MCP server name | `viznoir` |
+| Resource URI scheme | `viznoir://` |
+| ENV prefix | `VIZNOIR_*` |
 
 ## Key Metrics
 

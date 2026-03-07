@@ -1,4 +1,4 @@
-"""Tests for parapilot.core.output — OutputHandler and PipelineResult."""
+"""Tests for viznoir.core.output — OutputHandler and PipelineResult."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from parapilot.core.output import OutputHandler, PipelineResult, _to_json_data
-from parapilot.core.runner import RunResult
+from viznoir.core.output import OutputHandler, PipelineResult, _to_json_data
+from viznoir.core.runner import RunResult
 
 # ---------------------------------------------------------------------------
 # Helpers

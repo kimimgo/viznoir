@@ -10,7 +10,7 @@ Software
 
 ## Body
 
-After years of context-switching between my terminal and ParaView for quick post-processing checks, I built **parapilot** — a headless VTK-based MCP server that lets AI coding assistants render CFD results directly.
+After years of context-switching between my terminal and ParaView for quick post-processing checks, I built **viznoir** — a headless VTK-based MCP server that lets AI coding assistants render CFD results directly.
 
 ### The problem
 
@@ -18,7 +18,7 @@ You run a simulation overnight. Next morning you want to check: Did the flow con
 
 The typical workflow: open ParaView, load files, set up the pipeline, adjust the camera, export an image. For a quick sanity check, that's a lot of clicks.
 
-### What parapilot does
+### What viznoir does
 
 It exposes 13 MCP tools that AI assistants can call:
 
@@ -49,13 +49,13 @@ The AI reads the .foam file, calls `render` and `slice`, returns PNG images inli
 ### Install
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 Works with Claude Code (as a plugin), Cursor, Codex CLI, or any MCP-compatible client.
 
-- GitHub: https://github.com/kimimgo/parapilot
-- Landing page: https://kimimgo.github.io/parapilot
+- GitHub: https://github.com/kimimgo/viznoir
+- Landing page: https://kimimgo.github.io/viznoir
 
 I'd love feedback from the CFD community — especially on which post-processing workflows you'd want automated. The biggest limitation right now is that it's only been validated on VTK example datasets, not large-scale industrial meshes (10M+ cells). If anyone wants to test with real cases, I'd be very interested in the results.
 

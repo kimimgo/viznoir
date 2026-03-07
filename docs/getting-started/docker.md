@@ -3,7 +3,7 @@
 ## GPU Rendering (EGL)
 
 ```bash
-docker compose up parapilot -d
+docker compose up viznoir -d
 ```
 
 Requires [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/).
@@ -11,7 +11,7 @@ Requires [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-nat
 ## CPU Rendering (OSMesa)
 
 ```bash
-docker compose up parapilot-cpu -d
+docker compose up viznoir-cpu -d
 ```
 
 No GPU required — uses OSMesa software rendering. Works on any machine.
@@ -19,7 +19,7 @@ No GPU required — uses OSMesa software rendering. Works on any machine.
 ## Custom Data Directory
 
 ```bash
-PARAPILOT_DATA_DIR=/path/to/simulations docker compose up -d
+VIZNOIR_DATA_DIR=/path/to/simulations docker compose up -d
 ```
 
 ## HTTP Transport
@@ -28,18 +28,18 @@ Edit `docker-compose.yml` to uncomment the HTTP transport section:
 
 ```yaml
 services:
-  parapilot:
+  viznoir:
     ports:
       - "8000:8000"
-    command: ["mcp-server-parapilot", "--transport", "streamable-http", "--port", "8000"]
+    command: ["mcp-server-viznoir", "--transport", "streamable-http", "--port", "8000"]
 ```
 
 ## Building
 
 ```bash
 # GPU image
-docker compose build parapilot
+docker compose build viznoir
 
 # CPU image
-docker compose build parapilot-cpu
+docker compose build viznoir-cpu
 ```

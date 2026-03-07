@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# parapilot Launch Monitor — 런치 준비 상태 자동 점검
+# viznoir Launch Monitor — 런치 준비 상태 자동 점검
 # Cron: */4 * * * (4시간마다) or 수동 실행
 set -euo pipefail
 
@@ -8,7 +8,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ROADMAP="$SCRIPT_DIR/roadmap.json"
 LOG_DIR="$SCRIPT_DIR/logs"
 LOG_FILE="$LOG_DIR/monitor-$(date +%Y%m%d).log"
-REPO="kimimgo/parapilot"
+REPO="kimimgo/viznoir"
 LAUNCH_DATE="2026-03-09"
 
 mkdir -p "$LOG_DIR"
@@ -34,7 +34,7 @@ days_left=$(( ($(date -d "$LAUNCH_DATE" +%s) - $(date -d "$today" +%s)) / 86400 
 
 out ""
 out "${BOLD}═══════════════════════════════════════════════════${NC}"
-out "${BOLD}  parapilot Launch Monitor — D-${days_left} (Launch: $LAUNCH_DATE)${NC}"
+out "${BOLD}  viznoir Launch Monitor — D-${days_left} (Launch: $LAUNCH_DATE)${NC}"
 out "${BOLD}  $(date '+%Y-%m-%d %H:%M:%S KST')${NC}"
 out "${BOLD}═══════════════════════════════════════════════════${NC}"
 
@@ -57,9 +57,9 @@ log "1. Release & Distribution"
 check "v0.1.0 GitHub Release exists" \
   "gh release view v0.1.0 --repo $REPO >/dev/null 2>&1"
 check "PyPI package published" \
-  "pip index versions mcp-server-parapilot 2>/dev/null | grep -q 'Available'"
+  "pip index versions mcp-server-viznoir 2>/dev/null | grep -q 'Available'"
 check "pip install works" \
-  "pip install --dry-run mcp-server-parapilot >/dev/null 2>&1"
+  "pip install --dry-run mcp-server-viznoir >/dev/null 2>&1"
 
 # ── 2. OSS Infrastructure ──
 log "2. OSS Infrastructure"

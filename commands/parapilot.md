@@ -1,13 +1,13 @@
-Use the parapilot plugin to post-process simulation results.
+Use the viznoir plugin to post-process simulation results.
 
 Usage:
-  /parapilot render <file> <field>    — Render a field visualization
-  /parapilot inspect <file>           — Inspect simulation data
-  /parapilot mesh <file>              — Check mesh quality
-  /parapilot report <case_dir>        — Generate post-processing report
+  /viznoir render <file> <field>    — Render a field visualization
+  /viznoir inspect <file>           — Inspect simulation data
+  /viznoir mesh <file>              — Check mesh quality
+  /viznoir report <case_dir>        — Generate post-processing report
 
 Examples:
-  /parapilot render cavity.foam pressure
-  /parapilot inspect results/case.vtk
-  /parapilot mesh part.stl
-  /parapilot report ./openfoam_case/
+  /viznoir render cavity.foam pressure
+  /viznoir inspect results/case.vtk
+  /viznoir mesh part.stl
+  /viznoir report ./openfoam_case/

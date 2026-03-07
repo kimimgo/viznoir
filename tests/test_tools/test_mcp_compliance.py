@@ -1,9 +1,9 @@
 """MCP protocol compliance tests.
 
-Validates parapilot follows MCP server best practices:
+Validates viznoir follows MCP server best practices:
 - All tools have descriptions (docstrings)
 - All tools have typed parameters
-- Resource URIs follow parapilot:// scheme
+- Resource URIs follow viznoir:// scheme
 - Server metadata is correct
 - Tool naming conventions are consistent
 """
@@ -18,7 +18,7 @@ import pytest
 
 def _get_tool_functions() -> dict:
     """Get the underlying functions from FunctionTool objects."""
-    from parapilot import server
+    from viznoir import server
 
     names = [
         "inspect_data", "render", "slice", "contour", "clip",
@@ -89,21 +89,21 @@ class TestToolCompliance:
 
 
 class TestResourceCompliance:
-    """Resource URIs must follow parapilot:// scheme."""
+    """Resource URIs must follow viznoir:// scheme."""
 
     def test_resource_uris_use_correct_scheme(self):
-        from parapilot.server import mcp
+        from viznoir.server import mcp
         instr = mcp.instructions or ""
-        uris = re.findall(r"parapilot://[\w/\-]+", instr)
+        uris = re.findall(r"viznoir://[\w/\-]+", instr)
         assert len(uris) >= 5, f"Expected 5+ resource URIs, found {len(uris)}"
         for uri in uris:
-            assert uri.startswith("parapilot://"), f"Invalid URI: {uri}"
+            assert uri.startswith("viznoir://"), f"Invalid URI: {uri}"
 
     def test_core_resources_documented(self):
-        from parapilot.server import mcp
+        from viznoir.server import mcp
         instr = mcp.instructions or ""
-        for res in ["parapilot://formats", "parapilot://filters",
-                     "parapilot://colormaps", "parapilot://cameras"]:
+        for res in ["viznoir://formats", "viznoir://filters",
+                     "viznoir://colormaps", "viznoir://cameras"]:
             assert res in instr, f"Resource {res} not in instructions"
 
 
@@ -111,22 +111,22 @@ class TestServerMetadata:
     """Server-level MCP metadata compliance."""
 
     def test_server_name(self):
-        from parapilot.server import mcp
-        assert mcp.name == "parapilot"
+        from viznoir.server import mcp
+        assert mcp.name == "viznoir"
 
     def test_instructions_present_and_substantial(self):
-        from parapilot.server import mcp
+        from viznoir.server import mcp
         assert mcp.instructions is not None
         assert len(mcp.instructions) > 200
 
     def test_instructions_describe_workflow(self):
-        from parapilot.server import mcp
+        from viznoir.server import mcp
         instr = mcp.instructions or ""
         assert "inspect_data" in instr
         assert "render" in instr
 
     def test_instructions_mention_capabilities(self):
-        from parapilot.server import mcp
+        from viznoir.server import mcp
         instr = (mcp.instructions or "").lower()
         for cap in ["cfd", "fea", "cae", "visualization"]:
             assert cap in instr, f"Instructions missing '{cap}'"
@@ -136,7 +136,7 @@ class TestSecurityCompliance:
     """Security-related compliance checks."""
 
     def test_validate_file_path_exists(self):
-        from parapilot.server import _validate_file_path
+        from viznoir.server import _validate_file_path
         assert callable(_validate_file_path)
 
     def test_file_path_param_on_data_tools(self):

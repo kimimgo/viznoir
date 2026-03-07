@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.renderer_cine import (
+from viznoir.engine.renderer_cine import (
     QUALITY_PRESETS,
     CinematicConfig,
     _apply_quality_preset,

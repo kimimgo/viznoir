@@ -2,4 +2,4 @@
 
 Pipeline definition to executable VTK script compiler.
 
-::: parapilot.core.compiler
+::: viznoir.core.compiler

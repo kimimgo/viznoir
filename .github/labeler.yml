@@ -3,19 +3,19 @@
 
 engine:
   - changed-files:
-    - any-glob-to-any-file: 'src/parapilot/engine/**'
+    - any-glob-to-any-file: 'src/viznoir/engine/**'
 
 core:
   - changed-files:
-    - any-glob-to-any-file: 'src/parapilot/core/**'
+    - any-glob-to-any-file: 'src/viznoir/core/**'
 
 tools:
   - changed-files:
-    - any-glob-to-any-file: 'src/parapilot/tools/**'
+    - any-glob-to-any-file: 'src/viznoir/tools/**'
 
 pipeline:
   - changed-files:
-    - any-glob-to-any-file: 'src/parapilot/pipeline/**'
+    - any-glob-to-any-file: 'src/viznoir/pipeline/**'
 
 tests:
   - changed-files:

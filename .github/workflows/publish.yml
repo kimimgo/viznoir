@@ -35,8 +35,8 @@ jobs:
       - name: Verify wheel installs and imports
         run: |
           pip install dist/*.whl
-          python -c "from parapilot.server import mcp; print(f'Server: {mcp.name}')"
-          python -c "from parapilot.config import PVConfig; print('Config OK')"
+          python -c "from viznoir.server import mcp; print(f'Server: {mcp.name}')"
+          python -c "from viznoir.config import PVConfig; print('Config OK')"
 
       - uses: actions/upload-artifact@v4
         with:

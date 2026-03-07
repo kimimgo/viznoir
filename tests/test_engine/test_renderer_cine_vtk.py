@@ -23,8 +23,8 @@ def _sphere() -> vtk.vtkPolyData:
 
 class TestCinematicRender:
     def test_basic(self):
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         rc = RenderConfig(width=200, height=150, array_name="RTData")
         config = CinematicConfig(render=rc, quality="draft")
         png = cinematic_render(_wavelet(), config)
@@ -32,9 +32,9 @@ class TestCinematicRender:
 
     def test_cell_association(self):
         """Cinematic render with cell-associated scalars (line 177)."""
-        from parapilot.engine.filters import point_to_cell
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.filters import point_to_cell
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         data = point_to_cell(_wavelet())
         # RTData is now in cell data
         rc = RenderConfig(width=200, height=150)
@@ -44,8 +44,8 @@ class TestCinematicRender:
 
     def test_no_scalar_visibility(self):
         """Cinematic render with no array (line 192)."""
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         # Create polydata with points but NO arrays at all
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()
@@ -60,8 +60,8 @@ class TestCinematicRender:
 
     def test_empty_dataset(self):
         """Cinematic render with empty data (lines 156-157)."""
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         empty = vtk.vtkUnstructuredGrid()
         rc = RenderConfig(width=200, height=150)
         config = CinematicConfig(render=rc, quality="draft")
@@ -70,8 +70,8 @@ class TestCinematicRender:
 
     def test_with_component(self):
         """Cinematic render with component >= 0 (line 183)."""
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         rc = RenderConfig(width=200, height=150, array_name="RTData", component=0)
         config = CinematicConfig(render=rc, quality="draft")
         png = cinematic_render(_wavelet(), config)
@@ -79,8 +79,8 @@ class TestCinematicRender:
 
     def test_volume_representation(self):
         """Cinematic render with volume representation (lines 163-165)."""
-        from parapilot.engine.renderer import RenderConfig
-        from parapilot.engine.renderer_cine import CinematicConfig, cinematic_render
+        from viznoir.engine.renderer import RenderConfig
+        from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
         rc = RenderConfig(
             width=200, height=150,
             representation="volume",

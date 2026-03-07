@@ -3,33 +3,33 @@
 ## pip (recommended)
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 ### Optional dependencies
 
 ```bash
 # Mesh format conversion (meshio + trimesh)
-pip install "mcp-server-parapilot[mesh]"
+pip install "mcp-server-viznoir[mesh]"
 
 # Split-pane animations (Pillow + matplotlib)
-pip install "mcp-server-parapilot[composite]"
+pip install "mcp-server-viznoir[composite]"
 
 # Everything
-pip install "mcp-server-parapilot[all]"
+pip install "mcp-server-viznoir[all]"
 ```
 
 ## Claude Code Plugin
 
 ```bash
-claude install kimimgo/parapilot
+claude install kimimgo/viznoir
 ```
 
 ## From source
 
 ```bash
-git clone https://github.com/kimimgo/parapilot.git
-cd parapilot
+git clone https://github.com/kimimgo/viznoir.git
+cd viznoir
 pip install -e ".[dev]"
 ```
 

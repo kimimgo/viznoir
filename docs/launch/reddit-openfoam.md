@@ -14,7 +14,7 @@ If you've ever SSH'd into a cluster, finished a run, and wished you could check 
 
 ### What is it?
 
-**parapilot** is a headless MCP server that reads `.foam` files and VTK outputs directly. AI coding assistants (Claude Code, Cursor, etc.) call its tools to render fields, cut slices, extract contours, and generate animations — all from the terminal.
+**viznoir** is a headless MCP server that reads `.foam` files and VTK outputs directly. AI coding assistants (Claude Code, Cursor, etc.) call its tools to render fields, cut slices, extract contours, and generate animations — all from the terminal.
 
 ### Typical workflow
 
@@ -43,7 +43,7 @@ It's **not** a ParaView wrapper. It uses VTK's Python API directly with GPU EGL 
 ### Setup
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 Add to your AI assistant's MCP config:
@@ -51,8 +51,8 @@ Add to your AI assistant's MCP config:
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot"
+    "viznoir": {
+      "command": "mcp-server-viznoir"
     }
   }
 }
@@ -68,8 +68,8 @@ That's it. Ask your AI to render your OpenFOAM results.
 
 If anyone runs it on a real industrial case, I'd love to hear how it goes.
 
-- GitHub: https://github.com/kimimgo/parapilot
-- Landing page: https://kimimgo.github.io/parapilot
+- GitHub: https://github.com/kimimgo/viznoir
+- Landing page: https://kimimgo.github.io/viznoir
 - MIT license, 331 tests
 
 ## Posting Notes

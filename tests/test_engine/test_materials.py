@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.materials import (
+from viznoir.engine.materials import (
     MATERIAL_PRESETS,
     apply_material,
     get_preset_names,

@@ -1,4 +1,4 @@
-# CFD 엔지니어의 첫 parapilot 사용
+# CFD 엔지니어의 첫 viznoir 사용
 
 > OpenFOAM 시뮬레이션 결과를 AI 어시스턴트로 빠르게 시각화하고 분석하는 방법
 
@@ -13,14 +13,14 @@
 
 실린더 주위 유동(cylinder flow) 시뮬레이션을 OpenFOAM으로 완료했습니다.
 결과 디렉토리에 `case.foam`, `0/`, `constant/`, `system/` 폴더가 있는 상태입니다.
-parapilot을 사용해 압력장, 유선, 슬라이스 뷰를 빠르게 생성하고 통계를 추출합니다.
+viznoir을 사용해 압력장, 유선, 슬라이스 뷰를 빠르게 생성하고 통계를 추출합니다.
 
 ---
 
 ## Step 1: 설치
 
 ```bash
-pip install mcp-server-parapilot
+pip install mcp-server-viznoir
 ```
 
 VTK가 자동으로 설치됩니다. GPU 렌더링을 위해 EGL 드라이버가 필요합니다.
@@ -28,22 +28,22 @@ CPU만 있는 환경에서는 OSMesa fallback이 자동 적용됩니다.
 
 ```bash
 # 설치 확인
-mcp-server-parapilot --help
+mcp-server-viznoir --help
 ```
 
 ## Step 2: MCP 클라이언트 설정
 
-사용하는 AI 클라이언트의 MCP 설정 파일에 parapilot을 등록합니다.
+사용하는 AI 클라이언트의 MCP 설정 파일에 viznoir을 등록합니다.
 
 ### Claude Code (`.mcp.json`)
 
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_OUTPUT_DIR": "./output"
+        "VIZNOIR_OUTPUT_DIR": "./output"
       }
     }
   }
@@ -55,17 +55,17 @@ mcp-server-parapilot --help
 ```json
 {
   "mcpServers": {
-    "parapilot": {
-      "command": "mcp-server-parapilot",
+    "viznoir": {
+      "command": "mcp-server-viznoir",
       "env": {
-        "PARAPILOT_OUTPUT_DIR": "./output"
+        "VIZNOIR_OUTPUT_DIR": "./output"
       }
     }
   }
 }
 ```
 
-설정 후 AI 클라이언트를 재시작하면 parapilot 도구가 활성화됩니다.
+설정 후 AI 클라이언트를 재시작하면 viznoir 도구가 활성화됩니다.
 
 ## Step 3: 데이터 검사 — `inspect_data`
 
@@ -396,7 +396,7 @@ animate       →  시간 변화 애니메이션
 - **컬러맵**: 압력/온도는 `Cool to Warm`, 속도는 `Viridis`, 터뷸런스는 `Plasma` 권장
 - **타임스텝**: `"latest"`로 마지막 스텝, `null`로 첫 스텝, 숫자로 특정 스텝 선택
 - **블록 선택**: OpenFOAM의 boundary patch를 `blocks` 파라미터로 선택 가능
-- **리소스 참조**: AI에게 "사용 가능한 컬러맵 목록 보여줘"라고 하면 `parapilot://colormaps` 리소스를 조회합니다
+- **리소스 참조**: AI에게 "사용 가능한 컬러맵 목록 보여줘"라고 하면 `viznoir://colormaps` 리소스를 조회합니다
 
 ## Troubleshooting
 
@@ -405,11 +405,11 @@ animate       →  시간 변화 애니메이션
 | "File not found" | 절대 경로 사용, `.foam` 파일 존재 확인 |
 | 빈 이미지 | `inspect_data`로 필드명 재확인, `timestep="latest"` 시도 |
 | 렌더링 느림 | `width`/`height` 줄이기 (960x540), GPU 드라이버 확인 |
-| 검은 화면 | EGL 미지원 시 `PARAPILOT_RENDER_BACKEND=cpu` 설정 |
+| 검은 화면 | EGL 미지원 시 `VIZNOIR_RENDER_BACKEND=cpu` 설정 |
 
 ## Next Steps
 
 - [의료 영상 CT 시각화 튜토리얼](quickstart-medical.md) — 볼륨 렌더링과 등치면
 - [FEA 구조해석 시각화 튜토리얼](quickstart-fea.md) — 변위, 응력, 클리핑
 - [Pipeline DSL 레퍼런스](../api/pipeline-dsl.md) — `execute_pipeline`으로 복잡한 워크플로우 구성
-- [MCP 리소스 목록](../api/resources.md) — `parapilot://` 리소스 URI 전체 목록
+- [MCP 리소스 목록](../api/resources.md) — `viznoir://` 리소스 URI 전체 목록

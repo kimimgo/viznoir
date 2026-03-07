@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from parapilot.engine.colormaps import (
+from viznoir.engine.colormaps import (
     COLORMAP_REGISTRY,
     build_lut,
     list_colormaps,

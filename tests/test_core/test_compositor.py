@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from parapilot.pipeline.models import (
+from viznoir.pipeline.models import (
     SplitAnimationDef,
 )
 
@@ -48,7 +48,7 @@ def _make_png(width: int = 100, height: int = 100, color: str = "red") -> bytes:
 
 class TestCompositorInit:
     def test_cell_dimensions(self) -> None:
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2)
         c = Compositor(sa)
         # 800 total, 2 cols, gap=4 → (800-4)/2 = 398
@@ -56,7 +56,7 @@ class TestCompositorInit:
         assert c.cell_height == 400
 
     def test_cell_dimensions_2x2(self) -> None:
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         sa = _make_split_anim(resolution=[804, 404], rows=2, cols=2)
         c = Compositor(sa)
         # (804 - 4) / 2 = 400, (404 - 4) / 2 = 200
@@ -67,7 +67,7 @@ class TestCompositorInit:
 class TestCompositorCompose:
     def test_compose_render_only(self) -> None:
         """Compose 2 render panes without graphs."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2, gif=False)
         c = Compositor(sa)
 
@@ -88,7 +88,7 @@ class TestCompositorCompose:
 
     def test_compose_generates_gif(self) -> None:
         """Compose multiple frames and generate GIF."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2, gif=True)
         c = Compositor(sa)
 
@@ -110,7 +110,7 @@ class TestCompositorCompose:
 class TestCompositorGraphPane:
     def test_compose_with_graph(self) -> None:
         """Compose render + graph panes."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         panes: list[dict[str, Any]] = [
             {"type": "render", "row": 0, "col": 0,
              "render_pane": {"render": {"field": "p"}}},
@@ -142,7 +142,7 @@ class TestCompositorGraphPane:
 class TestCompositorGif:
     def test_gif_duration(self) -> None:
         """GIF frame duration should match fps."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         sa = _make_split_anim(resolution=[200, 100], rows=1, cols=2, gif=True)
         sa_with_fps = sa.model_copy(update={"fps": 10})
         c = Compositor(sa_with_fps)
@@ -168,7 +168,7 @@ class TestCompositorGif:
 class TestCompositorGraphEdgeCases:
     def test_graph_with_missing_field_stats(self) -> None:
         """Graph pane with series referencing missing field should not crash."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         panes: list[dict[str, Any]] = [
             {"type": "render", "row": 0, "col": 0,
              "render_pane": {"render": {"field": "p"}}},
@@ -189,7 +189,7 @@ class TestCompositorGraphEdgeCases:
 
     def test_graph_with_y_range(self) -> None:
         """Graph pane with y_range set applies axis limits."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         panes: list[dict[str, Any]] = [
             {"type": "render", "row": 0, "col": 0,
              "render_pane": {"render": {"field": "p"}}},
@@ -214,7 +214,7 @@ class TestCompositorGraphEdgeCases:
 
     def test_compose_font_fallback(self) -> None:
         """Font OSError in _compose_single_frame falls back to default."""
-        from parapilot.core.compositor import Compositor
+        from viznoir.core.compositor import Compositor
         panes: list[dict[str, Any]] = [
             {"type": "render", "row": 0, "col": 0,
              "render_pane": {"render": {"field": "p"}, "title": "Titled Pane"}},
@@ -244,7 +244,7 @@ class TestCompositorGraphEdgeCases:
 class TestCompositorDependencyCheck:
     def test_missing_pillow_raises(self) -> None:
         """Should raise ImportError when pillow is not available."""
-        from parapilot.core import compositor
+        from viznoir.core import compositor
 
         original = compositor._PIL_AVAILABLE
         try:
@@ -258,7 +258,7 @@ class TestCompositorDependencyCheck:
 
     def test_missing_matplotlib_raises(self) -> None:
         """Should raise ImportError when matplotlib is not available."""
-        from parapilot.core import compositor
+        from viznoir.core import compositor
 
         original = compositor._MPL_AVAILABLE
         try:

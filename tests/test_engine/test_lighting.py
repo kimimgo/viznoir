@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import vtk
 
-from parapilot.engine.lighting import (
+from viznoir.engine.lighting import (
     LIGHTING_PRESETS,
     LightDef,
     apply_lighting,
@@ -75,7 +75,7 @@ class TestApplyLighting:
 
     def test_positional_light(self, renderer):
         """Cover positional light type branch (lines 108-113)."""
-        from parapilot.engine.lighting import LightingPreset
+        from viznoir.engine.lighting import LightingPreset
 
         # Temporarily add a positional-light preset
         LIGHTING_PRESETS["_test_spot"] = LightingPreset(
@@ -93,7 +93,7 @@ class TestApplyLighting:
 
     def test_positional_light_no_cone(self, renderer):
         """Positional light with cone_angle=0 skips SetConeAngle."""
-        from parapilot.engine.lighting import LightingPreset
+        from viznoir.engine.lighting import LightingPreset
 
         LIGHTING_PRESETS["_test_pos_nocone"] = LightingPreset(
             "_test_pos_nocone",

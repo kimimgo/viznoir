@@ -1,5 +1,5 @@
 ---
-title: 'parapilot: Headless CAE Post-Processing through AI Coding Assistants'
+title: 'viznoir: Headless CAE Post-Processing through AI Coding Assistants'
 tags:
   - Python
   - VTK
@@ -21,14 +21,14 @@ bibliography: paper.bib
 
 # Summary
 
-`parapilot` is a headless post-processing server for computational
+`viznoir` is a headless post-processing server for computational
 engineering simulations (CFD, FEA, thermal analysis) that enables AI
 coding assistants to generate publication-quality visualizations through
 natural language. It implements the Model Context Protocol (MCP)
 [@modelcontextprotocol], exposing 18 tools for rendering, slicing,
 contouring, animation, and quantitative data extraction from simulation
 results. By operating entirely without a graphical user interface,
-`parapilot` bridges the gap between large language models (LLMs) and the
+`viznoir` bridges the gap between large language models (LLMs) and the
 VTK-based scientific visualization ecosystem [@schroeder2006vtk].
 
 # Statement of Need
@@ -46,7 +46,7 @@ visualization [@llnl_paraview_mcp] are tied to GUI-attached ParaView
 sessions, cannot run in containerized environments, and lack automated
 testing.
 
-`parapilot` addresses these limitations by providing:
+`viznoir` addresses these limitations by providing:
 
 1. **Headless rendering** via VTK's EGL (GPU) and OSMesa (CPU) backends,
    enabling deployment in Docker containers, CI pipelines, and cloud
@@ -61,7 +61,7 @@ testing.
 
 # Architecture
 
-`parapilot` is structured in three layers (\autoref{fig:architecture}):
+`viznoir` is structured in three layers (\autoref{fig:architecture}):
 
 - **MCP Server Layer** (`server.py`): Registers 18 tools, 11 resources,
   and 3 prompts with the FastMCP framework [@fastmcp].
@@ -99,10 +99,10 @@ parameter studies or against experimental data.
 
 # Availability
 
-`parapilot` is available on PyPI as `mcp-server-parapilot` and as
+`viznoir` is available on PyPI as `mcp-server-viznoir` and as
 Docker images for both GPU (EGL) and CPU-only (OSMesa) deployment.
 Source code, documentation, and issue tracker are hosted at
-[github.com/kimimgo/parapilot](https://github.com/kimimgo/parapilot).
+[github.com/kimimgo/viznoir](https://github.com/kimimgo/viznoir).
 
 # Acknowledgements
 

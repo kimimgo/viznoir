@@ -1,12 +1,12 @@
 {
-  "name": "parapilot",
+  "name": "viznoir",
   "description": "CAE post-processing plugin for AI coding assistants. Headless VTK rendering, mesh analysis, and automated report generation for CFD/FEA researchers.",
   "version": "0.1.0",
   "author": {
     "name": "Imgyu Kim",
     "url": "https://github.com/kimimgo"
   },
-  "repository": "https://github.com/kimimgo/parapilot",
+  "repository": "https://github.com/kimimgo/viznoir",
   "license": "MIT",
   "keywords": [
     "cae",
@@ -22,9 +22,9 @@
     "mcp"
   ],
   "mcp": {
-    "command": "mcp-server-parapilot",
+    "command": "mcp-server-viznoir",
     "env": {
-      "PARAPILOT_OUTPUT_DIR": "/tmp/parapilot"
+      "VIZNOIR_OUTPUT_DIR": "/tmp/viznoir"
     }
   }
 }

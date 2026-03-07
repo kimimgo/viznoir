@@ -4,6 +4,6 @@ import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
   site: 'https://kimimgo.github.io',
-  base: '/parapilot',
+  base: '/viznoir',
   integrations: [tailwind()],
 });

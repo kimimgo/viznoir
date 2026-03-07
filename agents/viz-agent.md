@@ -11,7 +11,7 @@ permissionMode: default
 skills:
   - cfd-postprocess
 mcpServers:
-  - parapilot
+  - viznoir
 ---
 
 You are a simulation visualization specialist. Your role:

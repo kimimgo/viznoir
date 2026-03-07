@@ -1,12 +1,12 @@
 {
-  "name": "parapilot-intro",
+  "name": "viznoir-intro",
   "version": "1.0.0",
-  "description": "parapilot introduction video built with Remotion",
+  "description": "viznoir introduction video built with Remotion",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "build": "remotion render src/index.ts parapilot-intro out/parapilot-intro.mp4",
+    "build": "remotion render src/index.ts viznoir-intro out/viznoir-intro.mp4",
     "preview": "remotion preview src/index.ts",
-    "render:gif": "remotion render src/index.ts parapilot-intro out/parapilot-intro.gif --image-format=png"
+    "render:gif": "remotion render src/index.ts viznoir-intro out/viznoir-intro.gif --image-format=png"
   },
   "keywords": [],
   "author": "",

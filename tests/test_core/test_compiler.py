@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from parapilot.core.compiler import ScriptCompiler
-from parapilot.pipeline.models import (
+from viznoir.core.compiler import ScriptCompiler
+from viznoir.pipeline.models import (
     AnimationDef,
     CameraDef,
     DataOutputDef,
@@ -43,9 +43,9 @@ def _compile_render(compiler, file="/data/case.vtk", field="p", **render_kw):
 class TestCompilerBase:
     def test_vtk_engine_imports(self, compiler):
         script = _compile_render(compiler)
-        assert "from parapilot.engine.readers import read_dataset" in script
-        assert "from parapilot.engine.renderer import" in script
-        assert "from parapilot.engine.filters import apply_filter" in script
+        assert "from viznoir.engine.readers import read_dataset" in script
+        assert "from viznoir.engine.renderer import" in script
+        assert "from viznoir.engine.filters import apply_filter" in script
 
     def test_no_paraview_imports(self, compiler):
         script = _compile_render(compiler)
@@ -77,7 +77,7 @@ class TestCompilerBase:
 
     def test_output_dir_env(self, compiler):
         script = _compile_render(compiler)
-        assert 'OUTPUT_DIR = os.environ.get("PARAPILOT_OUTPUT_DIR"' in script
+        assert 'OUTPUT_DIR = os.environ.get("VIZNOIR_OUTPUT_DIR"' in script
 
 
 # ── Filters ──────────────────────────────────────────────────────────

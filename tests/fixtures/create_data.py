@@ -6,7 +6,7 @@ from pathlib import Path
 
 from paraview.simple import *
 
-output_dir = os.environ.get("PARAPILOT_OUTPUT_DIR", "/output")
+output_dir = os.environ.get("VIZNOIR_OUTPUT_DIR", "/output")
 Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 # 1. Wavelet source → VTI

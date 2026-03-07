@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from parapilot.engine.export import (
+from viznoir.engine.export import (
     _WRITER_MAP,
     export_gltf,
     supported_export_formats,
@@ -50,12 +50,12 @@ vtk = pytest.importorskip("vtk")
 class TestExportGltf:
     def test_export_gltf_is_importable(self):
         """Test that export_gltf function is available."""
-        from parapilot.engine.export import export_gltf as fn
+        from viznoir.engine.export import export_gltf as fn
         assert callable(fn)
 
     def test_export_gltf_in_all(self):
         """Test that export_gltf is in __all__."""
-        from parapilot.engine.export import __all__ as all_names
+        from viznoir.engine.export import __all__ as all_names
         assert "export_gltf" in all_names
 
     @pytest.mark.skipif(

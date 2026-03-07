@@ -59,7 +59,7 @@
     "status": "PASS",
     "elapsed": 0.0,
     "output_size": 0,
-    "notes": "Correctly rejected: VTK script exited with code 1.\nstderr: Traceback (most recent call last):\n  File \"/tmp/parapilot_9d5",
+    "notes": "Correctly rejected: VTK script exited with code 1.\nstderr: Traceback (most recent call last):\n  File \"/tmp/viznoir_9d5",
     "output_file": ""
   },
   {
