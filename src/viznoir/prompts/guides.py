@@ -46,6 +46,11 @@ def register_prompts(mcp: FastMCP) -> None:
         """Visualization best practices guide."""
         return _VIZ_GUIDE
 
+    @mcp.prompt()
+    def story_planning(domain: str = "cfd") -> str:
+        """Guide for creating a data-driven story from analyze_data results."""
+        return _STORY_PLANNING_GUIDE.replace("{domain}", domain)
+
 
 # ---------------------------------------------------------------------------
 # Guide content
@@ -170,6 +175,57 @@ _MODAL_FEA_GUIDE = """\
 ## Tips
 - Each timestep typically corresponds to one mode
 - Scale factor should emphasize the mode shape geometry
+"""
+
+_STORY_PLANNING_GUIDE = """\
+# Science Storytelling Guide ({domain})
+
+You have an analysis report from viznoir's analyze_data tool.
+Create a storyline that explains the key physics to a non-expert.
+
+## Narrative Structure
+
+1. **HOOK** — Start with the most surprising finding
+   "At this point, pressure spikes 3x — here's why that matters"
+
+2. **CONTEXT** — What is this simulation? Why does it matter?
+   Use overview render (isometric, cinematic lighting)
+
+3. **EVIDENCE** — Execute recommended_views from the analysis
+   Each view should reveal one insight. Order: overview → detail → extreme
+
+4. **EQUATION** — Place suggested_equations after the phenomenon they explain
+   Use viznoir's LaTeX rendering (supports full LaTeX: underbrace, frac, etc.)
+
+5. **CONCLUSION** — Engineering judgment
+   "This design needs reinforcement at location X" or "Flow separation is acceptable"
+
+## How to Use viznoir Tools
+
+For each scene in your story:
+1. Pick a recommended_view from analyze_data results
+2. Call the corresponding tool (render, slice, contour, streamlines)
+3. Add LaTeX equations as compose_assets entries
+4. Use compose_assets to combine into final deliverable
+
+## compose_assets Format
+
+```json
+{{
+  "assets": [
+    {{"type": "render", "path": "/output/overview.png", "label": "Flow overview"}},
+    {{"type": "latex", "tex": "Re = \\\\frac{{\\\\rho U L}}{{\\\\mu}}", "color": "00D4AA"}},
+    {{"type": "text", "content": "Reynolds number indicates turbulent regime"}}
+  ],
+  "layout": "story"
+}}
+```
+
+## Output Options
+- story: Single image dashboard (quick sharing)
+- grid: Multi-panel figure (paper/report)
+- slides: PNG sequence (presentation)
+- video: MP4 with transitions (conference talk)
 """
 
 _VIZ_GUIDE = """\

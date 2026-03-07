@@ -413,6 +413,31 @@ def register_resources(mcp: FastMCP) -> None:
         }
         return json.dumps(data, indent=2)
 
+    @mcp.resource("viznoir://storytelling")
+    def storytelling_resource() -> str:
+        """Scene templates, narrative patterns, and annotation styles for science storytelling."""
+        return json.dumps(_STORYTELLING_DATA, indent=2)
+
+
+_STORYTELLING_DATA = {
+    "scene_templates": {
+        "overview": {"camera": "isometric", "lighting": "cinematic", "purpose": "Full domain overview"},
+        "zoom_anomaly": {"camera": "custom", "lighting": "dramatic", "purpose": "Anomaly close-up"},
+        "cross_section": {"tool": "slice", "lighting": "publication", "purpose": "Internal structure"},
+        "equation_overlay": {"tool": "compose_assets", "purpose": "Physics law connection"},
+    },
+    "narrative_patterns": {
+        "cfd": ["overview", "streamlines", "pressure_slice", "vorticity", "equation", "conclusion"],
+        "fea": ["overview", "stress_contour", "deformation", "hotspot_zoom", "safety_factor", "conclusion"],
+        "thermal": ["overview", "temperature_field", "heat_flux", "boundary_detail", "equation", "conclusion"],
+    },
+    "annotation_styles": {
+        "insight": {"color": "#00D4AA", "font_weight": "bold"},
+        "warning": {"color": "#FF6B6B", "font_weight": "bold"},
+        "reference": {"color": "#8892B0", "font_weight": "normal"},
+    },
+}
+
 
 def _format_desc(ext: str) -> str:
     """Short description for file format."""

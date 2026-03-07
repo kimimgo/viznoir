@@ -14,7 +14,7 @@ class TestPromptRegistration:
         mcp.prompt.return_value = lambda fn: fn
         _guides_mod._registered_instances.discard(id(mcp))
         _guides_mod.register_prompts(mcp)
-        assert mcp.prompt.call_count == 3  # cfd, fea, visualization
+        assert mcp.prompt.call_count == 4  # cfd, fea, visualization, story_planning
 
 
 class TestCFDGuide:
