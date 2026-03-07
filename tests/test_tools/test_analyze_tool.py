@@ -2,6 +2,35 @@
 
 from __future__ import annotations
 
+import vtk
+
+
+class TestAnalyzeDataImpl:
+    async def test_analyze_impl_returns_report(self, tmp_path):
+        """analyze_data_impl should return a report dict for a valid VTK file."""
+        from viznoir.tools.analyze import analyze_data_impl
+
+        # Create a VTK file
+        src = vtk.vtkRTAnalyticSource()
+        src.SetWholeExtent(-4, 4, -4, 4, -4, 4)
+        src.Update()
+
+        writer = vtk.vtkXMLImageDataWriter()
+        path = str(tmp_path / "test.vti")
+        writer.SetFileName(path)
+        writer.SetInputData(src.GetOutput())
+        writer.Write()
+
+        from viznoir.core.runner import VTKRunner
+
+        runner = VTKRunner()
+        result = await analyze_data_impl(path, runner)
+
+        assert "summary" in result
+        assert result["summary"]["num_points"] > 0
+        assert len(result["field_analyses"]) >= 1
+        assert len(result["suggested_equations"]) >= 1
+
 
 class TestAnalyzeDataTool:
     async def test_tool_registered(self):
