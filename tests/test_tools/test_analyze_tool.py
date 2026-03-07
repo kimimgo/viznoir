@@ -32,7 +32,7 @@ class TestLatexCache:
     def test_cache_speedup(self):
         import time
 
-        from viznoir.anim.latex import render_latex
+        from viznoir.anim.latex import CAIROSVG_AVAILABLE, LATEX_AVAILABLE, render_latex
 
         tex = r"E = mc^2"
         # First call — cold
@@ -45,8 +45,12 @@ class TestLatexCache:
         render_latex(tex, color="FFFFFF")
         warm_ms = (time.perf_counter() - t0) * 1000
 
-        # Cached should be significantly faster
-        assert warm_ms < cold_ms * 0.5 or warm_ms < 30
+        if LATEX_AVAILABLE and CAIROSVG_AVAILABLE:
+            # SVG cache: warm should be significantly faster
+            assert warm_ms < cold_ms * 0.5 or warm_ms < 30
+        else:
+            # Matplotlib fallback: no SVG cache, just verify it runs
+            assert warm_ms < 5000
 
     def test_different_colors_different_cache(self):
         from viznoir.anim.latex import render_latex
