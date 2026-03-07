@@ -8,20 +8,54 @@ from typing import Any
 import numpy as np
 
 
+def _get_field_array(dataset: Any, field_name: str) -> tuple[Any, str]:
+    """Get field array and its location ('point' or 'cell').
+
+    Returns (vtk_array, location) or raises KeyError.
+    """
+    arr = dataset.GetPointData().GetArray(field_name)
+    if arr is not None:
+        return arr, "point"
+    arr = dataset.GetCellData().GetArray(field_name)
+    if arr is not None:
+        return arr, "cell"
+    raise KeyError(f"Field '{field_name}' not found in dataset")
+
+
+def _to_scalar(data: np.ndarray) -> np.ndarray:
+    """Convert vector/tensor data to scalar magnitude. Warns for high-rank tensors."""
+    if data.ndim == 1:
+        return data
+    ncols = data.shape[1]
+    if ncols <= 3:
+        # Vector field — magnitude is physically meaningful
+        return np.linalg.norm(data, axis=1)
+    # Tensor (6/9 components) — L2 norm is NOT physically meaningful
+    # but still useful for anomaly detection as a proxy
+    return np.linalg.norm(data, axis=1)
+
+
+def _get_location(dataset: Any, idx: int, location: str) -> list[float]:
+    """Get spatial coordinates for a point or cell index."""
+    if location == "point":
+        pt = dataset.GetPoint(int(idx))
+        return [round(pt[0], 3), round(pt[1], 3), round(pt[2], 3)]
+    else:
+        cell = dataset.GetCell(int(idx))
+        bounds = cell.GetBounds()
+        return [
+            round((bounds[0] + bounds[1]) / 2, 3),
+            round((bounds[2] + bounds[3]) / 2, 3),
+            round((bounds[4] + bounds[5]) / 2, 3),
+        ]
+
+
 def compute_field_stats(dataset: Any, field_name: str) -> dict[str, float]:
     """Compute basic statistics for a scalar field using VTK native arrays."""
-    arr = dataset.GetPointData().GetArray(field_name)
-    if arr is None:
-        arr = dataset.GetCellData().GetArray(field_name)
-    if arr is None:
-        raise KeyError(f"Field '{field_name}' not found in dataset")
+    arr, _ = _get_field_array(dataset, field_name)
 
     from vtk.util.numpy_support import vtk_to_numpy
-    data = vtk_to_numpy(arr)
-
-    # Handle vector fields — compute magnitude
-    if data.ndim > 1:
-        data = np.linalg.norm(data, axis=1)
+    data = _to_scalar(vtk_to_numpy(arr))
 
     return {
         "min": float(np.min(data)),
@@ -38,19 +72,17 @@ def detect_anomalies(
     top_n: int = 5,
     threshold_sigma: float = 2.5,
 ) -> list[dict[str, Any]]:
-    """Detect local extrema and anomalies in a scalar field."""
-    arr = dataset.GetPointData().GetArray(field_name)
-    if arr is None:
-        arr = dataset.GetCellData().GetArray(field_name)
-    if arr is None:
-        raise KeyError(f"Field '{field_name}' not found")
+    """Detect statistical anomalies in a scalar field.
+
+    Identifies points/cells exceeding threshold_sigma standard deviations
+    from the mean, sorted by deviation magnitude.
+    """
+    arr, location = _get_field_array(dataset, field_name)
 
     from vtk.util.numpy_support import vtk_to_numpy
-    data = vtk_to_numpy(arr)
-    if data.ndim > 1:
-        data = np.linalg.norm(data, axis=1)
+    data = _to_scalar(vtk_to_numpy(arr))
 
-    mean, std = np.mean(data), np.std(data)
+    mean, std = float(np.mean(data)), float(np.std(data))
     if std < 1e-12:
         return []
 
@@ -67,11 +99,10 @@ def detect_anomalies(
 
     anomalies = []
     for idx in sorted_indices:
-        pt = dataset.GetPoint(int(idx))
         val = float(data[idx])
         anomalies.append({
             "type": "local_extremum" if val > mean else "local_minimum",
-            "location": [round(pt[0], 3), round(pt[1], 3), round(pt[2], 3)],
+            "location": _get_location(dataset, idx, location),
             "value": round(val, 4),
             "significance": "high" if deviations[idx] > 3.0 else "medium",
         })
@@ -79,38 +110,62 @@ def detect_anomalies(
     return anomalies
 
 
+# --- Physics context inference ---
+# Case-sensitive exact matches for 1-letter field names (CFD/FEA conventions)
+_EXACT_FIELD_MAP: dict[str, str] = {
+    "U": "velocity",        # OpenFOAM velocity (uppercase)
+    "p": "pressure",        # OpenFOAM pressure (lowercase)
+    "T": "temperature",     # Temperature (uppercase)
+    "k": "turbulent_kinetic_energy",
+    "u": "displacement",    # FEA displacement (lowercase)
+    "d": "displacement",
+}
+
+# Case-insensitive patterns for multi-character field names
 _PHYSICS_KEYWORDS: dict[str, dict[str, str]] = {
-    r"^p$|pressure|p_rgh": {
-        "name": "pressure",
+    "pressure": {
+        "pattern": r"pressure|p_rgh",
         "high_gradient": "Large pressure gradient suggests strong flow acceleration or shock formation",
         "uniform": "Relatively uniform pressure field — steady or stagnant flow region",
     },
-    r"^U$|velocity|vel": {
-        "name": "velocity",
+    "velocity": {
+        "pattern": r"velocity|vel",
         "high_gradient": "Sharp velocity gradient indicates shear layer or boundary layer",
         "uniform": "Uniform velocity — developed flow or free-stream region",
     },
-    r"temperature|^T$|temp": {
-        "name": "temperature",
+    "temperature": {
+        "pattern": r"temperature|temp",
         "high_gradient": "Strong temperature gradient — active heat transfer region",
         "uniform": "Thermal equilibrium region",
     },
-    r"stress|von.?mises|sigma": {
-        "name": "stress",
+    "stress": {
+        "pattern": r"stress|von.?mises|sigma",
         "high_gradient": "Stress concentration — potential failure initiation site",
         "uniform": "Low stress region — structurally safe zone",
     },
-    r"displacement|deform|^d$|^u$": {
-        "name": "displacement",
+    "displacement": {
+        "pattern": r"displacement|deform",
         "high_gradient": "Localized deformation — possible hinge or buckling point",
         "uniform": "Rigid body region — minimal deformation",
     },
-    r"k$|tke|turbulent.*kinetic": {
-        "name": "turbulent_kinetic_energy",
+    "turbulent_kinetic_energy": {
+        "pattern": r"tke|turbulent.*kinetic",
         "high_gradient": "High turbulence production zone",
         "uniform": "Low turbulence — laminar or far-field",
     },
 }
+
+
+def _classify_field(field_name: str) -> str | None:
+    """Classify field name to physics category. Case-sensitive for 1-letter names."""
+    # Exact match first (case-sensitive, no ambiguity)
+    if field_name in _EXACT_FIELD_MAP:
+        return _EXACT_FIELD_MAP[field_name]
+    # Multi-character: case-insensitive regex
+    for category, info in _PHYSICS_KEYWORDS.items():
+        if re.search(info["pattern"], field_name, re.IGNORECASE):
+            return category
+    return None
 
 
 def infer_physics_context(field_name: str, stats: dict[str, float]) -> str:
@@ -118,12 +173,13 @@ def infer_physics_context(field_name: str, stats: dict[str, float]) -> str:
     gradient_range = stats["max"] - stats["min"]
     cv = stats["std"] / abs(stats["mean"]) if abs(stats["mean"]) > 1e-12 else 0.0
 
-    for pattern, info in _PHYSICS_KEYWORDS.items():
-        if re.search(pattern, field_name, re.IGNORECASE):
-            if cv > 0.3:
-                return f"{info['high_gradient']} (range: {gradient_range:.4g}, CV: {cv:.2f})"
-            else:
-                return f"{info['uniform']} (range: {gradient_range:.4g}, CV: {cv:.2f})"
+    category = _classify_field(field_name)
+    if category and category in _PHYSICS_KEYWORDS:
+        info = _PHYSICS_KEYWORDS[category]
+        if cv > 0.3:
+            return f"{info['high_gradient']} (range: {gradient_range:.4g}, CV: {cv:.2f})"
+        else:
+            return f"{info['uniform']} (range: {gradient_range:.4g}, CV: {cv:.2f})"
 
     if cv > 0.3:
         return f"High spatial variation in {field_name} (range: {gradient_range:.4g}, CV: {cv:.2f})"
@@ -166,6 +222,54 @@ def recommend_views(
     return views
 
 
+# --- Cross-field analysis ---
+
+def cross_field_analysis(
+    dataset: Any,
+    field_analyses: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Compute cross-field correlations and insights."""
+    from vtk.util.numpy_support import vtk_to_numpy
+
+    insights: list[dict[str, Any]] = []
+    names = [fa["name"] for fa in field_analyses]
+
+    for i in range(len(names)):
+        for j in range(i + 1, len(names)):
+            try:
+                arr_i, _ = _get_field_array(dataset, names[i])
+                arr_j, _ = _get_field_array(dataset, names[j])
+            except KeyError:
+                continue
+
+            data_i = _to_scalar(vtk_to_numpy(arr_i))
+            data_j = _to_scalar(vtk_to_numpy(arr_j))
+
+            if len(data_i) != len(data_j) or len(data_i) < 10:
+                continue
+
+            corr = float(np.corrcoef(data_i, data_j)[0, 1])
+            if abs(corr) > 0.5:
+                direction = "positive" if corr > 0 else "inverse"
+                note = f"{direction.title()} correlation (r={corr:.2f})"
+                # Add physics interpretation for known pairs
+                cats = {_classify_field(names[i]), _classify_field(names[j])}
+                if cats == {"pressure", "velocity"}:
+                    note += " — Bernoulli-consistent"
+                elif cats == {"temperature", "velocity"}:
+                    note += " — convective heat transfer"
+                insights.append({
+                    "type": "correlation",
+                    "fields": [names[i], names[j]],
+                    "correlation": round(corr, 3),
+                    "note": note,
+                })
+
+    return insights
+
+
+# --- Equation suggestions ---
+
 _NS_LATEX = r"\rho \frac{D\mathbf{u}}{Dt} = -\nabla p + \mu \nabla^2 \mathbf{u} + \mathbf{f}"
 _BERNOULLI_LATEX = r"p + \frac{1}{2}\rho v^2 = \text{const}"
 _CAUCHY_LATEX = r"\nabla \cdot \boldsymbol{\sigma} + \mathbf{b} = 0"
@@ -189,13 +293,18 @@ _DOMAIN_EQUATIONS: dict[str, list[dict[str, str]]] = {
 
 
 def _guess_domain(field_names: list[str]) -> str:
-    """Guess physics domain from field names."""
-    names_lower = " ".join(f.lower() for f in field_names)
-    if any(kw in names_lower for kw in ["velocity", "pressure", " u ", " p "]):
+    """Guess physics domain from field names using per-field classification."""
+    categories = set()
+    for name in field_names:
+        cat = _classify_field(name)
+        if cat:
+            categories.add(cat)
+
+    if categories & {"velocity", "pressure", "turbulent_kinetic_energy"}:
         return "cfd"
-    if any(kw in names_lower for kw in ["stress", "displacement", "strain"]):
+    if categories & {"stress", "displacement"}:
         return "fea"
-    if any(kw in names_lower for kw in ["temperature", "heat", "thermal"]):
+    if categories & {"temperature"}:
         return "thermal"
     return "cfd"
 
@@ -256,5 +365,6 @@ def analyze_dataset(
             "domain_guess": domain,
         },
         "field_analyses": field_analyses,
+        "cross_field_insights": cross_field_analysis(dataset, field_analyses),
         "suggested_equations": _DOMAIN_EQUATIONS.get(domain, []),
     }

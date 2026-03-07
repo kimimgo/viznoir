@@ -101,6 +101,56 @@ class TestRecommendViews:
         assert len(slice_views) >= 1
 
 
+class TestClassifyField:
+    """Test case-sensitive field classification (Critical fix for ^u$ vs ^U$ conflict)."""
+
+    def test_uppercase_U_is_velocity(self):
+        from viznoir.engine.analysis import _classify_field
+        assert _classify_field("U") == "velocity"
+
+    def test_lowercase_u_is_displacement(self):
+        from viznoir.engine.analysis import _classify_field
+        assert _classify_field("u") == "displacement"
+
+    def test_lowercase_p_is_pressure(self):
+        from viznoir.engine.analysis import _classify_field
+        assert _classify_field("p") == "pressure"
+
+    def test_uppercase_T_is_temperature(self):
+        from viznoir.engine.analysis import _classify_field
+        assert _classify_field("T") == "temperature"
+
+    def test_multichar_field(self):
+        from viznoir.engine.analysis import _classify_field
+        assert _classify_field("Pressure") == "pressure"
+        assert _classify_field("velocity") == "velocity"
+        assert _classify_field("vonMises") == "stress"
+
+
+class TestCrossFieldAnalysis:
+    def test_returns_list(self):
+        from viznoir.engine.analysis import analyze_dataset
+        ds = _make_wavelet()
+        report = analyze_dataset(ds)
+        assert "cross_field_insights" in report
+        assert isinstance(report["cross_field_insights"], list)
+
+
+class TestGuessDomain:
+    def test_openfoam_fields(self):
+        from viznoir.engine.analysis import _guess_domain
+        # OpenFOAM standard: "U", "p" — must work with exact case matching
+        assert _guess_domain(["U", "p"]) == "cfd"
+
+    def test_fea_fields(self):
+        from viznoir.engine.analysis import _guess_domain
+        assert _guess_domain(["stress", "displacement"]) == "fea"
+
+    def test_single_U_field(self):
+        from viznoir.engine.analysis import _guess_domain
+        assert _guess_domain(["U"]) == "cfd"
+
+
 class TestFullAnalysis:
     def test_analyze_dataset_returns_report(self):
         from viznoir.engine.analysis import analyze_dataset
@@ -108,6 +158,7 @@ class TestFullAnalysis:
         report = analyze_dataset(ds)
         assert "summary" in report
         assert "field_analyses" in report
+        assert "cross_field_insights" in report
         assert report["summary"]["num_points"] > 0
 
     def test_analyze_dataset_with_domain_hint(self):

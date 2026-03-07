@@ -8,12 +8,10 @@ from PIL import Image
 
 
 def fade_in(img: Image.Image, t: float) -> Image.Image:
-    """Fade from transparent to opaque."""
-    alpha = int(255 * max(0.0, min(1.0, t)))
-    result = img.copy().convert("RGBA")
-    r, g, b, a = result.split()
-    a = a.point(lambda x: int(x * alpha / 255))
-    return Image.merge("RGBA", (r, g, b, a))
+    """Fade from transparent to opaque. Uses Image.blend for C-level speed."""
+    t = max(0.0, min(1.0, t))
+    transparent = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    return Image.blend(transparent, img.convert("RGBA"), t)
 
 
 def fade_out(img: Image.Image, t: float) -> Image.Image:
@@ -24,9 +22,7 @@ def fade_out(img: Image.Image, t: float) -> Image.Image:
 def dissolve(src: Image.Image, dst: Image.Image, t: float) -> Image.Image:
     """Cross-dissolve between two images."""
     t = max(0.0, min(1.0, t))
-    src_rgba = src.convert("RGBA")
-    dst_rgba = dst.convert("RGBA")
-    return Image.blend(src_rgba, dst_rgba, t)
+    return Image.blend(src.convert("RGBA"), dst.convert("RGBA"), t)
 
 
 def wipe(
