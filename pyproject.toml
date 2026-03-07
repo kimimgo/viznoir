@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-parapilot"
-version = "0.2.0"
+version = "0.3.0.dev0"
 description = "Headless VTK/ParaView post-processing MCP server for CFD/CAE simulations"
 license = "MIT"
 readme = "README.md"
