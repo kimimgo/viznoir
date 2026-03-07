@@ -55,8 +55,11 @@ Requires NVIDIA Container Toolkit. For CPU-only: `docker compose up viznoir-cpu 
 - **Headless Rendering** — EGL/OSMesa off-screen rendering.
   No display, no GUI, no ParaView install needed.
 
-- **18 MCP Tools** — inspect, render, slice, contour, clip, streamlines,
-  cinematic render, compare, animate, extract stats, and more.
+- **21 MCP Tools** — inspect, render, slice, contour, clip, streamlines,
+  cinematic render, compare, animate, analyze data, compose stories, and more.
+
+- **Science Storytelling** — Analyze datasets for physics insights,
+  render LaTeX equations, compose cinematic story layouts, and export videos.
 
 - **50+ Formats** — OpenFOAM, VTK, CGNS, STL, PLY, OBJ, Exodus, Ensight
   via VTK readers + meshio.
@@ -78,20 +81,21 @@ All renders from single MCP tool calls — no post-processing.
 
 | Feature | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |---------|-----------|---------------------|---------|------------|
-| MCP Integration | Native 18 tools | — | — | — |
+| MCP Integration | Native 21 tools | — | — | — |
 | Headless | EGL/OSMesa | pvpython | Yes | Manual |
 | Docker | GPU + CPU | Complex | — | — |
 | Natural Language | AI-first | — | — | — |
 | File Formats | 50+ (meshio) | 70+ | 30+ | ~20 |
 | Installation | pip install | System package | pip install | pip install |
-| Tests | 1134 (99% cov) | N/A | Yes | N/A |
+| Science Storytelling | LaTeX + timeline + video | — | — | — |
+| Tests | 1300+ (99% cov) | N/A | Yes | N/A |
 
 ## Contributing
 
 ```bash
 git clone https://github.com/kimimgo/viznoir
 cd viznoir && pip install -e ".[dev]"
-pytest  # 1134 tests, 99% coverage
+pytest  # 1300+ tests, 99% coverage
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.

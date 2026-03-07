@@ -166,6 +166,7 @@ class TestRenderLatexLines:
 class TestFallback:
     def test_mathtext_fallback(self):
         from unittest.mock import patch
+
         from viznoir.anim import latex as latex_mod
 
         with patch.object(latex_mod, "LATEX_AVAILABLE", False):

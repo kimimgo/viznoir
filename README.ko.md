@@ -55,8 +55,11 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 - **헤드리스 렌더링** — EGL/OSMesa 오프스크린 렌더링.
   디스플레이, GUI, ParaView 설치 불필요.
 
-- **18개 MCP 도구** — 검사, 렌더링, 슬라이스, 등치면, 클리핑, 유선,
-  시네마틱 렌더링, 비교, 애니메이션, 통계 추출 등.
+- **21개 MCP 도구** — 검사, 렌더링, 슬라이스, 등치면, 클리핑, 유선,
+  시네마틱 렌더링, 비교, 애니메이션, 데이터 분석, 스토리 합성 등.
+
+- **과학 스토리텔링** — 데이터셋의 물리 인사이트 자동 추출,
+  LaTeX 수식 렌더링, 시네마틱 스토리 레이아웃, 비디오 내보내기.
 
 - **50+ 포맷** — OpenFOAM, VTK, CGNS, STL, PLY, OBJ, Exodus, Ensight
   등 VTK 리더 + meshio 지원.
@@ -78,20 +81,21 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 
 | 기능 | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |------|-----------|---------------------|---------|------------|
-| MCP 통합 | 네이티브 18개 도구 | — | — | — |
+| MCP 통합 | 네이티브 21개 도구 | — | — | — |
 | 헤드리스 | EGL/OSMesa | pvpython | 지원 | 수동 설정 |
 | Docker | GPU + CPU | 복잡 | — | — |
 | 자연어 | AI 우선 | — | — | — |
 | 파일 포맷 | 50+ (meshio) | 70+ | 30+ | ~20 |
 | 설치 | pip install | 시스템 패키지 | pip install | pip install |
-| 테스트 | 1134 (99% 커버리지) | N/A | 있음 | N/A |
+| 과학 스토리텔링 | LaTeX + 타임라인 + 비디오 | — | — | — |
+| 테스트 | 1300+ (99% 커버리지) | N/A | 있음 | N/A |
 
 ## 기여하기
 
 ```bash
 git clone https://github.com/kimimgo/viznoir
 cd viznoir && pip install -e ".[dev]"
-pytest  # 1134 테스트, 99% 커버리지
+pytest  # 1300+ 테스트, 99% 커버리지
 ```
 
 자세한 내용은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참조하세요.

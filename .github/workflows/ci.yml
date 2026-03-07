@@ -63,8 +63,8 @@ jobs:
         run: |
           COUNT=$(pytest --co -q 2>/dev/null | tail -1 | grep -oP '\d+')
           echo "Collected $COUNT tests"
-          if [ "$COUNT" -lt 1120 ]; then
-            echo "::error::Test count regression: $COUNT < 1120 (expected >= 1120)"
+          if [ "$COUNT" -lt 1290 ]; then
+            echo "::error::Test count regression: $COUNT < 1290 (expected >= 1290)"
             exit 1
           fi
 

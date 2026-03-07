@@ -29,7 +29,7 @@ pip install -e ".[all]"        # everything
 ## Running Tests
 
 ```bash
-# Full test suite (1128 tests)
+# Full test suite (1300+ tests)
 pytest --cov=viznoir --cov-report=term-missing -q
 
 # Single test file

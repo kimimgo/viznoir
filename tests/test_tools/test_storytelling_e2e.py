@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import vtk
-import pytest
 from pathlib import Path
+
+import vtk
 
 
 def _make_wavelet_file(tmp_path: Path) -> str:
@@ -53,9 +53,9 @@ class TestAnalyzeToComposePipeline:
 
     def test_full_pipeline_analyze_then_compose(self, tmp_path):
         """Full pipeline: analyze VTK data → compose story with LaTeX equations."""
-        from viznoir.engine.analysis import analyze_dataset
         from viznoir.anim.compositor import render_story_layout
         from viznoir.anim.latex import render_latex
+        from viznoir.engine.analysis import analyze_dataset
 
         # Step 1: Analyze
         src = vtk.vtkRTAnalyticSource()
@@ -112,7 +112,8 @@ class TestAnalyzeToComposePipeline:
     def test_cross_field_analysis_with_correlated_fields(self):
         """Verify cross-field correlation detection with synthetic multi-field data."""
         import numpy as np
-        from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
+        from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+
         from viznoir.engine.analysis import analyze_dataset
 
         src = vtk.vtkRTAnalyticSource()
@@ -138,7 +139,8 @@ class TestAnalyzeToComposePipeline:
     def test_transitions_produce_valid_images(self):
         """Verify transitions produce valid RGBA images."""
         from PIL import Image
-        from viznoir.anim.transitions import fade_in, dissolve, wipe
+
+        from viznoir.anim.transitions import dissolve, fade_in, wipe
 
         img = Image.new("RGBA", (100, 100), (255, 0, 0, 255))
 

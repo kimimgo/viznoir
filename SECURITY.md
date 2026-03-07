@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 |---------|--------------------|
-| 0.3.x   | Yes                |
+| 0.5.x   | Yes                |
+| 0.3.x   | Security fixes only|
 | < 0.3   | No                 |
 
 ## Reporting a Vulnerability
@@ -25,7 +26,9 @@ If you discover a security vulnerability in viznoir, please report it responsibl
 - **Dependency auditing**: `pip-audit` runs weekly via CI and on every PR
 - **Static analysis**: CodeQL scans on every push and weekly schedule
 - **Dependency review**: License and vulnerability checks on all PRs
-- **No arbitrary code execution**: Pipeline DSL compiles to VTK API calls only
+- **No arbitrary code execution**: Pipeline DSL compiles to VTK API calls only (`ProgrammableFilter` disabled by default, requires `VIZNOIR_ALLOW_PROGRAMMABLE=1`)
+- **ffmpeg injection prevention**: `compose_assets` video export uses `--` separator to prevent output path injection
+- **Asset path validation**: `compose_assets` validates all file paths against `VIZNOIR_DATA_DIR` and `VIZNOIR_OUTPUT_DIR` boundaries
 
 ## Scope
 
