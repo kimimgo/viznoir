@@ -959,6 +959,47 @@ async def preview_3d(
 
 
 # ---------------------------------------------------------------------------
+# analyze_data — VTK data insight extraction
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def analyze_data(
+    file_path: str,
+    focus: str | None = None,
+    domain: str | None = None,
+) -> dict[str, Any]:
+    """Analyze VTK/simulation data and extract physics-aware insights.
+
+    Returns a Level 2 report with:
+    - Field statistics (min/max/mean/std)
+    - Physics context (what the numbers mean)
+    - Anomaly locations (where to look)
+    - Recommended views (slice/contour parameters ready for tool calls)
+    - Suggested equations (relevant governing equations)
+
+    Use this as the first step in a storytelling workflow:
+    1. analyze_data → get insights
+    2. Plan story from insights (use story_planning prompt)
+    3. Execute recommended_views with render/slice/contour tools
+    4. compose_assets → final output
+
+    Args:
+        file_path: Path to VTK/OpenFOAM/CGNS file
+        focus: Analyze only this field (None for all fields)
+        domain: Physics domain hint — "cfd", "fea", "thermal" (None for auto-detect)
+    """
+    file_path = _validate_file_path(file_path)
+    logger.debug("tool.analyze_data: start file=%s focus=%s domain=%s", file_path, focus, domain)
+    t0 = time.monotonic()
+    from viznoir.tools.analyze import analyze_data_impl
+
+    result = await analyze_data_impl(file_path, _runner, focus=focus, domain=domain)
+    logger.debug("tool.analyze_data: done in %.2fs", time.monotonic() - t0)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Resources
 # ---------------------------------------------------------------------------
 

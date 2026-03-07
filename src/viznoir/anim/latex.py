@@ -41,6 +41,7 @@ def _has_cairosvg() -> bool:
 LATEX_AVAILABLE = _has_latex()
 CAIROSVG_AVAILABLE = _has_cairosvg()
 
+_SVG_CACHE: dict[str, str] = {}
 
 # ---------------------------------------------------------------------------
 # LaTeX template
@@ -135,7 +136,7 @@ def _svg_to_png(svg_text: str, scale: float = 3.0) -> bytes:
 # Fallback: matplotlib mathtext
 # ---------------------------------------------------------------------------
 
-def _render_mathtext(tex_string: str, font_size: float, color: str) -> "Image":
+def _render_mathtext(tex_string: str, font_size: float, color: str) -> Image:
     """Fallback renderer using matplotlib mathtext."""
     import matplotlib
     matplotlib.use("Agg")
@@ -177,7 +178,7 @@ def render_latex(
     color: str = "FFFFFF",
     preamble: str = "",
     scale: float = 3.0,
-) -> "Image":
+) -> Image:
     """Render LaTeX string to a PIL Image with transparent background.
 
     Parameters
@@ -212,19 +213,23 @@ def render_latex(
     body = f"\\[{body}\\]"
 
     if LATEX_AVAILABLE and CAIROSVG_AVAILABLE:
-        tex_source = _LATEX_TEMPLATE % {
-            "preamble": preamble,
-            "color": color.lstrip("#"),
-            "body": body,
-        }
+        cache_key = f"{body}:{color.lstrip('#')}:{preamble}"
+        svg_text = _SVG_CACHE.get(cache_key)
 
-        with tempfile.TemporaryDirectory(prefix="viznoir-latex-") as tmp:
-            work_dir = Path(tmp)
-            dvi = _latex_to_dvi(tex_source, work_dir)
-            svg_text = _dvi_to_svg(dvi, work_dir)
-            svg_text = _colorize_svg(svg_text, color.lstrip("#"))
-            png_bytes = _svg_to_png(svg_text, scale=scale)
+        if svg_text is None:
+            tex_source = _LATEX_TEMPLATE % {
+                "preamble": preamble,
+                "color": color.lstrip("#"),
+                "body": body,
+            }
+            with tempfile.TemporaryDirectory(prefix="viznoir-latex-") as tmp:
+                work_dir = Path(tmp)
+                dvi = _latex_to_dvi(tex_source, work_dir)
+                svg_text = _dvi_to_svg(dvi, work_dir)
+                svg_text = _colorize_svg(svg_text, color.lstrip("#"))
+            _SVG_CACHE[cache_key] = svg_text
 
+        png_bytes = _svg_to_png(svg_text, scale=scale)
         buf = BytesIO(png_bytes)
         return PILImage.open(buf).convert("RGBA")
 
@@ -238,7 +243,7 @@ def render_latex_lines(
     scale: float = 3.0,
     preamble: str = "",
     spacing: int = 20,
-) -> "Image":
+) -> Image:
     """Render multiple LaTeX expressions, each with its own color, stacked vertically.
 
     Parameters
