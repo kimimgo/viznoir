@@ -109,6 +109,32 @@ class TestAnalyzeToComposePipeline:
         idx, local_t = tl.scene_at(6.0)
         assert idx == 2
 
+    def test_cross_field_analysis_with_correlated_fields(self):
+        """Verify cross-field correlation detection with synthetic multi-field data."""
+        import numpy as np
+        from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
+        from viznoir.engine.analysis import analyze_dataset
+
+        src = vtk.vtkRTAnalyticSource()
+        src.SetWholeExtent(-8, 8, -8, 8, -8, 8)
+        src.Update()
+        ds = src.GetOutput()
+
+        # Add pressure field (anti-correlated with RTData)
+        rtdata = vtk_to_numpy(ds.GetPointData().GetArray("RTData"))
+        pressure = rtdata * -0.5 + np.random.normal(0, 10, size=rtdata.shape)
+        p_arr = numpy_to_vtk(pressure.astype(np.float64))
+        p_arr.SetName("p")
+        ds.GetPointData().AddArray(p_arr)
+
+        report = analyze_dataset(ds)
+
+        assert len(report["field_analyses"]) >= 2
+        assert len(report["cross_field_insights"]) >= 1
+        # Should detect anti-correlation
+        corrs = [i["correlation"] for i in report["cross_field_insights"]]
+        assert any(c < -0.5 for c in corrs), "Expected negative correlation between RTData and p"
+
     def test_transitions_produce_valid_images(self):
         """Verify transitions produce valid RGBA images."""
         from PIL import Image
