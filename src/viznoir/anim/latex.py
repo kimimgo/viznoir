@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PIL import Image
+    from PIL.Image import Image
 
 
 # ---------------------------------------------------------------------------
@@ -125,11 +125,12 @@ def _svg_to_png(svg_text: str, scale: float = 3.0) -> bytes:
     """Rasterize SVG to PNG bytes via cairosvg."""
     import cairosvg
 
-    return cairosvg.svg2png(
+    result: bytes = cairosvg.svg2png(
         bytestring=svg_text.encode("utf-8"),
         scale=scale,
         background_color="transparent",
     )
+    return result
 
 
 # ---------------------------------------------------------------------------

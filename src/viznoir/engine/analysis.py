@@ -29,10 +29,12 @@ def _to_scalar(data: np.ndarray) -> np.ndarray:
     ncols = data.shape[1]
     if ncols <= 3:
         # Vector field — magnitude is physically meaningful
-        return np.linalg.norm(data, axis=1)
+        result: np.ndarray = np.linalg.norm(data, axis=1)
+        return result
     # Tensor (6/9 components) — L2 norm is NOT physically meaningful
     # but still useful for anomaly detection as a proxy
-    return np.linalg.norm(data, axis=1)
+    result = np.linalg.norm(data, axis=1)
+    return result
 
 
 def _get_location(dataset: Any, idx: int, location: str) -> list[float]:
