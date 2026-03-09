@@ -992,6 +992,15 @@ async def inspect_physics(
         vortex_threshold: Q-criterion threshold for vortex detection
     """
     file_path = _validate_file_path(file_path)
+    if case_dir is not None:
+        case_resolved = Path(case_dir).resolve()
+        if _config.data_dir is not None:
+            data_dir = _config.data_dir.resolve()
+            if not str(case_resolved).startswith(str(data_dir) + "/") and case_resolved != data_dir:
+                raise ValueError(
+                    f"Access denied: case_dir '{case_dir}' is outside allowed data directory '{data_dir}'"
+                )
+        case_dir = str(case_resolved)
     logger.debug("tool.inspect_physics: start file=%s case_dir=%s", file_path, case_dir)
     t0 = time.monotonic()
     from viznoir.tools.inspect_physics import inspect_physics_impl

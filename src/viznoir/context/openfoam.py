@@ -25,10 +25,9 @@ class OpenFOAMContextParser:
 
     def parse_dataset(self, dataset: object) -> CaseContext:
         """Not used for OpenFOAM — use parse_case_dir instead."""
-        return CaseContext(
-            mesh_quality=MeshQuality(
-                cell_count=0, point_count=0, cell_types={}, bounding_box=[[0, 0, 0], [0, 0, 0]],
-            ),
+        raise NotImplementedError(
+            "OpenFOAMContextParser requires a case directory, not a VTK dataset. "
+            "Use parse_case_dir() instead."
         )
 
     def parse_case_dir(self, case_dir: str) -> CaseContext:
@@ -65,7 +64,7 @@ class OpenFOAMContextParser:
         if not path.is_file():
             return None
 
-        text = path.read_text()
+        text = path.read_text(errors="replace")
 
         # application → solver name
         m = re.search(r"^\s*application\s+(\w+)\s*;", text, re.MULTILINE)
@@ -91,7 +90,7 @@ class OpenFOAMContextParser:
         if not path.is_file():
             return []
 
-        text = path.read_text()
+        text = path.read_text(errors="replace")
         props: list[TransportProperty] = []
 
         # Pattern: property_name [dims] value;
@@ -108,9 +107,14 @@ class OpenFOAMContextParser:
         if not zero_dir.is_dir():
             return []
 
+        _skip_suffixes = {".orig", ".bak", ".old", ".swp", ".swo", "~"}
         bcs: list[BoundaryCondition] = []
         for field_file in sorted(zero_dir.iterdir()):
             if not field_file.is_file():
+                continue
+            if any(field_file.name.endswith(s) for s in _skip_suffixes):
+                continue
+            if field_file.name.startswith("."):
                 continue
             field_name = field_file.name
             bcs.extend(self._parse_single_boundary_file(field_file, field_name))
@@ -119,7 +123,7 @@ class OpenFOAMContextParser:
 
     def _parse_single_boundary_file(self, path: Path, field_name: str) -> list[BoundaryCondition]:
         """Parse a single OpenFOAM boundary condition file."""
-        text = path.read_text()
+        text = path.read_text(errors="replace")
         bcs: list[BoundaryCondition] = []
 
         # Find boundaryField block

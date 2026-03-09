@@ -34,6 +34,30 @@ class TestOpenFOAMParser:
         assert ctx.solver.name == "icoFoam"
 
 
+    def test_parse_dataset_raises_not_implemented(self):
+        from viznoir.context.openfoam import OpenFOAMContextParser
+        parser = OpenFOAMContextParser()
+        with pytest.raises(NotImplementedError, match="case directory"):
+            parser.parse_dataset(object())
+
+    def test_skips_backup_files(self, cavity_dir, tmp_path):
+        """Backup files (.orig, .bak) in 0/ should be ignored."""
+        import shutil
+
+        from viznoir.context.openfoam import OpenFOAMContextParser
+
+        case = tmp_path / "foam_case"
+        shutil.copytree(cavity_dir, case)
+        # Add a backup file that should be ignored
+        (case / "0" / "U.orig").write_text("garbage")
+        (case / "0" / ".hidden").write_text("garbage")
+
+        ctx = OpenFOAMContextParser().parse_case_dir(str(case))
+        fields = {bc.field for bc in ctx.boundary_conditions}
+        assert "U.orig" not in fields
+        assert ".hidden" not in fields
+
+
 class TestOpenFOAMBoundaryConditions:
     def test_extracts_velocity_bcs(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
