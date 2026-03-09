@@ -57,7 +57,7 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 - **헤드리스 렌더링** — EGL/OSMesa 오프스크린 렌더링.
   디스플레이, GUI, ParaView 설치 불필요.
 
-- **21개 MCP 도구** — 검사, 렌더링, 슬라이스, 등치면, 클리핑, 유선,
+- **22개 MCP 도구** — 검사, 렌더링, 슬라이스, 등치면, 클리핑, 유선,
   시네마틱 렌더링, 비교, 애니메이션, 데이터 분석, 스토리 합성 등.
 
 - **과학 스토리텔링** — 데이터셋의 물리 인사이트 자동 추출,
@@ -97,7 +97,7 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 
 | 기능 | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |------|-----------|---------------------|---------|------------|
-| MCP 통합 | 네이티브 21개 도구 | — | — | — |
+| MCP 통합 | 네이티브 22개 도구 | — | — | — |
 | 헤드리스 | EGL/OSMesa | pvpython | 지원 | 수동 설정 |
 | Docker | GPU + CPU | 복잡 | — | — |
 | 자연어 | AI 우선 | — | — | — |

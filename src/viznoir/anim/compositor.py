@@ -34,12 +34,25 @@ ACCENT_TEAL: tuple[int, int, int, int] = (0x00, 0xD4, 0xAA, 255)
 # ---------------------------------------------------------------------------
 
 _FONT_CANDIDATES = [
+    # Linux
     "DejaVuSans.ttf",
     "DejaVuSans-Bold.ttf",
     "LiberationSans-Regular.ttf",
     "LiberationSans-Bold.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    # macOS
+    "/System/Library/Fonts/Helvetica.ttc",
+    "/System/Library/Fonts/SFNSText.ttf",
+    "/System/Library/Fonts/Supplemental/Arial.ttf",
+    # Windows
+    "C:\\Windows\\Fonts\\arial.ttf",
+    "C:\\Windows\\Fonts\\segoeui.ttf",
+    # CJK (Noto Sans)
+    "NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/Supplemental/NotoSansCJK-Regular.ttc",
 ]
 
 
@@ -54,6 +67,104 @@ def _get_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
+def _get_scaled_font(
+    base_size: int, canvas_width: int, reference_width: int = 1920
+) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    """Return a font scaled proportionally to canvas width.
+
+    Parameters
+    ----------
+    base_size : int
+        Font size at *reference_width*.
+    canvas_width : int
+        Actual canvas width in pixels.
+    reference_width : int
+        Reference width for base_size (default 1920).
+    """
+    scale = canvas_width / reference_width
+    scaled_size = max(12, int(base_size * scale))
+    return _get_font(scaled_size)
+
+
+# ---------------------------------------------------------------------------
+# Label helpers
+# ---------------------------------------------------------------------------
+
+LABEL_BG: tuple[int, int, int, int] = (0x1C, 0x1C, 0x2E, 180)
+
+
+def _truncate_label(
+    text: str,
+    font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+    max_width: int,
+) -> str:
+    """Truncate *text* with '...' if it exceeds *max_width* pixels."""
+    if not text:
+        return text
+    bbox = font.getbbox(text)
+    if (bbox[2] - bbox[0]) <= max_width:
+        return text
+    ellipsis = "..."
+    for end in range(len(text), 0, -1):
+        candidate = text[:end] + ellipsis
+        bbox = font.getbbox(candidate)
+        if (bbox[2] - bbox[0]) <= max_width:
+            return candidate
+    return ellipsis
+
+
+def _draw_label_with_bg(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+    cx: int,
+    cy: int,
+    panel_width: int,
+    padding: int = 10,
+) -> None:
+    """Draw *text* centered at *cx* with a semi-transparent rounded background.
+
+    Parameters
+    ----------
+    draw : ImageDraw.ImageDraw
+        Draw context (must belong to an RGBA canvas).
+    text : str
+        Label text to render.
+    font : ImageFont
+        Font to use.
+    cx : int
+        Horizontal center of the label area.
+    cy : int
+        Top y-coordinate of the label area.
+    panel_width : int
+        Width of the panel (used for truncation).
+    padding : int
+        Horizontal padding inside the background box.
+    """
+    if not text:
+        return
+
+    # Truncate if needed
+    max_text_w = panel_width - 2 * padding
+    text = _truncate_label(text, font, max_text_w)
+
+    bbox = font.getbbox(text)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+
+    # Background box (centered horizontally at cx)
+    box_pad = 6
+    bx0 = cx - tw // 2 - box_pad
+    by0 = cy - 2
+    bx1 = cx + tw // 2 + box_pad
+    by1 = cy + th + 4
+    draw.rounded_rectangle([bx0, by0, bx1, by1], radius=4, fill=LABEL_BG)
+
+    # Text (centered)
+    tx = cx - tw // 2
+    draw.text((tx, cy), text, fill=TEXT_DIM, font=font)
+
+
 # ---------------------------------------------------------------------------
 # Layout: story
 # ---------------------------------------------------------------------------
@@ -66,19 +177,25 @@ def render_story_layout(
     title: str | None = None,
     width: int = 1920,
     height: int = 1080,
+    min_panel_width: int = 200,
 ) -> Image.Image:
-    """Compose assets in a horizontal row with optional title and bottom labels.
+    """Compose assets in rows with optional title and bottom labels.
+
+    If panels would be narrower than *min_panel_width*, assets are split
+    across multiple rows automatically.
 
     Parameters
     ----------
     assets : list[Image.Image]
-        Asset images to arrange in a row.
+        Asset images to arrange.
     labels : list[str]
         Label text for each panel (padded with "" if shorter than assets).
     title : str | None
         Optional title text drawn at the top.
     width, height : int
         Output canvas dimensions.
+    min_panel_width : int
+        Minimum panel width before wrapping to a new row (default 200).
 
     Returns
     -------
@@ -96,21 +213,28 @@ def render_story_layout(
     if n == 0:
         return canvas
 
-    # Layout geometry
-    title_h = 60 if title else 0
-    label_h = 40
+    # Responsive title/label heights
+    title_h = max(40, int(60 * height / 1080)) if title else 0
+    label_h = max(24, int(40 * height / 1080))
     padding = 20
+
+    # Determine how many columns per row based on min_panel_width
+    max_cols = max(1, (width - padding) // (min_panel_width + padding))
+    cols_per_row = min(n, max_cols)
+    num_rows = math.ceil(n / cols_per_row)
+
+    panel_w = max(1, (width - padding * (cols_per_row + 1)) // cols_per_row)
     panel_area_y = title_h + padding
-    panel_area_h = height - panel_area_y - label_h - padding
-    panel_w = max(1, (width - padding * (n + 1)) // n)
+    row_h = max(1, (height - panel_area_y - padding) // num_rows)
+    panel_area_h = row_h - label_h - padding
 
     # Draw title
     if title:
-        title_font = _get_font(32)
+        title_font = _get_scaled_font(32, width)
         bbox = draw.textbbox((0, 0), title, font=title_font)
         tw = bbox[2] - bbox[0]
         tx = (width - tw) // 2
-        draw.text((tx, 16), title, fill=TEXT_WHITE, font=title_font)
+        draw.text((tx, max(8, int(16 * height / 1080))), title, fill=TEXT_WHITE, font=title_font)
         # Accent underline
         draw.line(
             [(tx, title_h - 8), (tx + tw, title_h - 8)],
@@ -119,11 +243,13 @@ def render_story_layout(
         )
 
     # Draw panels
-    label_font = _get_font(18)
+    label_font = _get_scaled_font(18, width)
     for i, (asset, label) in enumerate(zip(assets, labels)):
-        # Target panel region
-        px = padding + i * (panel_w + padding)
-        py = panel_area_y
+        row = i // cols_per_row
+        col = i % cols_per_row
+
+        px = padding + col * (panel_w + padding)
+        py = panel_area_y + row * row_h
 
         # Resize asset to fit within panel, preserving aspect ratio
         thumb = _fit_resize(asset, panel_w, panel_area_h)
@@ -134,11 +260,9 @@ def render_story_layout(
 
         # Draw label below panel
         if label:
-            lbbox = draw.textbbox((0, 0), label, font=label_font)
-            lw = lbbox[2] - lbbox[0]
-            lx = px + (panel_w - lw) // 2
-            ly = py + panel_area_h + 4
-            draw.text((lx, ly), label, fill=TEXT_DIM, font=label_font)
+            label_cx = px + panel_w // 2
+            label_cy = py + panel_area_h + 4
+            _draw_label_with_bg(draw, label, label_font, label_cx, label_cy, panel_w, padding=10)
 
     return canvas
 
@@ -154,17 +278,20 @@ def render_grid_layout(
     *,
     width: int = 1920,
     height: int = 1080,
+    labels: list[str] | None = None,
 ) -> Image.Image:
-    """Arrange assets in an N x M grid with uniform padding.
+    """Arrange assets in an N x M grid with uniform padding and optional labels.
 
     Parameters
     ----------
     assets : list[Image.Image]
         Asset images to tile.
     cols : int
-        Number of columns.
+        Number of columns. Use 0 for auto (ceil(sqrt(n))).
     width, height : int
         Output canvas dimensions.
+    labels : list[str] | None
+        Optional label for each cell (padded with "" if shorter than assets).
 
     Returns
     -------
@@ -177,11 +304,30 @@ def render_grid_layout(
     if n == 0:
         return canvas
 
-    padding = 10
+    # Auto-calculate columns
+    if cols <= 0:
+        cols = math.ceil(math.sqrt(n))
+
+    # Responsive padding
+    padding = max(10, min(width, height) // 80)
+
+    # Calculate rows from actual asset count
     rows = math.ceil(n / cols)
+
+    # Label area
+    label_h = max(20, int(30 * height / 1080)) if labels is not None else 0
+
+    # Pad labels
+    if labels is not None:
+        while len(labels) < n:
+            labels.append("")
 
     cell_w = max(1, (width - padding * (cols + 1)) // cols)
     cell_h = max(1, (height - padding * (rows + 1)) // rows)
+    asset_h = cell_h - label_h
+
+    draw = ImageDraw.Draw(canvas) if labels else None
+    label_font = _get_scaled_font(16, width) if labels else None
 
     for idx, asset in enumerate(assets):
         row = idx // cols
@@ -190,10 +336,18 @@ def render_grid_layout(
         cx = padding + col * (cell_w + padding)
         cy = padding + row * (cell_h + padding)
 
-        thumb = _fit_resize(asset, cell_w, cell_h)
+        thumb = _fit_resize(asset, cell_w, asset_h)
         ox = cx + (cell_w - thumb.width) // 2
-        oy = cy + (cell_h - thumb.height) // 2
+        oy = cy + (asset_h - thumb.height) // 2
         canvas.paste(thumb, (ox, oy), thumb)
+
+        # Draw label below cell
+        if labels and draw and label_font:
+            lbl = labels[idx]
+            if lbl:
+                label_cx = cx + cell_w // 2
+                label_cy = cy + asset_h + 2
+                _draw_label_with_bg(draw, lbl, label_font, label_cx, label_cy, cell_w, padding=8)
 
     return canvas
 
@@ -231,7 +385,7 @@ def render_slides_layout(
         labels.append("")
 
     slides: list[Image.Image] = []
-    label_font = _get_font(24)
+    label_font = _get_scaled_font(24, width)
 
     for asset, label in zip(assets, labels):
         slide = Image.new("RGBA", (width, height), BG_COLOR)
@@ -249,11 +403,7 @@ def render_slides_layout(
 
         # Draw label at bottom center
         if label:
-            bbox = draw.textbbox((0, 0), label, font=label_font)
-            lw = bbox[2] - bbox[0]
-            lx = (width - lw) // 2
-            ly = height - label_h + 10
-            draw.text((lx, ly), label, fill=TEXT_DIM, font=label_font)
+            _draw_label_with_bg(draw, label, label_font, width // 2, height - label_h + 10, width, padding=40)
 
         slides.append(slide)
 

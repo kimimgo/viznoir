@@ -81,7 +81,7 @@ server.py (MCP tool)
           → core/output.py (OutputHandler: RunResult → PipelineResult)
 ```
 
-- `server.py`: FastMCP 인스턴스 + 21개 tool 등록, lazy import로 tool impl 로딩
+- `server.py`: FastMCP 인스턴스 + 22개 tool 등록, lazy import로 tool impl 로딩
 - `tools/`: 각 tool의 비즈니스 로직 (render_impl, slice_impl 등)
 - `pipeline/models.py`: Pydantic 모델 (SourceDef, FilterStep, RenderDef, OutputDef 등)
 - `core/compiler.py`: PipelineDefinition → executable Python/VTK script 문자열 생성
@@ -98,7 +98,12 @@ server.py (MCP tool)
 - `anim/easing.py`: 17종 easing 함수 (Manim rate_functions 기반)
 - `engine/scene.py`: 배경 프리셋 + ground plane
 - `engine/readers.py`: 파일 포맷별 VTK reader 팩토리
-- `engine/analysis.py`: 데이터 인사이트 추출 (필드 통계, 이상점 탐지, 물리 컨텍스트, 교차 분석)
+- `engine/topology.py`: L2 필드 토폴로지 분석 (와류 탐지, 임계점, 중심선 프로브, 그래디언트 통계)
+- `engine/analysis.py`: [DEPRECATED] 데이터 인사이트 추출 → inspect_physics로 대체
+- `context/models.py`: L3 CaseContext 데이터 모델 (BoundaryCondition, TransportProperty, SolverInfo, MeshQuality, DerivedQuantity)
+- `context/parser.py`: ContextParser 프로토콜 + 레지스트리
+- `context/generic.py`: GenericContextParser (모든 VTK 파일 → 메시 품질)
+- `context/openfoam.py`: OpenFOAMContextParser (BC, 물성치, 솔버 정보, Re 계산)
 - `anim/timeline.py`: 씬 타임라인 시퀀싱 (prefix-sum + bisect O(log n) lookup)
 - `anim/transitions.py`: 씬 전환 효과 (fade, dissolve, wipe — Image.blend C-level)
 - `anim/compositor.py`: 프레임 합성 + 비디오 내보내기 (story/grid/slides/video 레이아웃)
@@ -162,7 +167,7 @@ server.py (MCP tool)
 
 | 항목 | 수량 |
 |------|------|
-| Tools | 21 |
+| Tools | 22 |
 | Resources | 12 |
 | Prompts | 4 |
 | Tests | 1305+ |

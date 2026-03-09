@@ -23,12 +23,12 @@ from viznoir.server import mcp
 class TestMCPToolListing:
     """Verify all tools are discoverable via MCP protocol."""
 
-    async def test_list_tools_returns_21(self):
+    async def test_list_tools_returns_22(self):
         from fastmcp import Client
 
         async with Client(mcp) as client:
             tools = await client.list_tools()
-            assert len(tools) == 21
+            assert len(tools) == 22
 
     async def test_all_tool_names_present(self):
         from fastmcp import Client
@@ -40,6 +40,7 @@ class TestMCPToolListing:
             "extract_stats", "plot_over_line", "integrate_surface",
             "animate", "split_animate", "execute_pipeline", "pv_isosurface",
             "volume_render", "analyze_data", "compose_assets",
+            "inspect_physics",
         }
         async with Client(mcp) as client:
             tools = await client.list_tools()

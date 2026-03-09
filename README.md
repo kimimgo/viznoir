@@ -57,7 +57,7 @@ Requires NVIDIA Container Toolkit. For CPU-only: `docker compose up viznoir-cpu 
 - **Headless Rendering** — EGL/OSMesa off-screen rendering.
   No display, no GUI, no ParaView install needed.
 
-- **21 MCP Tools** — inspect, render, slice, contour, clip, streamlines,
+- **22 MCP Tools** — inspect, render, slice, contour, clip, streamlines,
   cinematic render, compare, animate, analyze data, compose stories, and more.
 
 - **Science Storytelling** — Analyze datasets for physics insights,
@@ -97,7 +97,7 @@ All renders from single MCP tool calls — no post-processing.
 
 | Feature | viznoir | ParaView (pvpython) | PyVista | VTK Python |
 |---------|-----------|---------------------|---------|------------|
-| MCP Integration | Native 21 tools | — | — | — |
+| MCP Integration | Native 22 tools | — | — | — |
 | Headless | EGL/OSMesa | pvpython | Yes | Manual |
 | Docker | GPU + CPU | Complex | — | — |
 | Natural Language | AI-first | — | — | — |
