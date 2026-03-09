@@ -959,7 +959,53 @@ async def preview_3d(
 
 
 # ---------------------------------------------------------------------------
-# analyze_data — VTK data insight extraction
+# inspect_physics — structured physics data extraction for LLM storytelling
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def inspect_physics(
+    file_path: str,
+    case_dir: str | None = None,
+    fields: list[str] | None = None,
+    probe_lines: int = 3,
+    vortex_threshold: float = 0.01,
+) -> dict[str, Any]:
+    """Extract structured physics data for AI storytelling.
+
+    Analyzes simulation data to extract:
+    - L2 FieldTopology: vortex detection (Q-criterion), critical points,
+      centerline profiles, gradient statistics per field
+    - L3 CaseContext: boundary conditions, transport properties, solver info,
+      mesh quality, derived quantities (Re, Ma, etc.)
+
+    Returns structured JSON for LLM to build physics narratives.
+    Replaces analyze_data with quantitative topology data instead of
+    hardcoded heuristics.
+
+    Args:
+        file_path: Path to VTK/OpenFOAM/CGNS simulation file
+        case_dir: OpenFOAM case directory for full solver metadata.
+                  If None, only mesh quality is extracted.
+        fields: Specific field names to analyze (None = all fields)
+        probe_lines: Number of auto centerline probe lines (1-3)
+        vortex_threshold: Q-criterion threshold for vortex detection
+    """
+    file_path = _validate_file_path(file_path)
+    logger.debug("tool.inspect_physics: start file=%s case_dir=%s", file_path, case_dir)
+    t0 = time.monotonic()
+    from viznoir.tools.inspect_physics import inspect_physics_impl
+
+    result = await inspect_physics_impl(
+        file_path, case_dir=case_dir, fields=fields,
+        probe_lines=probe_lines, vortex_threshold=vortex_threshold,
+    )
+    logger.debug("tool.inspect_physics: done in %.2fs", time.monotonic() - t0)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# analyze_data — VTK data insight extraction [DEPRECATED: use inspect_physics]
 # ---------------------------------------------------------------------------
 
 
@@ -969,20 +1015,10 @@ async def analyze_data(
     focus: str | None = None,
     domain: str | None = None,
 ) -> dict[str, Any]:
-    """Analyze VTK/simulation data and extract physics-aware insights.
+    """[DEPRECATED — use inspect_physics instead] Analyze VTK/simulation data.
 
-    Returns a Level 2 report with:
-    - Field statistics (min/max/mean/std)
-    - Physics context (what the numbers mean)
-    - Anomaly locations (where to look)
-    - Recommended views (slice/contour parameters ready for tool calls)
-    - Suggested equations (relevant governing equations)
-
-    Use this as the first step in a storytelling workflow:
-    1. analyze_data → get insights
-    2. Plan story from insights (use story_planning prompt)
-    3. Execute recommended_views with render/slice/contour tools
-    4. compose_assets → final output
+    This tool is deprecated. Use inspect_physics for structured physics data
+    extraction with vortex detection, critical points, and solver metadata.
 
     Args:
         file_path: Path to VTK/OpenFOAM/CGNS file
