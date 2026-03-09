@@ -72,8 +72,10 @@ All renders from single MCP tool calls — no post-processing.
 |---|---|---|
 | ![Automotive CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp) | ![Medical CT](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/ct_head_contour.webp) | ![Blood Flow](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/streamlines.webp) |
 | Automotive CFD | Medical CT | Blood flow |
-| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![Structural FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/arch_structural.webp) | ![Stanford Dragon](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
-| HVAC airflow | Structural FEA | Stanford Dragon |
+| ![Volumetric](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/wavelet-cinematic.webp) | ![Cavity CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/cavity-streamlines.webp) | ![Structural FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/beam-stress.webp) |
+| Volumetric data | Cavity flow CFD | Structural FEA |
+| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![Thermal](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/sphere-temperature.webp) | ![Stanford Dragon](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
+| HVAC airflow | Thermal analysis | Stanford Dragon |
 
 [Full Gallery →](https://kimimgo.github.io/viznoir)
 

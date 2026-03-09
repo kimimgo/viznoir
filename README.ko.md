@@ -72,8 +72,10 @@ NVIDIA Container Toolkit 필요. CPU 전용: `docker compose up viznoir-cpu -d`
 |---|---|---|
 | ![자동차 CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/drivaerml_cp.webp) | ![의료 CT](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/ct_head_contour.webp) | ![혈류](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/streamlines.webp) |
 | 자동차 CFD | 의료 CT | 혈류 시각화 |
-| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![구조 FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/arch_structural.webp) | ![스탠포드 드래곤](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
-| HVAC 기류 | 구조 FEA | 스탠포드 드래곤 |
+| ![볼류메트릭](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/wavelet-cinematic.webp) | ![캐비티 CFD](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/cavity-streamlines.webp) | ![구조 FEA](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/beam-stress.webp) |
+| 볼류메트릭 데이터 | 캐비티 유동 CFD | 구조 FEA |
+| ![HVAC](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/office_flow.webp) | ![열해석](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/sphere-temperature.webp) | ![스탠포드 드래곤](https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/dragon.webp) |
+| HVAC 기류 | 열해석 | 스탠포드 드래곤 |
 
 [전체 갤러리 →](https://kimimgo.github.io/viznoir)
 
