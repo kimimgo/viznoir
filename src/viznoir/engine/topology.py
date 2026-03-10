@@ -73,7 +73,7 @@ class FieldTopology:
                 return [_convert(v) for v in obj]
             return obj
 
-        return _convert(
+        result: dict[str, Any] = _convert(
             {
                 "field_name": self.field_name,
                 "field_range": self.field_range,
@@ -93,6 +93,7 @@ class FieldTopology:
                 "spatial_distribution": self.spatial_distribution,
             }
         )
+        return result
 
 
 # ---------------------------------------------------------------------------
@@ -375,10 +376,11 @@ def _detect_scalar_critical_points(
         return []
 
     grad_data = vtk_to_numpy(grad_arr)
+    grad_mag: np.ndarray
     if grad_data.ndim == 1:
         grad_mag = np.abs(grad_data)
     else:
-        grad_mag: np.ndarray = np.linalg.norm(grad_data, axis=1)
+        grad_mag = np.linalg.norm(grad_data, axis=1)  # type: ignore[assignment]
 
     max_grad = float(np.max(grad_mag))
     if max_grad == 0:
