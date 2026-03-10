@@ -64,7 +64,11 @@ jobs:
       - name: Test count regression guard
         if: matrix.python-version == '3.12'
         run: |
-          COUNT=$(pytest --co -q 2>/dev/null | tail -1 | grep -oP '\d+')
+          COUNT=$(pytest --co -q 2>&1 | grep -oP '^\d+(?= tests? collected)' | tail -1)
+          if [ -z "$COUNT" ]; then
+            echo "::error::Could not determine test count (pytest collection may have failed)"
+            exit 1
+          fi
           echo "Collected $COUNT tests"
           if [ "$COUNT" -lt 1430 ]; then
             echo "::error::Test count regression: $COUNT < 1430 (expected >= 1430)"

@@ -53,10 +53,17 @@ jobs:
           script: |
             const body = context.payload.pull_request.body || '';
             const errors = [];
-            if (!body.includes('## Description') || body.includes('<!-- What does this PR do?'))
+
+            // Extract section content between headings
+            const descMatch = body.match(/## Description\s*([\s\S]*?)(?=\n## |$)/);
+            if (!descMatch || descMatch[1].trim() === '' || descMatch[1].includes('<!-- What does this PR do?')) {
               errors.push('**Description** section is missing or not filled out');
-            if (!body.includes('## Test Plan') || body.includes('<!-- How was this tested?'))
+            }
+
+            const testMatch = body.match(/## Test Plan\s*([\s\S]*?)(?=\n## |$)/);
+            if (!testMatch || testMatch[1].trim() === '' || testMatch[1].includes('<!-- How was this tested?')) {
               errors.push('**Test Plan** section is missing or not filled out');
+            }
             if (errors.length > 0) {
               const msg = [
                 '### PR Template Incomplete',
