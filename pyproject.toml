@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-viznoir"
-version = "0.5.0"
+version = "0.6.0"
 description = "VTK is all you need. Cinema-quality science visualization for AI agents."
 license = "MIT"
 readme = "README.md"

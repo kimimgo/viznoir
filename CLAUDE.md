@@ -19,7 +19,7 @@ VTK is all you need. Cinema-quality science visualization for AI agents.
 # Install (editable with dev deps)
 pip install -e ".[dev]"
 
-# Run all tests (1134 tests, async mode=auto)
+# Run all tests (1439 tests, async mode=auto)
 pytest --cov=viznoir --cov-report=term-missing -q
 
 # Run a single test file
@@ -168,9 +168,10 @@ server.py (MCP tool)
 | 항목 | 수량 |
 |------|------|
 | Tools | 22 |
+
 | Resources | 12 |
 | Prompts | 4 |
-| Tests | 1305+ |
+| Tests | 1439+ |
 
 ## Test Structure
 

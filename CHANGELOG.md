@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-03-11
+
+### Added
+
+- `inspect_physics` MCP tool: L2 field topology analysis (vortex detection, stagnation points, gradient statistics) + L3 case context (OpenFOAM BCs, transport properties, Re computation)
+- `context/` module: CaseContext data models, ContextParser protocol, GenericContextParser (mesh quality), OpenFOAMContextParser (BCs, solver info, transport properties, derived quantities)
+- `engine/topology.py`: L2 field topology analyzer — vortex detection (Q/λ₂ criteria), critical point classification, centerline probe, gradient statistics
+- Science Storyteller v2 pipeline: `inspect_physics` → `cinematic_render` → `compose_assets` end-to-end workflow
+- CODEOWNERS file for required code review
+- PR template validation (CI-enforced): Description + Test Plan sections required
+- PR auto-labeling by file path (context, animation labels)
+
+### Changed
+
+- MCP tools: 21 → 22
+- Test count: 1315 → 1439+ (97% coverage)
+- CI test count guard: 1290 → 1430
+- CI: added `ruff format --check` step
+- README: Before/After hero section (ParaView GUI vs viznoir), domain-expert gallery with scale metrics
+- Gallery captions: generic labels → domain-specific with cell/face counts
+
+### Fixed
+
+- `openfoam.py`: file encoding error on non-UTF8 boundary files (`read_text(errors="replace")`)
+- `openfoam.py`: backup/swap files (`.orig`, `.bak`, `.swp`) incorrectly parsed as boundary conditions
+- `openfoam.py`: `parse_dataset()` now raises `NotImplementedError` with clear guidance
+- `server.py`: path traversal validation for `case_dir` parameter against `VIZNOIR_DATA_DIR`
+- `compositor.py`: removed dead `TYPE_CHECKING` import
+
+### Security
+
+- Path traversal prevention strengthened for `inspect_physics` case_dir parameter
+- Branch protection: required reviews (CODEOWNERS), dismiss stale reviews, conversation resolution, enforce admins
+
 ## [0.5.0] - 2026-03-08
 
 ### Added
@@ -153,7 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Path traversal prevention when `VIZNOIR_DATA_DIR` is set
 - Landing page (Astro 5 + Tailwind) with interactive showcase gallery
 
-[Unreleased]: https://github.com/kimimgo/viznoir/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/kimimgo/viznoir/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/kimimgo/viznoir/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/kimimgo/viznoir/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/kimimgo/viznoir/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kimimgo/viznoir/compare/v0.1.0...v0.2.0
