@@ -7,6 +7,9 @@
 # Engine layer — core VTK logic
 src/viznoir/engine/ @kimimgo
 
+# Context layer — case parsers
+src/viznoir/context/ @kimimgo
+
 # MCP server + tools
 src/viznoir/server.py @kimimgo
 src/viznoir/tools/ @kimimgo

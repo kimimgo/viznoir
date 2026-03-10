@@ -155,6 +155,7 @@ class ScriptCompiler:
             source_files = sorted(source.files)
         elif source.file_pattern:
             import glob as _glob
+
             source_files = sorted(_glob.glob(source.file_pattern))
 
         r = anim.render
@@ -211,20 +212,22 @@ class ScriptCompiler:
                     vp = validate_filter_params(step.filter, step.params)
                     filter_steps.append({"filter": step.filter, "params": vp})
 
-                render_panes.append({
-                    "index": i,
-                    "width": cell_w,
-                    "height": cell_h,
-                    "field": r.field,
-                    "colormap": r.colormap.lower(),
-                    "representation": r.representation.lower(),
-                    "scalar_bar": r.scalar_bar,
-                    "scalar_range": list(r.scalar_range) if r.scalar_range else None,
-                    "opacity": r.opacity,
-                    "background": list(r.background),
-                    "camera_preset": r.camera.preset or "isometric",
-                    "filter_steps": filter_steps,
-                })
+                render_panes.append(
+                    {
+                        "index": i,
+                        "width": cell_w,
+                        "height": cell_h,
+                        "field": r.field,
+                        "colormap": r.colormap.lower(),
+                        "representation": r.representation.lower(),
+                        "scalar_bar": r.scalar_bar,
+                        "scalar_range": list(r.scalar_range) if r.scalar_range else None,
+                        "opacity": r.opacity,
+                        "background": list(r.background),
+                        "camera_preset": r.camera.preset or "isometric",
+                        "filter_steps": filter_steps,
+                    }
+                )
             elif pane.type == "graph" and pane.graph_pane is not None:
                 for series in pane.graph_pane.series:
                     stat_fields.add(series.field)
@@ -235,6 +238,7 @@ class ScriptCompiler:
             source_files = sorted(source.files)
         elif source.file_pattern:
             import glob as _glob
+
             source_files = sorted(_glob.glob(source.file_pattern))
 
         return _SPLIT_ANIM_TEMPLATE.format(
@@ -260,9 +264,11 @@ class ScriptCompiler:
 # Utility functions
 # ======================================================================
 
+
 def _py_str(s: str) -> str:
     """Return a Python string literal."""
     return repr(s)
+
 
 def _py_repr(v: Any) -> str:
     """Return a Python repr for embedding in generated code."""

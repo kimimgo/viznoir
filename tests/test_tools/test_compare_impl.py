@@ -14,15 +14,17 @@ class TestCompareImplMocked:
 
     async def test_side_by_side_default(self):
         """Test default side-by-side comparison."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG_single"
             mock_compose.return_value = b"\x89PNG_combined"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             result = await compare_impl(
@@ -38,13 +40,14 @@ class TestCompareImplMocked:
 
     async def test_side_by_side_with_field(self):
         """Test side-by-side with field name triggers shared range computation."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose, \
-             patch("viznoir.engine.renderer._resolve_renderable") as mock_rr, \
-             patch("viznoir.engine.renderer._resolve_array") as mock_ra, \
-             patch("viznoir.engine.renderer._get_scalar_range") as mock_sr:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+            patch("viznoir.engine.renderer._resolve_renderable") as mock_rr,
+            patch("viznoir.engine.renderer._resolve_array") as mock_ra,
+            patch("viznoir.engine.renderer._get_scalar_range") as mock_sr,
+        ):
             data_a = MagicMock()
             data_b = MagicMock()
             mock_read.side_effect = [data_a, data_b]
@@ -55,6 +58,7 @@ class TestCompareImplMocked:
             mock_sr.side_effect = [(0.0, 50.0), (10.0, 100.0)]
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             result = await compare_impl(
@@ -71,15 +75,17 @@ class TestCompareImplMocked:
 
     async def test_diff_mode(self):
         """Test diff comparison mode."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_diff") as mock_diff:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_diff") as mock_diff,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_diff.return_value = b"\x89PNG_diff"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             result = await compare_impl(
@@ -95,17 +101,19 @@ class TestCompareImplMocked:
 
     async def test_latest_timestep(self):
         """Test timestep='latest' resolves correctly."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.readers.get_timesteps") as mock_ts, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.readers.get_timesteps") as mock_ts,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_ts.return_value = [0.0, 1.0, 2.0]
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(
@@ -122,15 +130,17 @@ class TestCompareImplMocked:
 
     async def test_custom_labels(self):
         """Test that custom labels are passed to compose."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(
@@ -147,15 +157,17 @@ class TestCompareImplMocked:
 
     async def test_custom_dimensions(self):
         """Test custom width/height affect render config."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(
@@ -172,15 +184,17 @@ class TestCompareImplMocked:
 
     async def test_explicit_scalar_range(self):
         """Test that explicit scalar_range skips auto-computation."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(
@@ -196,15 +210,17 @@ class TestCompareImplMocked:
 
     async def test_unknown_mode_falls_back_to_side_by_side(self):
         """Test that unknown mode falls back to side_by_side."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(
@@ -218,15 +234,17 @@ class TestCompareImplMocked:
 
     async def test_string_timestep(self):
         """Test string timestep is converted to float."""
-        with patch("viznoir.engine.readers.read_dataset") as mock_read, \
-             patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine, \
-             patch("viznoir.tools.compare._compose_side_by_side") as mock_compose:
-
+        with (
+            patch("viznoir.engine.readers.read_dataset") as mock_read,
+            patch("viznoir.engine.renderer_cine.cinematic_render") as mock_cine,
+            patch("viznoir.tools.compare._compose_side_by_side") as mock_compose,
+        ):
             mock_read.return_value = MagicMock()
             mock_cine.return_value = b"\x89PNG"
             mock_compose.return_value = b"\x89PNG"
 
             from viznoir.tools.compare import compare_impl
+
             runner = MagicMock()
 
             await compare_impl(

@@ -30,7 +30,6 @@ async def batch_render_impl(
     """
 
     def _render_field(field: str) -> dict[str, Any]:
-
         ts = timestep
         if ts == "latest":
             steps = get_timesteps(file_path)
@@ -62,9 +61,7 @@ async def batch_render_impl(
         }
 
     loop = asyncio.get_event_loop()
-    results = await asyncio.gather(
-        *[loop.run_in_executor(None, _render_field, f) for f in fields]
-    )
+    results = await asyncio.gather(*[loop.run_in_executor(None, _render_field, f) for f in fields])
 
     return {
         "images": list(results),

@@ -37,6 +37,7 @@ class TestTransferPresets:
 class TestBuildOpacityFunction:
     def test_returns_vtk_piecewise(self):
         import vtk
+
         otf = build_opacity_function("generic", scalar_range=(0.0, 100.0))
         assert isinstance(otf, vtk.vtkPiecewiseFunction)
 

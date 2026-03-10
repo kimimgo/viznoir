@@ -280,6 +280,7 @@ class TestExecuteLocalEdgeCases:
             if extra_file.exists():
                 captured["data.json"] = extra_file.read_bytes()
             from viznoir.core.runner import RunResult
+
             return RunResult(stdout="", stderr="", exit_code=0)
 
         with patch.object(runner, "_run_inprocess", mock_run_inprocess.__get__(runner, type(runner))):
@@ -307,9 +308,7 @@ class TestExecuteLocalEdgeCases:
         runner = VTKRunner(mode="local")
 
         mock_proc = AsyncMock()
-        mock_proc.communicate = AsyncMock(
-            return_value=(b'{invalid json', b"")
-        )
+        mock_proc.communicate = AsyncMock(return_value=(b"{invalid json", b""))
         mock_proc.returncode = 0
 
         with patch(
@@ -331,9 +330,7 @@ class TestExecuteLocalEdgeCases:
         from viznoir.core.runner import RunResult
 
         async def mock_run_inprocess(script, output_dir, timeout):
-            return RunResult(
-                stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1
-            )
+            return RunResult(stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1)
 
         with patch.object(runner, "_run_inprocess", side_effect=mock_run_inprocess):
             result = await runner.execute("pass", timeout=1.0)
@@ -357,6 +354,7 @@ class TestExecuteLocalEdgeCases:
             return RunResult(stdout="", stderr="", exit_code=0)
 
         from viznoir.core.worker import InProcessExecutor
+
         mock_executor = InProcessExecutor.__new__(InProcessExecutor)
         mock_executor.run = mock_executor_run
         runner._executor = mock_executor
@@ -449,7 +447,8 @@ class TestExecuteDockerMode:
         runner = VTKRunner(mode="docker")
 
         with patch.object(
-            runner, "_run_docker",
+            runner,
+            "_run_docker",
             new_callable=AsyncMock,
             return_value=RunResult(stdout="", stderr="", exit_code=0),
         ) as mock_docker:
@@ -493,7 +492,9 @@ class TestDockerExtraMounts:
                 output_dir = Path(tmpdir) / "output"
                 output_dir.mkdir()
                 await runner._run_docker(
-                    script, output_dir, timeout=10.0,
+                    script,
+                    output_dir,
+                    timeout=10.0,
                     extra_mounts=[Path("/sim/data")],
                 )
 
@@ -595,6 +596,7 @@ class TestDefaultTimeout:
 
         with patch.dict("os.environ", {}, clear=False):
             import os
+
             old = os.environ.pop("VIZNOIR_TIMEOUT", None)
             try:
                 config = PVConfig()

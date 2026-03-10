@@ -61,7 +61,11 @@ async def compose_assets_impl(
         result_img = await loop.run_in_executor(
             None,
             _render_story,
-            images, labels, title, width, height,
+            images,
+            labels,
+            title,
+            width,
+            height,
         )
         filename = f"story_{uuid.uuid4().hex[:8]}.png"
         save_path = out_path / filename
@@ -101,6 +105,7 @@ async def compose_assets_impl(
         )
         paths: list[str] = []
         batch_id = uuid.uuid4().hex[:8]
+
         def _save_slides() -> list[str]:
             saved: list[str] = []
             for i, slide in enumerate(slide_imgs):
@@ -123,7 +128,13 @@ async def compose_assets_impl(
         result = await loop.run_in_executor(
             None,
             _render_video,
-            images, labels, scenes, width, height, fps, str(out_path),
+            images,
+            labels,
+            scenes,
+            width,
+            height,
+            fps,
+            str(out_path),
         )
         return result
 
@@ -227,10 +238,7 @@ def _render_video(
         ]
     else:
         # Default: one scene per asset, 3 seconds each
-        scene_objs = [
-            Scene(asset_indices=[i], duration=3.0, transition="fade_in")
-            for i in range(len(images))
-        ]
+        scene_objs = [Scene(asset_indices=[i], duration=3.0, transition="fade_in") for i in range(len(images))]
 
     tl = Timeline(scene_objs, fps=fps)
     frames: list[Image.Image] = []
@@ -241,7 +249,11 @@ def _render_video(
         scene_assets = [images[i] for i in scene.asset_indices if i < len(images)]
         scene_labels_list = [labels[i] for i in scene.asset_indices if i < len(labels)]
         scene_renders[idx] = render_story_layout(
-            scene_assets, scene_labels_list, title=None, width=width, height=height,
+            scene_assets,
+            scene_labels_list,
+            title=None,
+            width=width,
+            height=height,
         )
 
     prev_scene_idx = -1

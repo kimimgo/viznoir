@@ -87,9 +87,7 @@ def _validate_file_path(file_path: str) -> str:
     if _config.data_dir is not None:
         data_dir = _config.data_dir.resolve()
         if not str(resolved).startswith(str(data_dir) + "/") and resolved != data_dir:
-            raise ValueError(
-                f"Access denied: '{file_path}' is outside allowed data directory '{data_dir}'"
-            )
+            raise ValueError(f"Access denied: '{file_path}' is outside allowed data directory '{data_dir}'")
     if not resolved.exists():
         hint = ""
         parent = resolved.parent
@@ -98,9 +96,7 @@ def _validate_file_path(file_path: str) -> str:
             close = difflib.get_close_matches(resolved.name, siblings, n=3)
             if close:
                 hint = f" Did you mean: {', '.join(close)}?"
-        raise FileNotFoundError(
-            f"File not found: '{file_path}'. Check that the path exists and is readable.{hint}"
-        )
+        raise FileNotFoundError(f"File not found: '{file_path}'. Check that the path exists and is readable.{hint}")
     return str(resolved)
 
 
@@ -164,10 +160,17 @@ async def render(
     from viznoir.tools.render import render_impl
 
     result = await render_impl(
-        file_path, field_name, _runner,
-        association=association, colormap=colormap, camera=camera,
-        scalar_range=scalar_range, width=width, height=height,
-        timestep=timestep, blocks=blocks,
+        file_path,
+        field_name,
+        _runner,
+        association=association,
+        colormap=colormap,
+        camera=camera,
+        scalar_range=scalar_range,
+        width=width,
+        height=height,
+        timestep=timestep,
+        blocks=blocks,
         output_filename=output_filename,
     )
     logger.debug("tool.render: done in %.2fs", time.monotonic() - t0)
@@ -207,9 +210,16 @@ async def slice(
     from viznoir.tools.filters import slice_impl
 
     result = await slice_impl(
-        file_path, field_name, _runner,
-        origin=origin, normal=normal, colormap=colormap,
-        camera=camera, width=width, height=height, timestep=timestep,
+        file_path,
+        field_name,
+        _runner,
+        origin=origin,
+        normal=normal,
+        colormap=colormap,
+        camera=camera,
+        width=width,
+        height=height,
+        timestep=timestep,
     )
     logger.debug("tool.slice: done in %.2fs", time.monotonic() - t0)
     if result.image_bytes:
@@ -246,8 +256,14 @@ async def contour(
     from viznoir.tools.filters import contour_impl
 
     result = await contour_impl(
-        file_path, field_name, isovalues, _runner,
-        colormap=colormap, camera=camera, width=width, height=height,
+        file_path,
+        field_name,
+        isovalues,
+        _runner,
+        colormap=colormap,
+        camera=camera,
+        width=width,
+        height=height,
         timestep=timestep,
     )
     logger.debug("tool.contour: done in %.2fs", time.monotonic() - t0)
@@ -289,9 +305,16 @@ async def clip(
     from viznoir.tools.filters import clip_impl
 
     result = await clip_impl(
-        file_path, field_name, _runner,
-        origin=origin, normal=normal, invert=invert,
-        colormap=colormap, camera=camera, width=width, height=height,
+        file_path,
+        field_name,
+        _runner,
+        origin=origin,
+        normal=normal,
+        invert=invert,
+        colormap=colormap,
+        camera=camera,
+        width=width,
+        height=height,
         timestep=timestep,
     )
     logger.debug("tool.clip: done in %.2fs", time.monotonic() - t0)
@@ -335,10 +358,17 @@ async def streamlines(
     from viznoir.tools.filters import streamlines_impl
 
     result = await streamlines_impl(
-        file_path, vector_field, _runner,
-        seed_point1=seed_point1, seed_point2=seed_point2,
-        seed_resolution=seed_resolution, max_length=max_length,
-        colormap=colormap, camera=camera, width=width, height=height,
+        file_path,
+        vector_field,
+        _runner,
+        seed_point1=seed_point1,
+        seed_point2=seed_point2,
+        seed_resolution=seed_resolution,
+        max_length=max_length,
+        colormap=colormap,
+        camera=camera,
+        width=width,
+        height=height,
         timestep=timestep,
     )
     logger.debug("tool.streamlines: done in %.2fs", time.monotonic() - t0)
@@ -374,8 +404,13 @@ async def plot_over_line(
     from viznoir.tools.extract import plot_over_line_impl
 
     result = await plot_over_line_impl(
-        file_path, field_name, point1, point2, _runner,
-        resolution=resolution, timestep=timestep,
+        file_path,
+        field_name,
+        point1,
+        point2,
+        _runner,
+        resolution=resolution,
+        timestep=timestep,
     )
     logger.debug("tool.plot_over_line: done in %.2fs", time.monotonic() - t0)
     return result
@@ -402,8 +437,11 @@ async def extract_stats(
     from viznoir.tools.extract import extract_stats_impl
 
     result = await extract_stats_impl(
-        file_path, fields, _runner,
-        timestep=timestep, blocks=blocks,
+        file_path,
+        fields,
+        _runner,
+        timestep=timestep,
+        blocks=blocks,
     )
     logger.debug("tool.extract_stats: done in %.2fs", time.monotonic() - t0)
     return result
@@ -430,8 +468,11 @@ async def integrate_surface(
     from viznoir.tools.extract import integrate_surface_impl
 
     result = await integrate_surface_impl(
-        file_path, field_name, _runner,
-        boundary=boundary, timestep=timestep,
+        file_path,
+        field_name,
+        _runner,
+        boundary=boundary,
+        timestep=timestep,
     )
     logger.debug("tool.integrate_surface: done in %.2fs", time.monotonic() - t0)
     return result
@@ -492,12 +533,22 @@ async def animate(
     from viznoir.tools.animate import animate_impl
 
     result = await animate_impl(
-        file_path, field_name, _runner,
-        mode=mode, colormap=colormap, camera=camera,
-        fps=fps, time_range=time_range, speed_factor=speed_factor,
-        orbit_duration=orbit_duration, width=width, height=height,
-        files=files, file_pattern=file_pattern,
-        output_format=output_format, video_quality=video_quality,
+        file_path,
+        field_name,
+        _runner,
+        mode=mode,
+        colormap=colormap,
+        camera=camera,
+        fps=fps,
+        time_range=time_range,
+        speed_factor=speed_factor,
+        orbit_duration=orbit_duration,
+        width=width,
+        height=height,
+        files=files,
+        file_pattern=file_pattern,
+        output_format=output_format,
+        video_quality=video_quality,
         text_overlay=text_overlay,
     )
     logger.debug("tool.animate: done in %.2fs", time.monotonic() - t0)
@@ -552,9 +603,15 @@ async def split_animate(
     from viznoir.tools.split_animate import split_animate_impl
 
     result = await split_animate_impl(
-        file_path, panes, _runner,
-        layout=layout, fps=fps, time_range=time_range,
-        speed_factor=speed_factor, resolution=resolution, gif=gif,
+        file_path,
+        panes,
+        _runner,
+        layout=layout,
+        fps=fps,
+        time_range=time_range,
+        speed_factor=speed_factor,
+        resolution=resolution,
+        gif=gif,
     )
     logger.debug("tool.split_animate: done in %.2fs", time.monotonic() - t0)
     if gif and result.image_bytes:
@@ -588,8 +645,10 @@ async def pv_isosurface(
     from viznoir.tools.isosurface import pv_isosurface_impl
 
     result = await pv_isosurface_impl(
-        bi4_dir, output_dir,
-        vars=vars, only_type=only_type,
+        bi4_dir,
+        output_dir,
+        vars=vars,
+        only_type=only_type,
         docker_image=docker_image,
     )
     logger.debug("tool.pv_isosurface: done in %.2fs", time.monotonic() - t0)
@@ -719,13 +778,25 @@ async def cinematic_render(
     from viznoir.tools.cinematic import cinematic_render_impl
 
     png_bytes = await cinematic_render_impl(
-        file_path, _runner,
-        field_name=field_name, colormap=colormap, quality=quality,
-        lighting=lighting, background=background,
-        azimuth=azimuth, elevation=elevation, fill_ratio=fill_ratio,
-        metallic=metallic, roughness=roughness, ground_plane=ground_plane,
-        ssao=ssao, fxaa=fxaa, width=width, height=height,
-        scalar_range=scalar_range, timestep=timestep,
+        file_path,
+        _runner,
+        field_name=field_name,
+        colormap=colormap,
+        quality=quality,
+        lighting=lighting,
+        background=background,
+        azimuth=azimuth,
+        elevation=elevation,
+        fill_ratio=fill_ratio,
+        metallic=metallic,
+        roughness=roughness,
+        ground_plane=ground_plane,
+        ssao=ssao,
+        fxaa=fxaa,
+        width=width,
+        height=height,
+        scalar_range=scalar_range,
+        timestep=timestep,
         output_filename=output_filename,
     )
     logger.debug("tool.cinematic_render: done in %.2fs", time.monotonic() - t0)
@@ -773,11 +844,18 @@ async def volume_render(
     from viznoir.tools.volume import volume_render_impl
 
     png_bytes = await volume_render_impl(
-        file_path, _runner,
-        field_name=field_name, transfer_preset=transfer_preset,
-        colormap=colormap, quality=quality, lighting=lighting,
-        background=background, width=width, height=height,
-        scalar_range=scalar_range, timestep=timestep,
+        file_path,
+        _runner,
+        field_name=field_name,
+        transfer_preset=transfer_preset,
+        colormap=colormap,
+        quality=quality,
+        lighting=lighting,
+        background=background,
+        width=width,
+        height=height,
+        scalar_range=scalar_range,
+        timestep=timestep,
         output_filename=output_filename,
     )
     logger.debug("tool.volume_render: done in %.2fs", time.monotonic() - t0)
@@ -834,11 +912,19 @@ async def compare(
     from viznoir.tools.compare import compare_impl
 
     png_bytes = await compare_impl(
-        file_a, file_b, _runner,
-        field_name=field_name, mode=mode, colormap=colormap,
-        quality=quality, width=width, height=height,
-        scalar_range=scalar_range, timestep=timestep,
-        label_a=label_a, label_b=label_b,
+        file_a,
+        file_b,
+        _runner,
+        field_name=field_name,
+        mode=mode,
+        colormap=colormap,
+        quality=quality,
+        width=width,
+        height=height,
+        scalar_range=scalar_range,
+        timestep=timestep,
+        label_a=label_a,
+        label_b=label_b,
         output_filename=output_filename,
     )
     logger.debug("tool.compare: done in %.2fs", time.monotonic() - t0)
@@ -997,17 +1083,18 @@ async def inspect_physics(
         if _config.data_dir is not None:
             data_dir = _config.data_dir.resolve()
             if not str(case_resolved).startswith(str(data_dir) + "/") and case_resolved != data_dir:
-                raise ValueError(
-                    f"Access denied: case_dir '{case_dir}' is outside allowed data directory '{data_dir}'"
-                )
+                raise ValueError(f"Access denied: case_dir '{case_dir}' is outside allowed data directory '{data_dir}'")
         case_dir = str(case_resolved)
     logger.debug("tool.inspect_physics: start file=%s case_dir=%s", file_path, case_dir)
     t0 = time.monotonic()
     from viznoir.tools.inspect_physics import inspect_physics_impl
 
     result = await inspect_physics_impl(
-        file_path, case_dir=case_dir, fields=fields,
-        probe_lines=probe_lines, vortex_threshold=vortex_threshold,
+        file_path,
+        case_dir=case_dir,
+        fields=fields,
+        probe_lines=probe_lines,
+        vortex_threshold=vortex_threshold,
     )
     logger.debug("tool.inspect_physics: done in %.2fs", time.monotonic() - t0)
     return result
@@ -1188,12 +1275,8 @@ def main() -> None:
         default="stdio",
         help="MCP transport mode (default: stdio)",
     )
-    parser.add_argument(
-        "--host", default="0.0.0.0", help="Host for HTTP transports (default: 0.0.0.0)"
-    )
-    parser.add_argument(
-        "--port", type=int, default=8000, help="Port for HTTP transports (default: 8000)"
-    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host for HTTP transports (default: 0.0.0.0)")
+    parser.add_argument("--port", type=int, default=8000, help="Port for HTTP transports (default: 8000)")
     args = parser.parse_args()
 
     # Protect MCP JSON-RPC stream from VTK binary stdout pollution
@@ -1203,9 +1286,7 @@ def main() -> None:
     # Clean up any orphaned viznoir_* Docker containers from previous crashes
     try:
         loop = asyncio.new_event_loop()
-        removed = loop.run_until_complete(
-            VTKRunner.cleanup_orphaned_containers()
-        )
+        removed = loop.run_until_complete(VTKRunner.cleanup_orphaned_containers())
         loop.close()
         if removed:
             logger.info("cleaned up %d orphaned container(s)", removed)

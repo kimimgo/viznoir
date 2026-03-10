@@ -26,13 +26,11 @@ MATERIAL_PRESETS: dict[str, MaterialPreset] = {
     "polished_steel": MaterialPreset("polished_steel", 1.0, 0.1, (0.9, 0.9, 0.92)),
     "aluminum": MaterialPreset("aluminum", 0.9, 0.3, (0.91, 0.92, 0.92)),
     "copper": MaterialPreset("copper", 0.9, 0.35, (0.95, 0.64, 0.54)),
-
     # Non-metals
     "glass": MaterialPreset("glass", 0.0, 0.0, (0.9, 0.95, 1.0), 0.3),
     "ceramic": MaterialPreset("ceramic", 0.0, 0.3, (0.95, 0.95, 0.9)),
     "skin": MaterialPreset("skin", 0.0, 0.6, (0.9, 0.7, 0.6)),
     "plastic": MaterialPreset("plastic", 0.0, 0.4, (0.8, 0.8, 0.85)),
-
     # Scientific visualization
     "fluid_surface": MaterialPreset("fluid_surface", 0.1, 0.2, (0.3, 0.6, 0.9)),
     "matte_vis": MaterialPreset("matte_vis", 0.0, 0.8),  # colormap-driven

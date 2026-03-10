@@ -1,4 +1,5 @@
 """Tests for ContextParser protocol, GenericParser, and Registry."""
+
 from __future__ import annotations
 
 
@@ -28,11 +29,13 @@ def _make_vtk_dataset():
 class TestGenericContextParser:
     def test_can_parse_any_dataset(self):
         from viznoir.context.generic import GenericContextParser
+
         parser = GenericContextParser()
         assert parser.can_parse("any/path.vtu") is True
 
     def test_parse_returns_mesh_quality(self):
         from viznoir.context.generic import GenericContextParser
+
         parser = GenericContextParser()
         ds = _make_vtk_dataset()
         ctx = parser.parse_dataset(ds)
@@ -42,6 +45,7 @@ class TestGenericContextParser:
 
     def test_parse_has_empty_bc(self):
         from viznoir.context.generic import GenericContextParser
+
         parser = GenericContextParser()
         ds = _make_vtk_dataset()
         ctx = parser.parse_dataset(ds)
@@ -50,6 +54,7 @@ class TestGenericContextParser:
 
     def test_parse_cell_types(self):
         from viznoir.context.generic import GenericContextParser
+
         parser = GenericContextParser()
         ds = _make_vtk_dataset()
         ctx = parser.parse_dataset(ds)
@@ -58,6 +63,7 @@ class TestGenericContextParser:
 
     def test_parse_bounding_box(self):
         from viznoir.context.generic import GenericContextParser
+
         parser = GenericContextParser()
         ds = _make_vtk_dataset()
         ctx = parser.parse_dataset(ds)

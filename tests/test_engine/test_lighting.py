@@ -80,9 +80,7 @@ class TestApplyLighting:
         # Temporarily add a positional-light preset
         LIGHTING_PRESETS["_test_spot"] = LightingPreset(
             "_test_spot",
-            (
-                LightDef("positional", (5.0, 5.0, 5.0), (1.0, 1.0, 1.0), 1.0, 30.0),
-            ),
+            (LightDef("positional", (5.0, 5.0, 5.0), (1.0, 1.0, 1.0), 1.0, 30.0),),
         )
         try:
             apply_lighting(renderer, "_test_spot")
@@ -97,9 +95,7 @@ class TestApplyLighting:
 
         LIGHTING_PRESETS["_test_pos_nocone"] = LightingPreset(
             "_test_pos_nocone",
-            (
-                LightDef("positional", (3.0, 3.0, 3.0), (1.0, 1.0, 1.0), 0.8, 0.0),
-            ),
+            (LightDef("positional", (3.0, 3.0, 3.0), (1.0, 1.0, 1.0), 0.8, 0.0),),
         )
         try:
             apply_lighting(renderer, "_test_pos_nocone")

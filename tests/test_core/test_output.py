@@ -14,6 +14,7 @@ from viznoir.core.runner import RunResult
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _ok_result(**kwargs) -> RunResult:
     """Create a successful RunResult with defaults."""
     defaults = dict(stdout="", stderr="", exit_code=0)
@@ -30,6 +31,7 @@ def _fail_result(**kwargs) -> RunResult:
 # ---------------------------------------------------------------------------
 # PipelineResult
 # ---------------------------------------------------------------------------
+
 
 class TestPipelineResult:
     def test_ok_true(self):
@@ -59,6 +61,7 @@ class TestPipelineResult:
 # _to_json_data
 # ---------------------------------------------------------------------------
 
+
 class TestToJsonData:
     def test_none(self):
         assert _to_json_data(None) is None
@@ -77,6 +80,7 @@ class TestToJsonData:
 # OutputHandler
 # ---------------------------------------------------------------------------
 
+
 class TestOutputHandler:
     def setup_method(self):
         self.handler = OutputHandler()
@@ -90,7 +94,8 @@ class TestOutputHandler:
     def test_parse_cleanup_crash_does_not_raise(self):
         """VTK cleanup crash (non-zero exit but output exists) should not raise."""
         rr = RunResult(
-            stdout="", stderr="free(): invalid pointer",
+            stdout="",
+            stderr="free(): invalid pointer",
             exit_code=-6,
             output_file_data={"render.png": b"\x89PNG"},
         )
@@ -247,6 +252,7 @@ class TestOutputHandler:
 # RunResult properties (bonus coverage)
 # ---------------------------------------------------------------------------
 
+
 class TestRunResult:
     def test_ok_true(self):
         assert _ok_result().ok is True
@@ -256,7 +262,8 @@ class TestRunResult:
 
     def test_is_cleanup_crash_true(self):
         rr = RunResult(
-            stdout="", stderr="munmap_chunk(): invalid pointer",
+            stdout="",
+            stderr="munmap_chunk(): invalid pointer",
             exit_code=-11,
             output_file_data={"out.png": b"data"},
         )
@@ -264,14 +271,16 @@ class TestRunResult:
 
     def test_is_cleanup_crash_false_no_files(self):
         rr = RunResult(
-            stdout="", stderr="free(): invalid pointer",
+            stdout="",
+            stderr="free(): invalid pointer",
             exit_code=-6,
         )
         assert rr.is_cleanup_crash is False
 
     def test_is_cleanup_crash_false_exit_zero(self):
         rr = RunResult(
-            stdout="", stderr="free(): invalid pointer",
+            stdout="",
+            stderr="free(): invalid pointer",
             exit_code=0,
             output_file_data={"out.png": b"data"},
         )
@@ -286,7 +295,8 @@ class TestRunResult:
 
     def test_raise_on_error_cleanup_crash(self):
         rr = RunResult(
-            stdout="", stderr="double free or corruption",
+            stdout="",
+            stderr="double free or corruption",
             exit_code=-6,
             output_file_data={"out.png": b"data"},
         )

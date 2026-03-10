@@ -17,6 +17,7 @@ def _capture_resources():
         def wrapper(fn):
             captured[uri] = fn
             return fn
+
         return wrapper
 
     mcp.resource = resource_decorator

@@ -38,6 +38,7 @@ class CameraPath:
 # Easing function aliases — backwards compatibility with legacy names
 # ---------------------------------------------------------------------------
 
+
 def _ease_linear(t: float) -> float:
     """Delegated to viznoir.anim.easing.linear."""
     return linear(t)
@@ -62,6 +63,7 @@ def _ease_in_out(t: float) -> float:
 # Interpolation
 # ---------------------------------------------------------------------------
 
+
 def _lerp_tuple(
     a: tuple[float, float, float],
     b: tuple[float, float, float],
@@ -76,7 +78,10 @@ def _lerp_tuple(
 
 
 def _catmull_rom(
-    p0: np.ndarray, p1: np.ndarray, p2: np.ndarray, p3: np.ndarray,
+    p0: np.ndarray,
+    p1: np.ndarray,
+    p2: np.ndarray,
+    p3: np.ndarray,
     t: float,
 ) -> np.ndarray:
     """Catmull-Rom spline interpolation between p1 and p2.
@@ -86,10 +91,7 @@ def _catmull_rom(
     t2 = t * t
     t3 = t2 * t
     result = 0.5 * (
-        (2.0 * p1) +
-        (-p0 + p2) * t +
-        (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 +
-        (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
+        (2.0 * p1) + (-p0 + p2) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
     )
     return result  # type: ignore[no-any-return]
 
@@ -122,16 +124,20 @@ def interpolate_path(
     ups = np.array([kf.view_up for kf in kfs])
 
     # Extend endpoints for Catmull-Rom (mirror first/last)
-    pos_ext = np.vstack([
-        2 * positions[0] - positions[1],
-        positions,
-        2 * positions[-1] - positions[-2],
-    ])
-    foc_ext = np.vstack([
-        2 * focals[0] - focals[1],
-        focals,
-        2 * focals[-1] - focals[-2],
-    ])
+    pos_ext = np.vstack(
+        [
+            2 * positions[0] - positions[1],
+            positions,
+            2 * positions[-1] - positions[-2],
+        ]
+    )
+    foc_ext = np.vstack(
+        [
+            2 * focals[0] - focals[1],
+            focals,
+            2 * focals[-1] - focals[-2],
+        ]
+    )
 
     n_segments = len(kfs) - 1
     result: list[CameraKeyframe] = []
@@ -171,12 +177,14 @@ def interpolate_path(
         pos_t: tuple[float, float, float] = (float(pos[0]), float(pos[1]), float(pos[2]))
         foc_t: tuple[float, float, float] = (float(foc[0]), float(foc[1]), float(foc[2]))
         up_t: tuple[float, float, float] = (float(up[0]), float(up[1]), float(up[2]))
-        result.append(CameraKeyframe(
-            position=pos_t,
-            focal_point=foc_t,
-            view_up=up_t,
-            t=global_t,
-        ))
+        result.append(
+            CameraKeyframe(
+                position=pos_t,
+                focal_point=foc_t,
+                view_up=up_t,
+                t=global_t,
+            )
+        )
 
     return result
 
@@ -184,6 +192,7 @@ def interpolate_path(
 # ---------------------------------------------------------------------------
 # Preset paths
 # ---------------------------------------------------------------------------
+
 
 def orbit_path(
     center: tuple[float, float, float],
@@ -223,12 +232,14 @@ def orbit_path(
             center[2] + radius * sin_el,
         )
 
-        keyframes.append(CameraKeyframe(
-            position=pos,
-            focal_point=center,
-            view_up=(0.0, 0.0, 1.0),
-            t=t,
-        ))
+        keyframes.append(
+            CameraKeyframe(
+                position=pos,
+                focal_point=center,
+                view_up=(0.0, 0.0, 1.0),
+                t=t,
+            )
+        )
 
     return CameraPath(keyframes=tuple(keyframes), easing=easing)
 
@@ -256,11 +267,13 @@ def flythrough_path(
     for i in range(num_keyframes):
         t = i / max(num_keyframes - 1, 1)
         pos = _lerp_tuple(start, end, t)
-        keyframes.append(CameraKeyframe(
-            position=pos,
-            focal_point=focal_point,
-            view_up=(0.0, 0.0, 1.0),
-            t=t,
-        ))
+        keyframes.append(
+            CameraKeyframe(
+                position=pos,
+                focal_point=focal_point,
+                view_up=(0.0, 0.0, 1.0),
+                t=t,
+            )
+        )
 
     return CameraPath(keyframes=tuple(keyframes), easing=easing)

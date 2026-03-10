@@ -83,6 +83,7 @@ class TestLatexCache:
 
     def test_different_colors_different_cache(self):
         from viznoir.anim.latex import render_latex
+
         img1 = render_latex(r"x^2", color="FFFFFF")
         img2 = render_latex(r"x^2", color="FF0000")
         assert img1.width > 0

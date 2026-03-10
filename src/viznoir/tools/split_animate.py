@@ -54,6 +54,4 @@ async def split_animate_impl(
         ),
     )
 
-    return await execute_split_animation(
-        pipeline_def, runner, ScriptCompiler(), OutputHandler()
-    )
+    return await execute_split_animation(pipeline_def, runner, ScriptCompiler(), OutputHandler())

@@ -33,8 +33,7 @@ def validate_pipeline(pipeline: PipelineDefinition) -> list[str]:
     for i, step in enumerate(pipeline.pipeline):
         if step.filter == "ProgrammableFilter" and not _ALLOW_PROGRAMMABLE:
             errors.append(
-                f"Step {i}: ProgrammableFilter is disabled for security. "
-                "Set VIZNOIR_ALLOW_PROGRAMMABLE=1 to enable."
+                f"Step {i}: ProgrammableFilter is disabled for security. Set VIZNOIR_ALLOW_PROGRAMMABLE=1 to enable."
             )
             continue
         try:
@@ -172,8 +171,7 @@ async def compile_video(
 
     # Sort frame files by name
     frame_files = sorted(
-        (name, data) for name, data in frame_data.items()
-        if name.endswith(".png") and "frame_" in name
+        (name, data) for name, data in frame_data.items() if name.endswith(".png") and "frame_" in name
     )
     if not frame_files:
         return None, "No frame files found"
@@ -200,9 +198,12 @@ async def compile_video(
 
         # Build ffmpeg command as argument array (no shell injection risk)
         cmd: list[str] = [
-            "ffmpeg", "-y",
-            "-framerate", str(fps),
-            "-i", str(tmp / "frame_%06d.png"),
+            "ffmpeg",
+            "-y",
+            "-framerate",
+            str(fps),
+            "-i",
+            str(tmp / "frame_%06d.png"),
         ]
 
         # Text overlay (sanitized for ffmpeg drawtext filter)

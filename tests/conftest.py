@@ -23,23 +23,19 @@ _RENDERING_TEST_FILES = {
 }
 
 _RENDERING_TEST_CLASSES = {
-    "TestVTKRendererAndRenderToPng",   # test_renderer_helpers.py
-    "TestComposeSideBySide",           # test_compare.py
-    "TestCompareImpl",                 # test_compare.py
-    "TestExportGltf",                  # test_export.py (export_gltf needs render window)
+    "TestVTKRendererAndRenderToPng",  # test_renderer_helpers.py
+    "TestComposeSideBySide",  # test_compare.py
+    "TestCompareImpl",  # test_compare.py
+    "TestExportGltf",  # test_export.py (export_gltf needs render window)
 }
 
 
-def pytest_collection_modifyitems(
-    config: pytest.Config, items: list[pytest.Item]
-) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Auto-skip VTK rendering tests in CI (no GPU/EGL/OSMesa)."""
     if not _IS_CI:
         return
 
-    skip_render = pytest.mark.skip(
-        reason="VTK rendering requires GPU (not available in CI)"
-    )
+    skip_render = pytest.mark.skip(reason="VTK rendering requires GPU (not available in CI)")
 
     for item in items:
         # Skip entire files (explicit list + *_vtk.py pattern)
@@ -58,6 +54,7 @@ def pytest_collection_modifyitems(
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def compiler() -> ScriptCompiler:

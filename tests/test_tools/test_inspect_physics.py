@@ -105,6 +105,7 @@ class TestInspectPhysicsImpl:
 
         # Use the OpenFOAM fixture
         import os
+
         fixture_dir = os.path.join(os.path.dirname(__file__), "..", "fixtures", "cavity_case")
         if os.path.isdir(fixture_dir):
             result = await inspect_physics_impl(file_path=fpath, case_dir=fixture_dir)

@@ -120,17 +120,18 @@ def get_font(size: int, style: str = "sans", bold: bool = False) -> ImageFont.Fr
 # Theme
 # ======================================================================
 
+
 @dataclass(frozen=True, slots=True)
 class OverlayTheme:
     """Color scheme for overlay elements."""
 
     name: str
-    bg: tuple[int, int, int, int]           # background panel (RGBA)
-    text_primary: tuple[int, int, int]       # title, bar title
-    text_secondary: tuple[int, int, int]     # subtitle, watermark
-    text_muted: tuple[int, int, int]         # tick labels
-    bar_outline: tuple[int, int, int, int]   # scalar bar border
-    bar_height_ratio: float = 0.55           # bar height / image height
+    bg: tuple[int, int, int, int]  # background panel (RGBA)
+    text_primary: tuple[int, int, int]  # title, bar title
+    text_secondary: tuple[int, int, int]  # subtitle, watermark
+    text_muted: tuple[int, int, int]  # tick labels
+    bar_outline: tuple[int, int, int, int]  # scalar bar border
+    bar_height_ratio: float = 0.55  # bar height / image height
 
     # --- Base sizes at 1280x720 (auto-scaled at render time) ---
     base_margin: int = 28
@@ -184,6 +185,7 @@ THEMES: dict[str, OverlayTheme] = {
 # Scalar bar config
 # ======================================================================
 
+
 @dataclass(frozen=True, slots=True)
 class ScalarBarConfig:
     """Configuration for a Pillow-drawn scalar bar."""
@@ -193,13 +195,14 @@ class ScalarBarConfig:
     title: str = ""
     n_labels: int = 5
     log_scale: bool = False
-    position: str = "right"     # "right" or "left"
-    label_format: str = ".3g"   # Python format spec
+    position: str = "right"  # "right" or "left"
+    label_format: str = ".3g"  # Python format spec
 
 
 # ======================================================================
 # Colormap sampling
 # ======================================================================
+
 
 def _sample_colormap(name: str, n: int = 256) -> list[tuple[int, int, int]]:
     """Sample colormap into n RGB tuples (0-255)."""
@@ -209,7 +212,8 @@ def _sample_colormap(name: str, n: int = 256) -> list[tuple[int, int, int]]:
     pts: list[tuple[float, float, float, float]] | None = COLORMAP_REGISTRY.get(key)
     if pts is None:
         pts = COLORMAP_REGISTRY.get(
-            "cool to warm", [(0.0, 0.5, 0.5, 0.5), (1.0, 0.5, 0.5, 0.5)],
+            "cool to warm",
+            [(0.0, 0.5, 0.5, 0.5), (1.0, 0.5, 0.5, 0.5)],
         )
 
     # Note: pts is now guaranteed to be a list due to the fallback
@@ -240,6 +244,7 @@ def _sample_colormap(name: str, n: int = 256) -> list[tuple[int, int, int]]:
 # ======================================================================
 # Drawing functions (all sizes auto-scaled)
 # ======================================================================
+
 
 def _s(base: int | float, scale: float) -> int:
     """Scale a base dimension."""
@@ -450,6 +455,7 @@ def draw_watermark(
 # ======================================================================
 # Main compose
 # ======================================================================
+
 
 def compose_image(
     raw_png: bytes | Image.Image,

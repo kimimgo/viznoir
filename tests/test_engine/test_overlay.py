@@ -35,6 +35,7 @@ def _blank_image(w: int = 400, h: int = 300) -> Image.Image:
 
 # ── Font management ───────────────────────────────────────────────────
 
+
 class TestFontManagement:
     def test_get_font_sans(self):
         f = get_font(16, "sans")
@@ -77,6 +78,7 @@ class TestFontManagement:
     def test_get_font_load_default_fallback(self):
         """get_font falls back to load_default when no TTF found."""
         import viznoir.engine.overlay as overlay_mod
+
         # Clear cache and mock _find_font to return None
         old_cache = overlay_mod._font_cache.copy()
         overlay_mod._font_cache.clear()
@@ -90,6 +92,7 @@ class TestFontManagement:
 
 
 # ── Themes ────────────────────────────────────────────────────────────
+
 
 class TestThemes:
     def test_all_themes_present(self):
@@ -112,6 +115,7 @@ class TestThemes:
 
 # ── ScalarBarConfig ───────────────────────────────────────────────────
 
+
 class TestScalarBarConfig:
     def test_defaults(self):
         c = ScalarBarConfig()
@@ -126,6 +130,7 @@ class TestScalarBarConfig:
 
 
 # ── draw_scalar_bar ───────────────────────────────────────────────────
+
 
 class TestDrawScalarBar:
     def test_returns_width(self):
@@ -171,6 +176,7 @@ class TestDrawScalarBar:
 
 # ── draw_title ────────────────────────────────────────────────────────
 
+
 class TestDrawTitle:
     def test_returns_height(self):
         img = _blank_image()
@@ -202,6 +208,7 @@ class TestDrawTitle:
 
 # ── draw_watermark ────────────────────────────────────────────────────
 
+
 class TestDrawWatermark:
     def test_watermark_drawn(self):
         img = _blank_image(800, 600)
@@ -220,6 +227,7 @@ class TestDrawWatermark:
 
 
 # ── compose (integration) ────────────────────────────────────────────
+
 
 class TestCompose:
     def test_returns_bytes(self):
@@ -283,6 +291,7 @@ class TestCompose:
     def test_sample_colormap_else_branch(self):
         """Colormap with control points not reaching t=1.0 hits the else branch."""
         import viznoir.engine.colormaps as cm_mod
+
         # Control points stop at t=0.3, so for t>0.3 the for loop's else fires
         mock_pts = [(0.0, 0.0, 0.0, 0.0), (0.3, 1.0, 0.0, 0.0)]
         cm_mod.COLORMAP_REGISTRY["_test_short"] = mock_pts

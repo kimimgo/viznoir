@@ -1,4 +1,5 @@
 """ContextParser protocol and registry for solver-specific parsers."""
+
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable

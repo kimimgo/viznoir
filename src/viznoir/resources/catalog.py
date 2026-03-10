@@ -26,8 +26,7 @@ def register_resources(mcp: FastMCP) -> None:
     def formats_resource() -> str:
         """Supported file formats with reader mappings."""
         data = {
-            ext: {"reader": reader, "description": _format_desc(ext)}
-            for ext, reader in sorted(FORMAT_REGISTRY.items())
+            ext: {"reader": reader, "description": _format_desc(ext)} for ext, reader in sorted(FORMAT_REGISTRY.items())
         }
         return json.dumps(data, indent=2)
 
@@ -124,10 +123,7 @@ def register_resources(mcp: FastMCP) -> None:
             "lighting_presets": get_lighting(),
             "material_presets": get_materials(),
             "background_presets": get_backgrounds(),
-            "quality_presets": {
-                name: {k: v for k, v in preset.items()}
-                for name, preset in QUALITY_PRESETS.items()
-            },
+            "quality_presets": {name: {k: v for k, v in preset.items()} for name, preset in QUALITY_PRESETS.items()},
             "postfx": {
                 "ssao": "Screen-Space Ambient Occlusion — contact shadows",
                 "fxaa": "Fast Approximate Anti-Aliasing — edge smoothing",
@@ -224,7 +220,9 @@ def register_resources(mcp: FastMCP) -> None:
                     "file_path": "/data/sloshing.pvd",
                     "panes": [
                         {
-                            "type": "render", "row": 0, "col": 0,
+                            "type": "render",
+                            "row": 0,
+                            "col": 0,
                             "render_pane": {
                                 "render": {
                                     "field": "alpha.water",
@@ -234,7 +232,9 @@ def register_resources(mcp: FastMCP) -> None:
                             },
                         },
                         {
-                            "type": "render", "row": 0, "col": 1,
+                            "type": "render",
+                            "row": 0,
+                            "col": 1,
                             "render_pane": {
                                 "render": {
                                     "field": "p_rgh",
@@ -245,7 +245,8 @@ def register_resources(mcp: FastMCP) -> None:
                         },
                     ],
                     "layout": {"rows": 1, "cols": 2},
-                    "fps": 24, "speed_factor": 5.0,
+                    "fps": 24,
+                    "speed_factor": 5.0,
                 },
             },
             "render_plus_graph_2x2": {
@@ -255,14 +256,18 @@ def register_resources(mcp: FastMCP) -> None:
                     "file_path": "/data/sloshing.pvd",
                     "panes": [
                         {
-                            "type": "render", "row": 0, "col": 0,
+                            "type": "render",
+                            "row": 0,
+                            "col": 0,
                             "render_pane": {
                                 "render": {"field": "alpha.water"},
                                 "title": "Water",
                             },
                         },
                         {
-                            "type": "render", "row": 0, "col": 1,
+                            "type": "render",
+                            "row": 0,
+                            "col": 1,
                             "render_pane": {
                                 "render": {
                                     "field": "p_rgh",
@@ -272,7 +277,9 @@ def register_resources(mcp: FastMCP) -> None:
                             },
                         },
                         {
-                            "type": "graph", "row": 1, "col": 0,
+                            "type": "graph",
+                            "row": 1,
+                            "col": 0,
                             "graph_pane": {
                                 "series": [
                                     {"field": "alpha.water", "stat": "mean"},
@@ -282,7 +289,9 @@ def register_resources(mcp: FastMCP) -> None:
                             },
                         },
                         {
-                            "type": "graph", "row": 1, "col": 1,
+                            "type": "graph",
+                            "row": 1,
+                            "col": 1,
                             "graph_pane": {
                                 "series": [
                                     {"field": "p_rgh", "stat": "max"},
@@ -294,7 +303,8 @@ def register_resources(mcp: FastMCP) -> None:
                         },
                     ],
                     "layout": {"rows": 2, "cols": 2, "gap": 4},
-                    "fps": 24, "speed_factor": 5.0,
+                    "fps": 24,
+                    "speed_factor": 5.0,
                 },
             },
             "per_pane_filter": {
@@ -304,14 +314,18 @@ def register_resources(mcp: FastMCP) -> None:
                     "file_path": "/data/case.foam",
                     "panes": [
                         {
-                            "type": "render", "row": 0, "col": 0,
+                            "type": "render",
+                            "row": 0,
+                            "col": 0,
                             "render_pane": {
                                 "render": {"field": "U", "colormap": "Viridis"},
                                 "title": "Full Domain",
                             },
                         },
                         {
-                            "type": "render", "row": 0, "col": 1,
+                            "type": "render",
+                            "row": 0,
+                            "col": 1,
                             "render_pane": {
                                 "render": {"field": "U", "colormap": "Viridis"},
                                 "title": "Mid-Plane Slice",
@@ -328,7 +342,8 @@ def register_resources(mcp: FastMCP) -> None:
                         },
                     ],
                     "layout": {"rows": 1, "cols": 2},
-                    "fps": 24, "speed_factor": 2.0,
+                    "fps": 24,
+                    "speed_factor": 2.0,
                 },
             },
         }

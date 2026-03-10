@@ -1,4 +1,5 @@
 """Tests for improved font system (B-2)."""
+
 from __future__ import annotations
 
 from viznoir.anim.compositor import _get_font, _get_scaled_font
@@ -53,17 +54,20 @@ class TestFontCandidatesExpanded:
     def test_has_macos_paths(self):
         """Font candidates should include macOS system font paths."""
         from viznoir.anim.compositor import _FONT_CANDIDATES
+
         macos_paths = [c for c in _FONT_CANDIDATES if "/System/Library/Fonts" in c]
         assert len(macos_paths) > 0
 
     def test_has_windows_paths(self):
         """Font candidates should include Windows font paths."""
         from viznoir.anim.compositor import _FONT_CANDIDATES
+
         win_paths = [c for c in _FONT_CANDIDATES if "Windows" in c or "C:\\" in c]
         assert len(win_paths) > 0
 
     def test_has_cjk_fonts(self):
         """Font candidates should include CJK font entries."""
         from viznoir.anim.compositor import _FONT_CANDIDATES
+
         cjk = [c for c in _FONT_CANDIDATES if "CJK" in c or "Noto" in c.split("/")[-1]]
         assert len(cjk) > 0

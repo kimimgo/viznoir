@@ -227,14 +227,15 @@ class TestCompilerRender:
 
     def test_scalar_bar_title(self, compiler):
         script = _compile_render(
-            compiler, field="p",
+            compiler,
+            field="p",
             scalar_bar_config=ScalarBarDef(title="Pressure [Pa]"),
         )
         assert "scalar_bar_title='Pressure [Pa]'" in script
 
     def test_png_write(self, compiler):
         script = _compile_render(compiler)
-        assert "with open(_out, \"wb\") as f:" in script
+        assert 'with open(_out, "wb") as f:' in script
         assert "f.write(_png)" in script
 
 
@@ -247,7 +248,8 @@ class TestCompilerCamera:
 
     def test_camera_custom_position(self, compiler):
         script = _compile_render(
-            compiler, field="p",
+            compiler,
+            field="p",
             camera=CameraDef(
                 preset=None,
                 position=[1.0, 2.0, 3.0],
@@ -434,11 +436,15 @@ class TestCompilerSplitAnimation:
                 split_animation=SplitAnimationDef(
                     panes=[
                         PaneDef(
-                            type="render", row=0, col=0,
+                            type="render",
+                            row=0,
+                            col=0,
                             render_pane=RenderPaneDef(render=RenderDef(field="p")),
                         ),
                         PaneDef(
-                            type="graph", row=0, col=1,
+                            type="graph",
+                            row=0,
+                            col=1,
                             graph_pane=GraphPaneDef(
                                 series=[GraphSeriesDef(field="p", stat="max")],
                             ),
@@ -610,14 +616,16 @@ class TestCompilerSourceFiles:
                 split_animation=SplitAnimationDef(
                     panes=[
                         PaneDef(
-                            type="render", row=0, col=0,
+                            type="render",
+                            row=0,
+                            col=0,
                             render_pane=RenderPaneDef(render=RenderDef(field="p")),
                         ),
                         PaneDef(
-                            type="graph", row=0, col=1,
-                            graph_pane=GraphPaneDef(
-                                series=[GraphSeriesDef(field="p", stat="mean")]
-                            ),
+                            type="graph",
+                            row=0,
+                            col=1,
+                            graph_pane=GraphPaneDef(series=[GraphSeriesDef(field="p", stat="mean")]),
                         ),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
@@ -644,7 +652,9 @@ class TestCompilerSourceFiles:
                 split_animation=SplitAnimationDef(
                     panes=[
                         PaneDef(
-                            type="render", row=0, col=0,
+                            type="render",
+                            row=0,
+                            col=0,
                             render_pane=RenderPaneDef(render=RenderDef(field="p")),
                         ),
                     ],
@@ -666,7 +676,9 @@ class TestCompilerSourceFiles:
                 split_animation=SplitAnimationDef(
                     panes=[
                         PaneDef(
-                            type="render", row=0, col=0,
+                            type="render",
+                            row=0,
+                            col=0,
                             render_pane=RenderPaneDef(
                                 render=RenderDef(field="p"),
                                 pipeline=[

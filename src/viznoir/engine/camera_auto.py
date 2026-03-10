@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 # Shape classification
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class ShapeAnalysis:
     """Result of PCA-based shape analysis."""
@@ -108,6 +109,7 @@ def analyze_shape(
 # Optimal view direction
 # ---------------------------------------------------------------------------
 
+
 def _shape_to_angles(analysis: ShapeAnalysis) -> tuple[float, float]:
     """Select optimal (azimuth, elevation) in degrees based on shape.
 
@@ -134,9 +136,7 @@ def _shape_to_angles(analysis: ShapeAnalysis) -> tuple[float, float]:
         return 40.0, 30.0
 
 
-def _angles_to_direction(
-    azimuth_deg: float, elevation_deg: float
-) -> tuple[float, float, float]:
+def _angles_to_direction(azimuth_deg: float, elevation_deg: float) -> tuple[float, float, float]:
     """Convert (azimuth, elevation) to unit direction vector.
 
     Uses mathematical convention:
@@ -156,6 +156,7 @@ def _angles_to_direction(
 # ---------------------------------------------------------------------------
 # Frustum fitting
 # ---------------------------------------------------------------------------
+
 
 def _compute_frustum_distance(
     points: np.ndarray,
@@ -235,9 +236,8 @@ def _compute_frustum_distance(
 # View-up resolution
 # ---------------------------------------------------------------------------
 
-def _resolve_view_up(
-    view_dir: np.ndarray, preferred_up: np.ndarray | None = None
-) -> tuple[float, float, float]:
+
+def _resolve_view_up(view_dir: np.ndarray, preferred_up: np.ndarray | None = None) -> tuple[float, float, float]:
     """Determine a valid view-up vector that isn't parallel to view direction."""
     if preferred_up is None:
         preferred_up = np.array([0.0, 0.0, 1.0])
@@ -253,6 +253,7 @@ def _resolve_view_up(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def extract_surface_points(dataset: vtk.vtkDataObject, max_points: int = 50000) -> np.ndarray:
     """Extract surface points from a VTK dataset for PCA analysis.
@@ -328,6 +329,7 @@ def auto_camera(
         # Fallback: use bounds
         bounds = dataset.GetBounds()
         from viznoir.engine.camera import preset_camera
+
         return preset_camera("isometric", bounds, zoom=zoom, orthographic=orthographic)
 
     analysis = analyze_shape(points)
@@ -348,7 +350,10 @@ def auto_camera(
     # Frustum distance
     center = np.array(analysis.center)
     distance = _compute_frustum_distance(
-        points, center, view_dir, view_up_arr,
+        points,
+        center,
+        view_dir,
+        view_up_arr,
         fov_deg=fov_deg,
         aspect_ratio=aspect_ratio,
         fill_ratio=fill_ratio,
@@ -392,12 +397,18 @@ def auto_camera_from_bounds(
     Less accurate than full surface analysis but works without VTK import.
     """
     xmin, xmax, ymin, ymax, zmin, zmax = bounds
-    corners = np.array([
-        [xmin, ymin, zmin], [xmax, ymin, zmin],
-        [xmin, ymax, zmin], [xmax, ymax, zmin],
-        [xmin, ymin, zmax], [xmax, ymin, zmax],
-        [xmin, ymax, zmax], [xmax, ymax, zmax],
-    ])
+    corners = np.array(
+        [
+            [xmin, ymin, zmin],
+            [xmax, ymin, zmin],
+            [xmin, ymax, zmin],
+            [xmax, ymax, zmin],
+            [xmin, ymin, zmax],
+            [xmax, ymin, zmax],
+            [xmin, ymax, zmax],
+            [xmax, ymax, zmax],
+        ]
+    )
 
     analysis = analyze_shape(corners)
 
@@ -411,7 +422,10 @@ def auto_camera_from_bounds(
 
     center = np.array(analysis.center)
     distance = _compute_frustum_distance(
-        corners, center, view_dir, view_up_arr,
+        corners,
+        center,
+        view_dir,
+        view_up_arr,
         fov_deg=fov_deg,
         aspect_ratio=aspect_ratio,
         fill_ratio=fill_ratio,

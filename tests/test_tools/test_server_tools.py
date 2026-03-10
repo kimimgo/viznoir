@@ -17,6 +17,7 @@ import pytest
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_pipeline_result(image_bytes=b"\x89PNG_test", json_data=None, output_type="image"):
     """Create a mock PipelineResult."""
     r = MagicMock()
@@ -30,6 +31,7 @@ def _make_pipeline_result(image_bytes=b"\x89PNG_test", json_data=None, output_ty
 def _get_tool_fn(name: str):
     """Get the original async function from a FunctionTool."""
     import viznoir.server as srv
+
     tool = getattr(srv, name)
     return tool.fn if hasattr(tool, "fn") else tool
 
@@ -85,10 +87,16 @@ class TestRenderTool:
         with patch("viznoir.tools.render.render_impl", mock_impl):
             fn = _get_tool_fn("render")
             await fn(
-                file_path="/tmp/test.vtk", field_name="p",
-                association="CELLS", colormap="Viridis", camera="top",
-                scalar_range=[0.0, 1.0], width=800, height=600,
-                timestep="latest", blocks=["wall"],
+                file_path="/tmp/test.vtk",
+                field_name="p",
+                association="CELLS",
+                colormap="Viridis",
+                camera="top",
+                scalar_range=[0.0, 1.0],
+                width=800,
+                height=600,
+                timestep="latest",
+                blocks=["wall"],
                 output_filename="out.png",
             )
             _, kwargs = mock_impl.call_args
@@ -217,8 +225,10 @@ class TestPlotOverLineTool:
         with patch("viznoir.tools.extract.plot_over_line_impl", new_callable=AsyncMock, return_value=mock_result):
             fn = _get_tool_fn("plot_over_line")
             result = await fn(
-                file_path="/tmp/test.vtk", field_name="p",
-                point1=[0, 0, 0], point2=[1, 0, 0],
+                file_path="/tmp/test.vtk",
+                field_name="p",
+                point1=[0, 0, 0],
+                point2=[1, 0, 0],
             )
             assert result["distance"] == [0, 1, 2]
 
@@ -247,7 +257,8 @@ class TestAnimateTool:
     @pytest.mark.asyncio
     async def test_animate_returns_json(self):
         mock_pr = _make_pipeline_result(
-            image_bytes=None, json_data={"frames": 10, "output": "/output/anim"},
+            image_bytes=None,
+            json_data={"frames": 10, "output": "/output/anim"},
             output_type="animation",
         )
         with patch("viznoir.tools.animate.animate_impl", new_callable=AsyncMock, return_value=mock_pr):
@@ -269,7 +280,8 @@ class TestAnimateTool:
         with patch("viznoir.tools.animate.animate_impl", new_callable=AsyncMock, return_value=mock_pr):
             fn = _get_tool_fn("animate")
             result = await fn(
-                file_path="/tmp/test.vtk", field_name="p",
+                file_path="/tmp/test.vtk",
+                field_name="p",
                 files=["/tmp/f1.vtk", "/tmp/f2.vtk"],
             )
             assert result["frames"] == 3
@@ -320,10 +332,12 @@ class TestExecutePipelineTool:
         mock_pr = _make_pipeline_result(output_type="image")
         with patch("viznoir.tools.pipeline.execute_pipeline_impl", new_callable=AsyncMock, return_value=mock_pr):
             fn = _get_tool_fn("execute_pipeline")
-            result = await fn(pipeline={
-                "source": {"file": "/tmp/test.vtk"},
-                "output": {"type": "image"},
-            })
+            result = await fn(
+                pipeline={
+                    "source": {"file": "/tmp/test.vtk"},
+                    "output": {"type": "image"},
+                }
+            )
             assert result.data == b"\x89PNG_test"
 
     @pytest.mark.asyncio
@@ -378,13 +392,24 @@ class TestCinematicRenderTool:
         with patch("viznoir.tools.cinematic.cinematic_render_impl", mock_impl):
             fn = _get_tool_fn("cinematic_render")
             await fn(
-                file_path="/tmp/test.vtk", field_name="T",
-                colormap="Inferno", quality="cinematic",
-                lighting="dramatic", background="dark_gradient",
-                azimuth=45.0, elevation=30.0, fill_ratio=0.8,
-                metallic=0.5, roughness=0.3, ground_plane=True,
-                ssao=True, fxaa=True, width=3840, height=2160,
-                scalar_range=[0.0, 500.0], timestep="latest",
+                file_path="/tmp/test.vtk",
+                field_name="T",
+                colormap="Inferno",
+                quality="cinematic",
+                lighting="dramatic",
+                background="dark_gradient",
+                azimuth=45.0,
+                elevation=30.0,
+                fill_ratio=0.8,
+                metallic=0.5,
+                roughness=0.3,
+                ground_plane=True,
+                ssao=True,
+                fxaa=True,
+                width=3840,
+                height=2160,
+                scalar_range=[0.0, 500.0],
+                timestep="latest",
                 output_filename="thermal.png",
             )
             _, kwargs = mock_impl.call_args
@@ -436,7 +461,9 @@ class TestProbeTimeseriesTool:
         with patch("viznoir.tools.probe.probe_timeseries_impl", new_callable=AsyncMock, return_value=mock_result):
             fn = _get_tool_fn("probe_timeseries")
             result = await fn(
-                file_path="/tmp/test.vtk", field_name="p", point=[0, 0, 0],
+                file_path="/tmp/test.vtk",
+                field_name="p",
+                point=[0, 0, 0],
             )
             assert result["values"] == [100.0, 200.0]
 
@@ -497,12 +524,14 @@ class TestValidateFilePathSuggestions:
         (tmp_path / "cavity.vtk").touch()
         (tmp_path / "cavity.vtu").touch()
         from viznoir.server import _validate_file_path
+
         result = _validate_file_path(str(tmp_path / "caviti.vtk"))
         assert "caviti.vtk" in result
 
     def test_nonexistent_file_no_siblings(self, tmp_path):
         """When parent dir has no similar files, no crash."""
         from viznoir.server import _validate_file_path
+
         result = _validate_file_path(str(tmp_path / "nonexistent.vtk"))
         assert "nonexistent.vtk" in result
 
@@ -515,12 +544,14 @@ class TestValidateFilePathSuggestions:
 class TestRegistrations:
     def test_register_resources(self):
         from viznoir.server import _register_resources
+
         with patch("viznoir.resources.catalog.register_resources") as mock_reg:
             _register_resources()
             mock_reg.assert_called_once()
 
     def test_register_prompts(self):
         from viznoir.server import _register_prompts
+
         with patch("viznoir.prompts.guides.register_prompts") as mock_reg:
             _register_prompts()
             mock_reg.assert_called_once()
@@ -561,76 +592,84 @@ class TestProtectStdout:
 class TestMain:
     def test_main_stdio(self):
         """main() with stdio transport calls mcp.run()."""
-        with patch("sys.argv", ["mcp-server-viznoir"]), \
-             patch("viznoir.server._protect_stdout"), \
-             patch("viznoir.server._register_resources"), \
-             patch("viznoir.server._register_prompts"), \
-             patch("viznoir.server.mcp") as mock_mcp, \
-             patch("viznoir.server.VTKRunner") as mock_runner_cls:
+        with (
+            patch("sys.argv", ["mcp-server-viznoir"]),
+            patch("viznoir.server._protect_stdout"),
+            patch("viznoir.server._register_resources"),
+            patch("viznoir.server._register_prompts"),
+            patch("viznoir.server.mcp") as mock_mcp,
+            patch("viznoir.server.VTKRunner") as mock_runner_cls,
+        ):
             mock_runner_cls.cleanup_orphaned_containers = AsyncMock(return_value=0)
             from viznoir.server import main
+
             main()
             mock_mcp.run.assert_called_once_with()
 
     def test_main_sse(self):
         """main() with sse transport passes host/port."""
-        with patch("sys.argv", ["mcp-server-viznoir", "--transport", "sse", "--port", "9000"]), \
-             patch("viznoir.server._protect_stdout"), \
-             patch("viznoir.server._register_resources"), \
-             patch("viznoir.server._register_prompts"), \
-             patch("viznoir.server.mcp") as mock_mcp, \
-             patch("viznoir.server.VTKRunner") as mock_runner_cls:
+        with (
+            patch("sys.argv", ["mcp-server-viznoir", "--transport", "sse", "--port", "9000"]),
+            patch("viznoir.server._protect_stdout"),
+            patch("viznoir.server._register_resources"),
+            patch("viznoir.server._register_prompts"),
+            patch("viznoir.server.mcp") as mock_mcp,
+            patch("viznoir.server.VTKRunner") as mock_runner_cls,
+        ):
             mock_runner_cls.cleanup_orphaned_containers = AsyncMock(return_value=0)
             from viznoir.server import main
+
             main()
-            mock_mcp.run.assert_called_once_with(
-                transport="sse", host="0.0.0.0", port=9000
-            )
+            mock_mcp.run.assert_called_once_with(transport="sse", host="0.0.0.0", port=9000)
 
     def test_main_streamable_http(self):
         """main() with streamable-http transport."""
-        with patch(
-            "sys.argv",
-            ["mcp-server-viznoir", "--transport", "streamable-http"],
-        ), \
-             patch("viznoir.server._protect_stdout"), \
-             patch("viznoir.server._register_resources"), \
-             patch("viznoir.server._register_prompts"), \
-             patch("viznoir.server.mcp") as mock_mcp, \
-             patch("viznoir.server.VTKRunner") as mock_runner_cls:
+        with (
+            patch(
+                "sys.argv",
+                ["mcp-server-viznoir", "--transport", "streamable-http"],
+            ),
+            patch("viznoir.server._protect_stdout"),
+            patch("viznoir.server._register_resources"),
+            patch("viznoir.server._register_prompts"),
+            patch("viznoir.server.mcp") as mock_mcp,
+            patch("viznoir.server.VTKRunner") as mock_runner_cls,
+        ):
             mock_runner_cls.cleanup_orphaned_containers = AsyncMock(return_value=0)
             from viznoir.server import main
+
             main()
-            mock_mcp.run.assert_called_once_with(
-                transport="streamable-http", host="0.0.0.0", port=8000
-            )
+            mock_mcp.run.assert_called_once_with(transport="streamable-http", host="0.0.0.0", port=8000)
 
     def test_main_cleanup_logs_removed(self):
         """main() logs when orphaned containers are removed (line 979)."""
         import viznoir.server as srv_mod
-        with patch("sys.argv", ["mcp-server-viznoir"]), \
-             patch("viznoir.server._protect_stdout"), \
-             patch("viznoir.server._register_resources"), \
-             patch("viznoir.server._register_prompts"), \
-             patch("viznoir.server.mcp"), \
-             patch("viznoir.core.runner.VTKRunner") as mock_runner_cls, \
-             patch.object(srv_mod, "logger") as mock_logger:
+
+        with (
+            patch("sys.argv", ["mcp-server-viznoir"]),
+            patch("viznoir.server._protect_stdout"),
+            patch("viznoir.server._register_resources"),
+            patch("viznoir.server._register_prompts"),
+            patch("viznoir.server.mcp"),
+            patch("viznoir.core.runner.VTKRunner") as mock_runner_cls,
+            patch.object(srv_mod, "logger") as mock_logger,
+        ):
             mock_runner_cls.cleanup_orphaned_containers = AsyncMock(return_value=3)
             srv_mod.main()
-            mock_logger.info.assert_any_call(
-                "cleaned up %d orphaned container(s)", 3
-            )
+            mock_logger.info.assert_any_call("cleaned up %d orphaned container(s)", 3)
 
     def test_main_cleanup_runtime_error(self):
         """main() handles RuntimeError from event loop (lines 980-982)."""
         import asyncio as real_asyncio
-        with patch("sys.argv", ["mcp-server-viznoir"]), \
-             patch("viznoir.server._protect_stdout"), \
-             patch("viznoir.server._register_resources"), \
-             patch("viznoir.server._register_prompts"), \
-             patch("viznoir.server.mcp"), \
-             patch.object(real_asyncio, "new_event_loop", side_effect=RuntimeError("no event loop")):
+
+        with (
+            patch("sys.argv", ["mcp-server-viznoir"]),
+            patch("viznoir.server._protect_stdout"),
+            patch("viznoir.server._register_resources"),
+            patch("viznoir.server._register_prompts"),
+            patch("viznoir.server.mcp"),
+            patch.object(real_asyncio, "new_event_loop", side_effect=RuntimeError("no event loop")),
+        ):
             from viznoir.server import main
+
             main()  # Should not raise
-
-

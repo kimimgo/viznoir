@@ -1,4 +1,5 @@
 """Tests for OpenFOAM context parser."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,24 +19,27 @@ def cavity_dir():
 class TestOpenFOAMParser:
     def test_can_parse_foam_dir(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         parser = OpenFOAMContextParser()
         assert parser.can_parse(cavity_dir) is True
 
     def test_cannot_parse_random_dir(self, tmp_path):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         parser = OpenFOAMContextParser()
         assert parser.can_parse(str(tmp_path)) is False
 
     def test_parse_case_dir(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         parser = OpenFOAMContextParser()
         ctx = parser.parse_case_dir(cavity_dir)
         assert ctx.solver is not None
         assert ctx.solver.name == "icoFoam"
 
-
     def test_parse_dataset_raises_not_implemented(self):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         parser = OpenFOAMContextParser()
         with pytest.raises(NotImplementedError, match="case directory"):
             parser.parse_dataset(object())
@@ -61,6 +65,7 @@ class TestOpenFOAMParser:
 class TestOpenFOAMBoundaryConditions:
     def test_extracts_velocity_bcs(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         u_bcs = [bc for bc in ctx.boundary_conditions if bc.field == "U"]
         assert len(u_bcs) == 3
@@ -70,6 +75,7 @@ class TestOpenFOAMBoundaryConditions:
 
     def test_extracts_pressure_bcs(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         p_bcs = [bc for bc in ctx.boundary_conditions if bc.field == "p"]
         assert len(p_bcs) == 3
@@ -80,6 +86,7 @@ class TestOpenFOAMBoundaryConditions:
 class TestOpenFOAMTransport:
     def test_extracts_nu(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         nu_props = [tp for tp in ctx.transport_properties if tp.name == "nu"]
         assert len(nu_props) == 1
@@ -89,12 +96,14 @@ class TestOpenFOAMTransport:
 class TestOpenFOAMSolver:
     def test_extracts_solver_info(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         assert ctx.solver is not None
         assert ctx.solver.name == "icoFoam"
 
     def test_raw_metadata_has_timing(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         # endTime and deltaT should be in derived_quantities or accessible
         assert ctx.solver is not None
@@ -103,6 +112,7 @@ class TestOpenFOAMSolver:
 class TestOpenFOAMDerived:
     def test_computes_reynolds_number(self, cavity_dir):
         from viznoir.context.openfoam import OpenFOAMContextParser
+
         ctx = OpenFOAMContextParser().parse_case_dir(cavity_dir)
         re_list = [dq for dq in ctx.derived_quantities if dq.name == "Re"]
         assert len(re_list) == 1
@@ -114,18 +124,22 @@ class TestOpenFOAMDictParser:
 
     def test_parse_scalar(self):
         from viznoir.context.openfoam import _parse_openfoam_value
+
         assert _parse_openfoam_value("0.01") == pytest.approx(0.01)
 
     def test_parse_vector(self):
         from viznoir.context.openfoam import _parse_openfoam_value
+
         assert _parse_openfoam_value("(1 0 0)") == [1.0, 0.0, 0.0]
 
     def test_parse_uniform_scalar(self):
         from viznoir.context.openfoam import _parse_openfoam_value
+
         assert _parse_openfoam_value("uniform 0") == pytest.approx(0.0)
 
     def test_parse_uniform_vector(self):
         from viznoir.context.openfoam import _parse_openfoam_value
+
         assert _parse_openfoam_value("uniform (1 0 0)") == [1.0, 0.0, 0.0]
 
 

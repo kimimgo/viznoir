@@ -27,22 +27,22 @@ def _make_split_pipeline(
     """Create a split animation pipeline for testing."""
     if panes is None:
         panes = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}, "title": "Pressure"}},
-            {"type": "render", "row": 0, "col": 1,
-             "render_pane": {"render": {"field": "U", "colormap": "Viridis"}}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}, "title": "Pressure"}},
+            {"type": "render", "row": 0, "col": 1, "render_pane": {"render": {"field": "U", "colormap": "Viridis"}}},
         ]
     return PipelineDefinition(
         source=SourceDef(file="/data/case.pvd"),
         pipeline=[],
         output=OutputDef(
             type="split_animation",
-            split_animation=SplitAnimationDef.model_validate({
-                "panes": panes,
-                "layout": {"rows": rows, "cols": cols},
-                "fps": 24,
-                "speed_factor": 5.0,
-            }),
+            split_animation=SplitAnimationDef.model_validate(
+                {
+                    "panes": panes,
+                    "layout": {"rows": rows, "cols": cols},
+                    "fps": 24,
+                    "speed_factor": 5.0,
+                }
+            ),
         ),
     )
 
@@ -52,10 +52,8 @@ class TestSplitAnimationModels:
         """SplitAnimationDef should parse from JSON."""
         data: dict[str, Any] = {
             "panes": [
-                {"type": "render", "row": 0, "col": 0,
-                 "render_pane": {"render": {"field": "p"}}},
-                {"type": "graph", "row": 0, "col": 1,
-                 "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
+                {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+                {"type": "graph", "row": 0, "col": 1, "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
             ],
             "layout": {"rows": 1, "cols": 2, "gap": 8},
             "fps": 30,
@@ -72,9 +70,11 @@ class TestSplitAnimationModels:
 
     def test_split_animation_defaults(self) -> None:
         """SplitAnimationDef should have sensible defaults."""
-        sa = SplitAnimationDef(panes=[
-            PaneDef(type="render", render_pane=RenderPaneDef(render=RenderDef(field="p"))),
-        ])
+        sa = SplitAnimationDef(
+            panes=[
+                PaneDef(type="render", render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+            ]
+        )
         assert sa.layout.rows == 1
         assert sa.layout.cols == 2
         assert sa.layout.gap == 4
@@ -115,9 +115,11 @@ class TestSplitAnimationModels:
         """OutputDef should accept split_animation type."""
         od = OutputDef(
             type="split_animation",
-            split_animation=SplitAnimationDef(panes=[
-                PaneDef(type="render", render_pane=RenderPaneDef(render=RenderDef(field="p"))),
-            ]),
+            split_animation=SplitAnimationDef(
+                panes=[
+                    PaneDef(type="render", render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+                ]
+            ),
         )
         assert od.type == "split_animation"
         assert od.split_animation is not None
@@ -141,10 +143,10 @@ class TestSplitAnimationValidation:
     def test_pane_row_out_of_range(self) -> None:
         pipeline = _make_split_pipeline(
             panes=[
-                {"type": "render", "row": 5, "col": 0,
-                 "render_pane": {"render": {"field": "p"}}},
+                {"type": "render", "row": 5, "col": 0, "render_pane": {"render": {"field": "p"}}},
             ],
-            rows=1, cols=2,
+            rows=1,
+            cols=2,
         )
         errors = validate_pipeline(pipeline)
         assert any("row" in e for e in errors)
@@ -152,10 +154,10 @@ class TestSplitAnimationValidation:
     def test_pane_col_out_of_range(self) -> None:
         pipeline = _make_split_pipeline(
             panes=[
-                {"type": "render", "row": 0, "col": 3,
-                 "render_pane": {"render": {"field": "p"}}},
+                {"type": "render", "row": 0, "col": 3, "render_pane": {"render": {"field": "p"}}},
             ],
-            rows=1, cols=2,
+            rows=1,
+            cols=2,
         )
         errors = validate_pipeline(pipeline)
         assert any("col" in e for e in errors)
@@ -163,7 +165,8 @@ class TestSplitAnimationValidation:
     def test_render_pane_without_definition(self) -> None:
         pipeline = _make_split_pipeline(
             panes=[{"type": "render", "row": 0, "col": 0}],
-            rows=1, cols=1,
+            rows=1,
+            cols=1,
         )
         errors = validate_pipeline(pipeline)
         assert any("render_pane" in e for e in errors)
@@ -171,11 +174,11 @@ class TestSplitAnimationValidation:
     def test_graph_pane_without_definition(self) -> None:
         pipeline = _make_split_pipeline(
             panes=[
-                {"type": "render", "row": 0, "col": 0,
-                 "render_pane": {"render": {"field": "p"}}},
+                {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
                 {"type": "graph", "row": 0, "col": 1},
             ],
-            rows=1, cols=2,
+            rows=1,
+            cols=2,
         )
         errors = validate_pipeline(pipeline)
         assert any("graph_pane" in e for e in errors)
@@ -183,10 +186,10 @@ class TestSplitAnimationValidation:
     def test_no_render_pane_error(self) -> None:
         pipeline = _make_split_pipeline(
             panes=[
-                {"type": "graph", "row": 0, "col": 0,
-                 "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
+                {"type": "graph", "row": 0, "col": 0, "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
             ],
-            rows=1, cols=1,
+            rows=1,
+            cols=1,
         )
         errors = validate_pipeline(pipeline)
         assert any("at least one render" in e for e in errors)
@@ -209,13 +212,18 @@ class TestSplitAnimationCompilation:
         """Graph pane fields should trigger stats extraction."""
         compiler = ScriptCompiler()
         panes: list[dict[str, Any]] = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
-            {"type": "graph", "row": 0, "col": 1,
-             "graph_pane": {"series": [
-                 {"field": "p", "stat": "max"},
-                 {"field": "U", "stat": "mean"},
-             ]}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+            {
+                "type": "graph",
+                "row": 0,
+                "col": 1,
+                "graph_pane": {
+                    "series": [
+                        {"field": "p", "stat": "max"},
+                        {"field": "U", "stat": "mean"},
+                    ]
+                },
+            },
         ]
         pipeline = _make_split_pipeline(panes=panes)
         script = compiler.compile(pipeline)

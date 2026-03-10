@@ -23,10 +23,7 @@ def _check_pillow() -> None:
         except ImportError:
             _PIL_AVAILABLE = False
     if not _PIL_AVAILABLE:
-        raise ImportError(
-            "pillow is required for split_animate. "
-            "Install with: pip install 'viznoir[composite]'"
-        )
+        raise ImportError("pillow is required for split_animate. Install with: pip install 'viznoir[composite]'")
 
 
 def _check_matplotlib() -> None:
@@ -40,8 +37,7 @@ def _check_matplotlib() -> None:
             _MPL_AVAILABLE = False
     if not _MPL_AVAILABLE:
         raise ImportError(
-            "matplotlib is required for split_animate graph panes. "
-            "Install with: pip install 'viznoir[composite]'"
+            "matplotlib is required for split_animate graph panes. Install with: pip install 'viznoir[composite]'"
         )
 
 
@@ -121,9 +117,7 @@ class Compositor:
         gif_bytes: bytes | None = None
         if self.split_anim.gif and composed_frames:
             gif_fps = effective_fps if effective_fps else self.split_anim.fps
-            gif_bytes = self._generate_gif(
-                composed_frames, gif_fps, self.split_anim.gif_loop
-            )
+            gif_bytes = self._generate_gif(composed_frames, gif_fps, self.split_anim.gif_loop)
 
         return composed_bytes, gif_bytes
 

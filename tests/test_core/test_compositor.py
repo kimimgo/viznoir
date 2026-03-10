@@ -23,23 +23,24 @@ def _make_split_anim(
     """Helper to create a SplitAnimationDef for testing."""
     if panes is None:
         panes = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}, "title": "Pressure"}},
-            {"type": "render", "row": 0, "col": 1,
-             "render_pane": {"render": {"field": "U", "colormap": "Viridis"}}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}, "title": "Pressure"}},
+            {"type": "render", "row": 0, "col": 1, "render_pane": {"render": {"field": "U", "colormap": "Viridis"}}},
         ]
-    return SplitAnimationDef.model_validate({
-        "panes": panes,
-        "layout": {"rows": rows, "cols": cols},
-        "resolution": resolution or [800, 400],
-        "gif": gif,
-        "fps": 10,
-    })
+    return SplitAnimationDef.model_validate(
+        {
+            "panes": panes,
+            "layout": {"rows": rows, "cols": cols},
+            "resolution": resolution or [800, 400],
+            "gif": gif,
+            "fps": 10,
+        }
+    )
 
 
 def _make_png(width: int = 100, height: int = 100, color: str = "red") -> bytes:
     """Create a minimal PNG for testing."""
     from PIL import Image as PILImage
+
     img = PILImage.new("RGB", (width, height), color)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -49,6 +50,7 @@ def _make_png(width: int = 100, height: int = 100, color: str = "red") -> bytes:
 class TestCompositorInit:
     def test_cell_dimensions(self) -> None:
         from viznoir.core.compositor import Compositor
+
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2)
         c = Compositor(sa)
         # 800 total, 2 cols, gap=4 → (800-4)/2 = 398
@@ -57,6 +59,7 @@ class TestCompositorInit:
 
     def test_cell_dimensions_2x2(self) -> None:
         from viznoir.core.compositor import Compositor
+
         sa = _make_split_anim(resolution=[804, 404], rows=2, cols=2)
         c = Compositor(sa)
         # (804 - 4) / 2 = 400, (404 - 4) / 2 = 200
@@ -68,6 +71,7 @@ class TestCompositorCompose:
     def test_compose_render_only(self) -> None:
         """Compose 2 render panes without graphs."""
         from viznoir.core.compositor import Compositor
+
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2, gif=False)
         c = Compositor(sa)
 
@@ -83,12 +87,14 @@ class TestCompositorCompose:
 
         # Verify composed image is valid PNG
         from PIL import Image as PILImage
+
         img = PILImage.open(io.BytesIO(composed_bytes[0]))
         assert img.size == (800, 400)
 
     def test_compose_generates_gif(self) -> None:
         """Compose multiple frames and generate GIF."""
         from viznoir.core.compositor import Compositor
+
         sa = _make_split_anim(resolution=[800, 400], rows=1, cols=2, gif=True)
         c = Compositor(sa)
 
@@ -111,15 +117,19 @@ class TestCompositorGraphPane:
     def test_compose_with_graph(self) -> None:
         """Compose render + graph panes."""
         from viznoir.core.compositor import Compositor
+
         panes: list[dict[str, Any]] = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
-            {"type": "graph", "row": 0, "col": 1,
-             "graph_pane": {
-                 "series": [{"field": "p", "stat": "max"}],
-                 "title": "Max Pressure",
-                 "y_label": "p [Pa]",
-             }},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+            {
+                "type": "graph",
+                "row": 0,
+                "col": 1,
+                "graph_pane": {
+                    "series": [{"field": "p", "stat": "max"}],
+                    "title": "Max Pressure",
+                    "y_label": "p [Pa]",
+                },
+            },
         ]
         sa = _make_split_anim(panes=panes, resolution=[800, 400], rows=1, cols=2, gif=False)
         c = Compositor(sa)
@@ -143,6 +153,7 @@ class TestCompositorGif:
     def test_gif_duration(self) -> None:
         """GIF frame duration should match fps."""
         from viznoir.core.compositor import Compositor
+
         sa = _make_split_anim(resolution=[200, 100], rows=1, cols=2, gif=True)
         sa_with_fps = sa.model_copy(update={"fps": 10})
         c = Compositor(sa_with_fps)
@@ -159,6 +170,7 @@ class TestCompositorGif:
         assert gif_bytes is not None
 
         from PIL import Image as PILImage
+
         gif = PILImage.open(io.BytesIO(gif_bytes))
         # 1000ms / 10fps = 100ms per frame
         assert gif.info.get("duration") == 100
@@ -169,14 +181,18 @@ class TestCompositorGraphEdgeCases:
     def test_graph_with_missing_field_stats(self) -> None:
         """Graph pane with series referencing missing field should not crash."""
         from viznoir.core.compositor import Compositor
+
         panes: list[dict[str, Any]] = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
-            {"type": "graph", "row": 0, "col": 1,
-             "graph_pane": {
-                 "series": [{"field": "nonexistent_field", "stat": "max"}],
-                 "title": "Missing",
-             }},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+            {
+                "type": "graph",
+                "row": 0,
+                "col": 1,
+                "graph_pane": {
+                    "series": [{"field": "nonexistent_field", "stat": "max"}],
+                    "title": "Missing",
+                },
+            },
         ]
         sa = _make_split_anim(panes=panes, resolution=[800, 400], rows=1, cols=2, gif=False)
         c = Compositor(sa)
@@ -190,15 +206,19 @@ class TestCompositorGraphEdgeCases:
     def test_graph_with_y_range(self) -> None:
         """Graph pane with y_range set applies axis limits."""
         from viznoir.core.compositor import Compositor
+
         panes: list[dict[str, Any]] = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
-            {"type": "graph", "row": 0, "col": 1,
-             "graph_pane": {
-                 "series": [{"field": "p", "stat": "max"}],
-                 "y_range": [0.0, 10.0],
-                 "y_label": "p [Pa]",
-             }},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+            {
+                "type": "graph",
+                "row": 0,
+                "col": 1,
+                "graph_pane": {
+                    "series": [{"field": "p", "stat": "max"}],
+                    "y_range": [0.0, 10.0],
+                    "y_label": "p [Pa]",
+                },
+            },
         ]
         sa = _make_split_anim(panes=panes, resolution=[800, 400], rows=1, cols=2, gif=False)
         c = Compositor(sa)
@@ -215,9 +235,9 @@ class TestCompositorGraphEdgeCases:
     def test_compose_font_fallback(self) -> None:
         """Font OSError in _compose_single_frame falls back to default."""
         from viznoir.core.compositor import Compositor
+
         panes: list[dict[str, Any]] = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}, "title": "Titled Pane"}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}, "title": "Titled Pane"}},
         ]
         sa = _make_split_anim(panes=panes, resolution=[400, 400], rows=1, cols=1, gif=False)
         c = Compositor(sa)

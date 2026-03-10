@@ -25,6 +25,7 @@ class TestCinematicRender:
     def test_basic(self):
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         rc = RenderConfig(width=200, height=150, array_name="RTData")
         config = CinematicConfig(render=rc, quality="draft")
         png = cinematic_render(_wavelet(), config)
@@ -35,6 +36,7 @@ class TestCinematicRender:
         from viznoir.engine.filters import point_to_cell
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         data = point_to_cell(_wavelet())
         # RTData is now in cell data
         rc = RenderConfig(width=200, height=150)
@@ -46,6 +48,7 @@ class TestCinematicRender:
         """Cinematic render with no array (line 192)."""
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         # Create polydata with points but NO arrays at all
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()
@@ -62,6 +65,7 @@ class TestCinematicRender:
         """Cinematic render with empty data (lines 156-157)."""
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         empty = vtk.vtkUnstructuredGrid()
         rc = RenderConfig(width=200, height=150)
         config = CinematicConfig(render=rc, quality="draft")
@@ -72,6 +76,7 @@ class TestCinematicRender:
         """Cinematic render with component >= 0 (line 183)."""
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         rc = RenderConfig(width=200, height=150, array_name="RTData", component=0)
         config = CinematicConfig(render=rc, quality="draft")
         png = cinematic_render(_wavelet(), config)
@@ -81,8 +86,10 @@ class TestCinematicRender:
         """Cinematic render with volume representation (lines 163-165)."""
         from viznoir.engine.renderer import RenderConfig
         from viznoir.engine.renderer_cine import CinematicConfig, cinematic_render
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             representation="volume",
             array_name="RTData",
         )

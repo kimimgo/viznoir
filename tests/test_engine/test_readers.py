@@ -18,6 +18,7 @@ from viznoir.engine.readers import (
 # supported_extensions
 # ---------------------------------------------------------------------------
 
+
 class TestSupportedExtensions:
     def test_returns_sorted_list(self):
         result = supported_extensions()
@@ -39,6 +40,7 @@ class TestSupportedExtensions:
 # _READER_MAP
 # ---------------------------------------------------------------------------
 
+
 class TestReaderMap:
     def test_vtk_legacy(self):
         assert _READER_MAP[".vtk"][0] == "vtkGenericDataObjectReader"
@@ -52,19 +54,22 @@ class TestReaderMap:
     def test_pvd_is_special(self):
         assert _READER_MAP[".pvd"][0] == "__pvd__"
 
-    @pytest.mark.parametrize("ext,expected_class", [
-        (".vtu", "vtkXMLUnstructuredGridReader"),
-        (".vtp", "vtkXMLPolyDataReader"),
-        (".vts", "vtkXMLStructuredGridReader"),
-        (".vti", "vtkXMLImageDataReader"),
-        (".vtr", "vtkXMLRectilinearGridReader"),
-        (".vtm", "vtkXMLMultiBlockDataReader"),
-        (".cgns", "vtkCGNSReader"),
-        (".exo", "vtkExodusIIReader"),
-        (".e", "vtkExodusIIReader"),
-        (".case", "vtkGenericEnSightReader"),
-        (".xdmf", "vtkXdmf3Reader"),
-    ])
+    @pytest.mark.parametrize(
+        "ext,expected_class",
+        [
+            (".vtu", "vtkXMLUnstructuredGridReader"),
+            (".vtp", "vtkXMLPolyDataReader"),
+            (".vts", "vtkXMLStructuredGridReader"),
+            (".vti", "vtkXMLImageDataReader"),
+            (".vtr", "vtkXMLRectilinearGridReader"),
+            (".vtm", "vtkXMLMultiBlockDataReader"),
+            (".cgns", "vtkCGNSReader"),
+            (".exo", "vtkExodusIIReader"),
+            (".e", "vtkExodusIIReader"),
+            (".case", "vtkGenericEnSightReader"),
+            (".xdmf", "vtkXdmf3Reader"),
+        ],
+    )
     def test_format_mapping(self, ext, expected_class):
         assert _READER_MAP[ext][0] == expected_class
 
@@ -72,6 +77,7 @@ class TestReaderMap:
 # ---------------------------------------------------------------------------
 # PVD parsing
 # ---------------------------------------------------------------------------
+
 
 class TestParsePvd:
     def test_parse_valid_pvd(self, tmp_path):
@@ -125,6 +131,7 @@ class TestParsePvd:
 # Series parsing
 # ---------------------------------------------------------------------------
 
+
 class TestParseSeries:
     def test_parse_valid_series(self, tmp_path):
         series_data = {
@@ -155,6 +162,7 @@ class TestParseSeries:
 # ---------------------------------------------------------------------------
 # DataReader (requires VTK mock)
 # ---------------------------------------------------------------------------
+
 
 class TestDataReaderInit:
     def test_file_not_found_raises(self):
@@ -496,6 +504,7 @@ class TestSeriesReader:
 # DataReader close / timestep / properties
 # ---------------------------------------------------------------------------
 
+
 class TestDataReaderProperties:
     def test_close_releases_reader(self, tmp_path):
         from viznoir.engine.readers import DataReader
@@ -518,6 +527,7 @@ class TestDataReaderProperties:
 # ---------------------------------------------------------------------------
 # _extract_info / _get_array_names / _get_block_names / _first_leaf
 # ---------------------------------------------------------------------------
+
 
 class TestExtractInfo:
     vtk = pytest.importorskip("vtk")
@@ -700,6 +710,7 @@ class TestGetArrayNames:
 
 class TestPublicApiFunctions:
     """Tests for module-level public functions (read_dataset, get_timesteps, etc.)."""
+
     vtk = pytest.importorskip("vtk")
 
     def test_read_dataset_basic(self):
@@ -840,6 +851,7 @@ class TestPvdParserEdgeCases:
 
 class TestExtractTimestepsWithData:
     """Test _extract_timesteps with actual VTK mocks for TIME_STEPS key."""
+
     vtk = pytest.importorskip("vtk")
 
     def test_with_time_steps(self):
@@ -886,6 +898,7 @@ class TestExtractTimesteps:
 # ---------------------------------------------------------------------------
 # PVD multi-timestep read with timestep switching (lines 162, 342-344, 357-364)
 # ---------------------------------------------------------------------------
+
 
 class TestPvdTimestepSwitch:
     vtk = pytest.importorskip("vtk")
@@ -969,6 +982,7 @@ class TestPvdTimestepSwitch:
 # Series multi-timestep read with timestep switching (lines 345-347, 366-373)
 # ---------------------------------------------------------------------------
 
+
 class TestSeriesTimestepSwitch:
     vtk = pytest.importorskip("vtk")
 
@@ -1046,6 +1060,7 @@ class TestSeriesTimestepSwitch:
 # ---------------------------------------------------------------------------
 # DataReader with real VTK files (lines 162, 210-211)
 # ---------------------------------------------------------------------------
+
 
 class TestDataReaderRealVTK:
     vtk = pytest.importorskip("vtk")
@@ -1214,9 +1229,7 @@ class TestReaderEdgeCases:
 
         mock_vtk_reader = MagicMock()
         mock_out_info = MagicMock()
-        mock_vtk_reader.GetExecutive.return_value.GetOutputInformation.return_value = (
-            mock_out_info
-        )
+        mock_vtk_reader.GetExecutive.return_value.GetOutputInformation.return_value = mock_out_info
         reader._reader = mock_vtk_reader
         reader._pvd_entries = []
         reader._series_entries = []
@@ -1297,13 +1310,7 @@ class TestMeshFormatIntegration:
         from viznoir.engine.readers import DataReader
 
         # OBJ is simple ASCII — create a minimal triangle
-        obj_content = (
-            "# Simple triangle\n"
-            "v 0.0 0.0 0.0\n"
-            "v 1.0 0.0 0.0\n"
-            "v 0.5 1.0 0.0\n"
-            "f 1 2 3\n"
-        )
+        obj_content = "# Simple triangle\nv 0.0 0.0 0.0\nv 1.0 0.0 0.0\nv 0.5 1.0 0.0\nf 1 2 3\n"
         path = tmp_path / "triangle.obj"
         path.write_text(obj_content)
 

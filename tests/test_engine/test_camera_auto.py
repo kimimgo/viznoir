@@ -24,6 +24,7 @@ from viznoir.engine.camera_auto import (
 # Shape classification
 # ---------------------------------------------------------------------------
 
+
 class TestClassifyShape:
     def test_sphere(self):
         eigvals = np.array([1.0, 1.0, 1.0])
@@ -58,6 +59,7 @@ class TestClassifyShape:
 # Analyze shape
 # ---------------------------------------------------------------------------
 
+
 class TestAnalyzeShape:
     def test_cube_points(self):
         rng = np.random.default_rng(42)
@@ -88,11 +90,13 @@ class TestAnalyzeShape:
         assert result.shape == "sphere"  # fallback for < 3 points
 
     def test_center_is_mean(self):
-        points = np.array([
-            [0.0, 0.0, 0.0],
-            [2.0, 4.0, 6.0],
-            [4.0, 8.0, 12.0],
-        ])
+        points = np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [2.0, 4.0, 6.0],
+                [4.0, 8.0, 12.0],
+            ]
+        )
         result = analyze_shape(points)
         assert result.center == pytest.approx((2.0, 4.0, 6.0))
 
@@ -100,6 +104,7 @@ class TestAnalyzeShape:
 # ---------------------------------------------------------------------------
 # Angles
 # ---------------------------------------------------------------------------
+
 
 class TestAnglesToDirection:
     def test_zero_angles(self):
@@ -116,7 +121,7 @@ class TestAnglesToDirection:
 
     def test_isometric_angles(self):
         d = _angles_to_direction(45.0, 35.264)
-        norm = math.sqrt(d[0]**2 + d[1]**2 + d[2]**2)
+        norm = math.sqrt(d[0] ** 2 + d[1] ** 2 + d[2] ** 2)
         assert norm == pytest.approx(1.0)
         assert d[0] > 0 and d[1] > 0 and d[2] > 0
 
@@ -124,6 +129,7 @@ class TestAnglesToDirection:
 # ---------------------------------------------------------------------------
 # Shape → angles
 # ---------------------------------------------------------------------------
+
 
 class TestShapeToAngles:
     def test_plate_high_elevation(self):
@@ -168,23 +174,30 @@ class TestShapeToAngles:
 # Frustum fitting
 # ---------------------------------------------------------------------------
 
+
 class TestFrustumDistance:
     def test_unit_sphere_distance(self):
         rng = np.random.default_rng(42)
         theta = rng.uniform(0, 2 * math.pi, 500)
         phi = rng.uniform(0, math.pi, 500)
-        points = np.column_stack([
-            np.sin(phi) * np.cos(theta),
-            np.sin(phi) * np.sin(theta),
-            np.cos(phi),
-        ])
+        points = np.column_stack(
+            [
+                np.sin(phi) * np.cos(theta),
+                np.sin(phi) * np.sin(theta),
+                np.cos(phi),
+            ]
+        )
         center = np.array([0.0, 0.0, 0.0])
         view_dir = np.array([1.0, 0.0, 0.0])
         view_up = np.array([0.0, 0.0, 1.0])
 
         dist = _compute_frustum_distance(
-            points, center, view_dir, view_up,
-            fov_deg=30.0, fill_ratio=0.75,
+            points,
+            center,
+            view_dir,
+            view_up,
+            fov_deg=30.0,
+            fill_ratio=0.75,
         )
         assert dist > 0
         # For a unit sphere with 30deg FOV and 75% fill, distance ≈ 5.0
@@ -196,12 +209,8 @@ class TestFrustumDistance:
         view_dir = np.array([0.0, 0.0, 1.0])
         view_up = np.array([0.0, 1.0, 0.0])
 
-        dist_75 = _compute_frustum_distance(
-            points, center, view_dir, view_up, fill_ratio=0.75
-        )
-        dist_90 = _compute_frustum_distance(
-            points, center, view_dir, view_up, fill_ratio=0.90
-        )
+        dist_75 = _compute_frustum_distance(points, center, view_dir, view_up, fill_ratio=0.75)
+        dist_90 = _compute_frustum_distance(points, center, view_dir, view_up, fill_ratio=0.90)
         assert dist_90 < dist_75  # higher fill = closer camera
 
     def test_degenerate_points(self):
@@ -216,6 +225,7 @@ class TestFrustumDistance:
 # ---------------------------------------------------------------------------
 # View up resolution
 # ---------------------------------------------------------------------------
+
 
 class TestResolveViewUp:
     def test_normal_case(self):
@@ -233,6 +243,7 @@ class TestResolveViewUp:
 # auto_camera_from_bounds (integration)
 # ---------------------------------------------------------------------------
 
+
 class TestAutoCameraFromBounds:
     def test_returns_camera_config(self):
         bounds = (-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
@@ -248,7 +259,7 @@ class TestAutoCameraFromBounds:
         bounds = (-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
         cam = auto_camera_from_bounds(bounds)
         # Camera should be further away than the bounding box diagonal
-        dist = math.sqrt(sum((p - f)**2 for p, f in zip(cam.position, cam.focal_point)))
+        dist = math.sqrt(sum((p - f) ** 2 for p, f in zip(cam.position, cam.focal_point)))
         diag = math.sqrt(12)  # 2*sqrt(3)
         assert dist > diag
 
@@ -256,8 +267,8 @@ class TestAutoCameraFromBounds:
         bounds = (-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
         cam_1 = auto_camera_from_bounds(bounds, zoom=1.0)
         cam_2 = auto_camera_from_bounds(bounds, zoom=2.0)
-        dist_1 = math.sqrt(sum((p - f)**2 for p, f in zip(cam_1.position, cam_1.focal_point)))
-        dist_2 = math.sqrt(sum((p - f)**2 for p, f in zip(cam_2.position, cam_2.focal_point)))
+        dist_1 = math.sqrt(sum((p - f) ** 2 for p, f in zip(cam_1.position, cam_1.focal_point)))
+        dist_2 = math.sqrt(sum((p - f) ** 2 for p, f in zip(cam_2.position, cam_2.focal_point)))
         assert dist_2 < dist_1
 
     def test_orthographic_produces_parallel_scale(self):
@@ -287,8 +298,8 @@ class TestAutoCameraFromBounds:
         bounds = (-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
         cam_50 = auto_camera_from_bounds(bounds, fill_ratio=0.5)
         cam_90 = auto_camera_from_bounds(bounds, fill_ratio=0.9)
-        dist_50 = math.sqrt(sum((p - f)**2 for p, f in zip(cam_50.position, cam_50.focal_point)))
-        dist_90 = math.sqrt(sum((p - f)**2 for p, f in zip(cam_90.position, cam_90.focal_point)))
+        dist_50 = math.sqrt(sum((p - f) ** 2 for p, f in zip(cam_50.position, cam_50.focal_point)))
+        dist_90 = math.sqrt(sum((p - f) ** 2 for p, f in zip(cam_90.position, cam_90.focal_point)))
         assert dist_90 < dist_50
 
     def test_orthographic_projection(self):
@@ -344,6 +355,7 @@ class TestResolveViewUpEdgeCases:
 
 class TestAutoCameraWithVTK:
     """Tests requiring VTK for auto_camera with real datasets."""
+
     vtk = pytest.importorskip("vtk")
 
     def test_auto_camera_empty_polydata(self):
@@ -395,7 +407,6 @@ class TestAutoCameraWithVTK:
     def test_extract_surface_points_subsampling(self):
         """extract_surface_points subsamples large point sets."""
         import vtk
-
 
         pd = vtk.vtkPolyData()
         pts = vtk.vtkPoints()

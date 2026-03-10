@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Scene:
     """A single scene in the timeline."""
+
     asset_indices: list[int]
     duration: float = 3.0
     transition: str = "fade_in"
@@ -18,6 +19,7 @@ class Scene:
 @dataclass
 class Timeline:
     """Ordered sequence of scenes with timing."""
+
     scenes: list[Scene]
     fps: int = 30
     _prefix_sums: list[float] = field(default_factory=list, init=False, repr=False)

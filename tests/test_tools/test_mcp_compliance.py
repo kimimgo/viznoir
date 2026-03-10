@@ -21,12 +21,24 @@ def _get_tool_functions() -> dict:
     from viznoir import server
 
     names = [
-        "inspect_data", "render", "slice", "contour", "clip",
-        "streamlines", "extract_stats", "plot_over_line",
-        "integrate_surface", "animate", "split_animate",
-        "execute_pipeline", "pv_isosurface",
-        "cinematic_render", "compare",
-        "probe_timeseries", "batch_render", "preview_3d",
+        "inspect_data",
+        "render",
+        "slice",
+        "contour",
+        "clip",
+        "streamlines",
+        "extract_stats",
+        "plot_over_line",
+        "integrate_surface",
+        "animate",
+        "split_animate",
+        "execute_pipeline",
+        "pv_isosurface",
+        "cinematic_render",
+        "compare",
+        "probe_timeseries",
+        "batch_render",
+        "preview_3d",
     ]
     tools = {}
     for name in names:
@@ -61,9 +73,7 @@ class TestToolCompliance:
         """MCP tools should have return type annotations."""
         for name, fn in _get_tool_functions().items():
             sig = inspect.signature(fn)
-            assert sig.return_annotation != inspect.Signature.empty, (
-                f"Tool {name} has no return type annotation"
-            )
+            assert sig.return_annotation != inspect.Signature.empty, f"Tool {name} has no return type annotation"
 
     def test_tool_names_are_snake_case(self):
         """MCP tool names should be snake_case."""
@@ -82,9 +92,7 @@ class TestToolCompliance:
             doc = (fn.__doc__ or "").strip()
             first_line = doc.split("\n")[0].strip()
             if first_line in seen:
-                pytest.fail(
-                    f"Tools '{seen[first_line]}' and '{name}' share docstring: {first_line}"
-                )
+                pytest.fail(f"Tools '{seen[first_line]}' and '{name}' share docstring: {first_line}")
             seen[first_line] = name
 
 
@@ -93,6 +101,7 @@ class TestResourceCompliance:
 
     def test_resource_uris_use_correct_scheme(self):
         from viznoir.server import mcp
+
         instr = mcp.instructions or ""
         uris = re.findall(r"viznoir://[\w/\-]+", instr)
         assert len(uris) >= 5, f"Expected 5+ resource URIs, found {len(uris)}"
@@ -101,9 +110,9 @@ class TestResourceCompliance:
 
     def test_core_resources_documented(self):
         from viznoir.server import mcp
+
         instr = mcp.instructions or ""
-        for res in ["viznoir://formats", "viznoir://filters",
-                     "viznoir://colormaps", "viznoir://cameras"]:
+        for res in ["viznoir://formats", "viznoir://filters", "viznoir://colormaps", "viznoir://cameras"]:
             assert res in instr, f"Resource {res} not in instructions"
 
 
@@ -112,21 +121,25 @@ class TestServerMetadata:
 
     def test_server_name(self):
         from viznoir.server import mcp
+
         assert mcp.name == "viznoir"
 
     def test_instructions_present_and_substantial(self):
         from viznoir.server import mcp
+
         assert mcp.instructions is not None
         assert len(mcp.instructions) > 200
 
     def test_instructions_describe_workflow(self):
         from viznoir.server import mcp
+
         instr = mcp.instructions or ""
         assert "inspect_data" in instr
         assert "render" in instr
 
     def test_instructions_mention_capabilities(self):
         from viznoir.server import mcp
+
         instr = (mcp.instructions or "").lower()
         for cap in ["cfd", "fea", "cae", "visualization"]:
             assert cap in instr, f"Instructions missing '{cap}'"
@@ -137,18 +150,23 @@ class TestSecurityCompliance:
 
     def test_validate_file_path_exists(self):
         from viznoir.server import _validate_file_path
+
         assert callable(_validate_file_path)
 
     def test_file_path_param_on_data_tools(self):
         """Tools that read files must accept file_path."""
         data_tools = [
-            "inspect_data", "render", "slice", "contour", "clip",
-            "streamlines", "animate", "cinematic_render",
+            "inspect_data",
+            "render",
+            "slice",
+            "contour",
+            "clip",
+            "streamlines",
+            "animate",
+            "cinematic_render",
         ]
         for name, fn in _get_tool_functions().items():
             if name not in data_tools:
                 continue
             sig = inspect.signature(fn)
-            assert "file_path" in sig.parameters, (
-                f"Data tool {name} missing file_path parameter"
-            )
+            assert "file_path" in sig.parameters, f"Data tool {name} missing file_path parameter"

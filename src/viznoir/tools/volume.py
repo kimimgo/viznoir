@@ -28,9 +28,16 @@ async def volume_render_impl(
         raise KeyError(f"Unknown transfer function preset: {transfer_preset}")
 
     return await cinematic_render_impl(
-        file_path, runner,
-        field_name=field_name, colormap=colormap,
-        quality=quality, lighting=lighting, background=background,
-        width=width, height=height, scalar_range=scalar_range,
-        timestep=timestep, output_filename=output_filename,
+        file_path,
+        runner,
+        field_name=field_name,
+        colormap=colormap,
+        quality=quality,
+        lighting=lighting,
+        background=background,
+        width=width,
+        height=height,
+        scalar_range=scalar_range,
+        timestep=timestep,
+        output_filename=output_filename,
     )

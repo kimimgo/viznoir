@@ -22,6 +22,7 @@ from viznoir.engine.filters import (
 # list_filters
 # ---------------------------------------------------------------------------
 
+
 class TestListFilters:
     def test_returns_sorted_list(self):
         result = list_filters()
@@ -38,6 +39,7 @@ class TestListFilters:
 # _FILTER_REGISTRY
 # ---------------------------------------------------------------------------
 
+
 class TestFilterRegistry:
     def test_all_entries_are_callable(self):
         for name, func in _FILTER_REGISTRY.items():
@@ -50,6 +52,7 @@ class TestFilterRegistry:
 # ---------------------------------------------------------------------------
 # apply_filter
 # ---------------------------------------------------------------------------
+
 
 class TestApplyFilter:
     def test_unknown_filter_raises(self):
@@ -71,6 +74,7 @@ class TestApplyFilter:
 # apply_filters
 # ---------------------------------------------------------------------------
 
+
 class TestApplyFilters:
     def test_empty_chain_returns_input(self):
         mock_data = MagicMock()
@@ -86,10 +90,13 @@ class TestApplyFilters:
         mock_f2 = MagicMock(return_value=data_out)
 
         with patch.dict(_FILTER_REGISTRY, {"f1": mock_f1, "f2": mock_f2}):
-            result = apply_filters(data_in, [
-                ("f1", {"key1": "val1"}),
-                ("f2", {"key2": "val2"}),
-            ])
+            result = apply_filters(
+                data_in,
+                [
+                    ("f1", {"key1": "val1"}),
+                    ("f2", {"key2": "val2"}),
+                ],
+            )
 
         mock_f1.assert_called_once_with(data_in, key1="val1")
         mock_f2.assert_called_once_with(data_mid, key2="val2")

@@ -34,13 +34,19 @@ async def pv_isosurface_impl(
 
     # Uses asyncio.create_subprocess_exec (no shell) to avoid command injection
     cmd = [
-        "docker", "run", "--rm",
-        "-v", f"{bi4_path}:/data/input:ro",
-        "-v", f"{out_path}:/data/output",
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        f"{bi4_path}:/data/input:ro",
+        "-v",
+        f"{out_path}:/data/output",
         docker_image,
         "isosurface",
-        "-dirin", "/data/input",
-        "-saveiso", "/data/output/iso",
+        "-dirin",
+        "/data/input",
+        "-saveiso",
+        "/data/output/iso",
         f"-vars:{vars}",
         f"-onlytype:{only_type}",
     ]
@@ -53,14 +59,10 @@ async def pv_isosurface_impl(
     stdout, stderr = await proc.communicate()
 
     if proc.returncode != 0:
-        raise RuntimeError(
-            f"IsoSurface failed (exit {proc.returncode}): {stderr.decode()}"
-        )
+        raise RuntimeError(f"IsoSurface failed (exit {proc.returncode}): {stderr.decode()}")
 
     # Collect generated VTK files
-    iso_files = sorted(
-        str(f) for f in out_path.glob("iso_*.vtk")
-    )
+    iso_files = sorted(str(f) for f in out_path.glob("iso_*.vtk"))
 
     return {
         "iso_files": iso_files,

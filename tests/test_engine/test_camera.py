@@ -14,6 +14,7 @@ from viznoir.engine.camera import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def unit_bounds() -> tuple[float, float, float, float, float, float]:
     """Unit cube centered at origin: (-0.5..0.5) in each axis."""
@@ -29,6 +30,7 @@ def asym_bounds() -> tuple[float, float, float, float, float, float]:
 # ---------------------------------------------------------------------------
 # preset_camera
 # ---------------------------------------------------------------------------
+
 
 class TestPresetCamera:
     def test_returns_camera_config(self, unit_bounds):
@@ -94,9 +96,18 @@ class TestPresetCamera:
         cam = preset_camera("top", degenerate)
         assert cam.focal_point == pytest.approx((1.0, 2.0, 3.0))
 
-    @pytest.mark.parametrize("preset", [
-        "isometric", "top", "bottom", "front", "back", "right", "left",
-    ])
+    @pytest.mark.parametrize(
+        "preset",
+        [
+            "isometric",
+            "top",
+            "bottom",
+            "front",
+            "back",
+            "right",
+            "left",
+        ],
+    )
     def test_all_presets_produce_valid_config(self, unit_bounds, preset):
         cam = preset_camera(preset, unit_bounds)
         assert isinstance(cam, CameraConfig)
@@ -108,6 +119,7 @@ class TestPresetCamera:
 # ---------------------------------------------------------------------------
 # custom_camera
 # ---------------------------------------------------------------------------
+
 
 class TestCustomCamera:
     def test_explicit_position(self):
@@ -163,6 +175,7 @@ class TestCustomCamera:
 # preset_camera edge cases (coverage: line 74)
 # ---------------------------------------------------------------------------
 
+
 class TestPresetCameraZeroDirection:
     """Test that a zero-magnitude direction vector is handled safely."""
 
@@ -185,6 +198,7 @@ class TestPresetCameraZeroDirection:
 # ---------------------------------------------------------------------------
 # apply_camera (coverage: lines 135-149)
 # ---------------------------------------------------------------------------
+
 
 class TestApplyCamera:
     def test_apply_perspective(self):

@@ -1,4 +1,5 @@
 """OpenFOAM context parser — regex-based parsing of OpenFOAM dict files."""
+
 from __future__ import annotations
 
 import math
@@ -26,8 +27,7 @@ class OpenFOAMContextParser:
     def parse_dataset(self, dataset: object) -> CaseContext:
         """Not used for OpenFOAM — use parse_case_dir instead."""
         raise NotImplementedError(
-            "OpenFOAMContextParser requires a case directory, not a VTK dataset. "
-            "Use parse_case_dir() instead."
+            "OpenFOAMContextParser requires a case directory, not a VTK dataset. Use parse_case_dir() instead."
         )
 
     def parse_case_dir(self, case_dir: str) -> CaseContext:
@@ -48,7 +48,10 @@ class OpenFOAMContextParser:
 
         # Minimal mesh quality (no VTK dataset available from case dir alone)
         mq = MeshQuality(
-            cell_count=0, point_count=0, cell_types={}, bounding_box=[[0, 0, 0], [0, 0, 0]],
+            cell_count=0,
+            point_count=0,
+            cell_types={},
+            bounding_box=[[0, 0, 0], [0, 0, 0]],
         )
 
         return CaseContext(
@@ -131,7 +134,7 @@ class OpenFOAMContextParser:
         if not bf_match:
             return []
 
-        bf_text = text[bf_match.end():]
+        bf_text = text[bf_match.end() :]
 
         # Parse each patch block: patchName { type ...; value ...; }
         patch_pattern = r"(\w+)\s*\{([^}]*)\}"
@@ -151,12 +154,14 @@ class OpenFOAMContextParser:
             if value_match:
                 value = _parse_openfoam_value(value_match.group(1).strip())
 
-            bcs.append(BoundaryCondition(
-                patch_name=patch_name,
-                field=field_name,
-                type=bc_type,
-                value=value,
-            ))
+            bcs.append(
+                BoundaryCondition(
+                    patch_name=patch_name,
+                    field=field_name,
+                    type=bc_type,
+                    value=value,
+                )
+            )
 
         return bcs
 
@@ -180,7 +185,7 @@ class OpenFOAMContextParser:
         for bc in bcs:
             if bc.field == "U" and bc.type == "fixedValue" and bc.value is not None:
                 if isinstance(bc.value, list):
-                    u_ref = max(u_ref, math.sqrt(sum(v ** 2 for v in bc.value)))
+                    u_ref = max(u_ref, math.sqrt(sum(v**2 for v in bc.value)))
                 elif isinstance(bc.value, (int, float)):
                     u_ref = max(u_ref, abs(bc.value))
 
@@ -191,12 +196,14 @@ class OpenFOAMContextParser:
             # Actually standard: Re = U * L / nu. Without mesh, assume L = 1.
             l_ref = 1.0
             re_value = u_ref * l_ref / nu
-            derived.append(DerivedQuantity(
-                name="Re",
-                value=re_value,
-                formula="U_ref * L_ref / nu",
-                inputs={"U_ref": u_ref, "L_ref": l_ref, "nu": nu},
-            ))
+            derived.append(
+                DerivedQuantity(
+                    name="Re",
+                    value=re_value,
+                    formula="U_ref * L_ref / nu",
+                    inputs={"U_ref": u_ref, "L_ref": l_ref, "nu": nu},
+                )
+            )
 
         return derived
 
@@ -214,7 +221,7 @@ def _parse_openfoam_value(text: str) -> float | list[float] | str:
 
     # Strip "uniform" prefix
     if text.startswith("uniform"):
-        text = text[len("uniform"):].strip()
+        text = text[len("uniform") :].strip()
 
     # Vector: (x y z)
     vec_match = re.match(r"\(\s*([\d.eE\+\-]+)\s+([\d.eE\+\-]+)\s+([\d.eE\+\-]+)\s*\)", text)

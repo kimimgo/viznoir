@@ -16,14 +16,17 @@ class TestWriterMap:
         for ext in (".vtu", ".vtp", ".stl", ".vtk", ".csv"):
             assert ext in _WRITER_MAP
 
-    @pytest.mark.parametrize("ext,expected_class", [
-        (".vtu", "vtkXMLUnstructuredGridWriter"),
-        (".vtp", "vtkXMLPolyDataWriter"),
-        (".vtk", "vtkGenericDataObjectWriter"),
-        (".stl", "vtkSTLWriter"),
-        (".ply", "vtkPLYWriter"),
-        (".csv", "__csv__"),
-    ])
+    @pytest.mark.parametrize(
+        "ext,expected_class",
+        [
+            (".vtu", "vtkXMLUnstructuredGridWriter"),
+            (".vtp", "vtkXMLPolyDataWriter"),
+            (".vtk", "vtkGenericDataObjectWriter"),
+            (".stl", "vtkSTLWriter"),
+            (".ply", "vtkPLYWriter"),
+            (".csv", "__csv__"),
+        ],
+    )
     def test_format_mapping(self, ext, expected_class):
         assert _WRITER_MAP[ext] == expected_class
 
@@ -51,11 +54,13 @@ class TestExportGltf:
     def test_export_gltf_is_importable(self):
         """Test that export_gltf function is available."""
         from viznoir.engine.export import export_gltf as fn
+
         assert callable(fn)
 
     def test_export_gltf_in_all(self):
         """Test that export_gltf is in __all__."""
         from viznoir.engine.export import __all__ as all_names
+
         assert "export_gltf" in all_names
 
     @pytest.mark.skipif(

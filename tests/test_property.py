@@ -131,11 +131,21 @@ class TestColormapRegistryProperties:
     @given(
         name=st.sampled_from(
             [
-                "Cool to Warm", "cool to warm", "COOL TO WARM",
-                "Viridis", "VIRIDIS", "viridis",
-                "Plasma", "plasma", "PLASMA",
-                "Jet", "jet", "JET",
-                "Turbo", "turbo", "TURBO",
+                "Cool to Warm",
+                "cool to warm",
+                "COOL TO WARM",
+                "Viridis",
+                "VIRIDIS",
+                "viridis",
+                "Plasma",
+                "plasma",
+                "PLASMA",
+                "Jet",
+                "jet",
+                "JET",
+                "Turbo",
+                "turbo",
+                "TURBO",
             ]
         )
     )

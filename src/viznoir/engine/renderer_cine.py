@@ -38,9 +38,11 @@ class CinematicConfig:
     """Extended render configuration for cinematic output."""
 
     # Base render settings
-    render: RenderConfig = field(default_factory=lambda: RenderConfig(
-        background=(0.1, 0.1, 0.12),
-    ))
+    render: RenderConfig = field(
+        default_factory=lambda: RenderConfig(
+            background=(0.1, 0.1, 0.12),
+        )
+    )
 
     # Lighting
     lighting_preset: str | None = "cinematic"
@@ -72,30 +74,40 @@ class CinematicConfig:
 # Quality presets
 QUALITY_PRESETS: dict[str, dict[str, Any]] = {
     "draft": {
-        "width": 960, "height": 540,
-        "ssao": False, "fxaa": False,
+        "width": 960,
+        "height": 540,
+        "ssao": False,
+        "fxaa": False,
     },
     "standard": {
-        "width": 1920, "height": 1080,
-        "ssao": True, "fxaa": True,
+        "width": 1920,
+        "height": 1080,
+        "ssao": True,
+        "fxaa": True,
     },
     "cinematic": {
-        "width": 1920, "height": 1080,
-        "ssao": True, "fxaa": True,
+        "width": 1920,
+        "height": 1080,
+        "ssao": True,
+        "fxaa": True,
         "lighting_preset": "cinematic",
         "background_preset": "dark_gradient",
         "ground_plane": True,
     },
     "ultra": {
-        "width": 3840, "height": 2160,
-        "ssao": True, "fxaa": True,
+        "width": 3840,
+        "height": 2160,
+        "ssao": True,
+        "fxaa": True,
         "lighting_preset": "cinematic",
         "background_preset": "dark_gradient",
         "ground_plane": True,
     },
     "publication": {
-        "width": 2400, "height": 1800,
-        "ssao": False, "fxaa": True,
+        "width": 2400,
+        "height": 1800,
+        "ssao": False,
+        "fxaa": True,
         "lighting_preset": "publication",
         "background_preset": "publication",
         "ground_plane": False,
@@ -185,6 +197,7 @@ def cinematic_render(
                 mapper.GetLookupTable().SetVectorModeToMagnitude()
 
             from .colormaps import build_lut
+
             lut = build_lut(rc.colormap, scalar_range=scalar_range, log_scale=rc.log_scale)
             mapper.SetLookupTable(lut)
             mapper.SetScalarRange(*scalar_range)
@@ -213,7 +226,8 @@ def cinematic_render(
     if config.ground_plane:
         bounds = render_data.GetBounds()
         add_ground_plane(
-            renderer, bounds,
+            renderer,
+            bounds,
             color=config.ground_color,
             opacity=config.ground_opacity,
         )
@@ -246,7 +260,11 @@ def cinematic_render(
     rw.Render()
     logger.info(
         "cinematic render: %dx%d, lighting=%s, ssao=%s, fxaa=%s",
-        rc.width, rc.height, config.lighting_preset, config.ssao, config.fxaa,
+        rc.width,
+        rc.height,
+        config.lighting_preset,
+        config.ssao,
+        config.fxaa,
     )
     return _capture_png(rw)
 

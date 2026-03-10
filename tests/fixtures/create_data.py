@@ -31,10 +31,12 @@ info = {
 pd = data.GetPointData()
 for i in range(pd.GetNumberOfArrays()):
     arr = pd.GetArray(i)
-    info["point_arrays"].append({
-        "name": arr.GetName(),
-        "components": arr.GetNumberOfComponents(),
-        "range": list(arr.GetRange()),
-    })
+    info["point_arrays"].append(
+        {
+            "name": arr.GetName(),
+            "components": arr.GetNumberOfComponents(),
+            "range": list(arr.GetRange()),
+        }
+    )
 
 print(json.dumps(info, indent=2))

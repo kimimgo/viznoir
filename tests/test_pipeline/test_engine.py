@@ -103,7 +103,6 @@ class TestValidatePipeline:
         errors = validate_pipeline(pipeline)
         assert errors == []
 
-
     def test_programmable_filter_blocked_by_default(self):
         """ProgrammableFilter should be rejected when VIZNOIR_ALLOW_PROGRAMMABLE is not set."""
         pipeline = PipelineDefinition(
@@ -125,6 +124,7 @@ class TestValidatePipeline:
         import importlib
 
         import viznoir.pipeline.engine as eng
+
         importlib.reload(eng)
         try:
             pipeline = PipelineDefinition(
@@ -142,7 +142,6 @@ class TestValidatePipeline:
         finally:
             monkeypatch.delenv("VIZNOIR_ALLOW_PROGRAMMABLE", raising=False)
             importlib.reload(eng)
-
 
     def test_animation_without_animation_def(self):
         pipeline = PipelineDefinition(
@@ -171,6 +170,7 @@ class TestValidatePipeline:
             RenderPaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -178,12 +178,17 @@ class TestValidatePipeline:
                 type="split_animation",
                 split_animation=SplitAnimationDef(
                     panes=[
-                        PaneDef(type="render", row=0, col=0,
-                                render_pane=RenderPaneDef(render=RenderDef(field="p"))),
-                        PaneDef(type="graph", row=0, col=1,
-                                graph_pane=GraphPaneDef(series=[
+                        PaneDef(type="render", row=0, col=0, render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+                        PaneDef(
+                            type="graph",
+                            row=0,
+                            col=1,
+                            graph_pane=GraphPaneDef(
+                                series=[
                                     GraphSeriesDef(field="p", stat="mean"),
-                                ])),
+                                ]
+                            ),
+                        ),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
                 ),
@@ -199,6 +204,7 @@ class TestValidatePipeline:
             RenderPaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -206,8 +212,7 @@ class TestValidatePipeline:
                 type="split_animation",
                 split_animation=SplitAnimationDef(
                     panes=[
-                        PaneDef(type="render", row=5, col=0,
-                                render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+                        PaneDef(type="render", row=5, col=0, render_pane=RenderPaneDef(render=RenderDef(field="p"))),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
                 ),
@@ -223,6 +228,7 @@ class TestValidatePipeline:
             RenderPaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -230,8 +236,7 @@ class TestValidatePipeline:
                 type="split_animation",
                 split_animation=SplitAnimationDef(
                     panes=[
-                        PaneDef(type="render", row=0, col=3,
-                                render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+                        PaneDef(type="render", row=0, col=3, render_pane=RenderPaneDef(render=RenderDef(field="p"))),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
                 ),
@@ -246,6 +251,7 @@ class TestValidatePipeline:
             PaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -269,6 +275,7 @@ class TestValidatePipeline:
             RenderPaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -276,8 +283,7 @@ class TestValidatePipeline:
                 type="split_animation",
                 split_animation=SplitAnimationDef(
                     panes=[
-                        PaneDef(type="render", row=0, col=0,
-                                render_pane=RenderPaneDef(render=RenderDef(field="p"))),
+                        PaneDef(type="render", row=0, col=0, render_pane=RenderPaneDef(render=RenderDef(field="p"))),
                         PaneDef(type="graph", row=0, col=1),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
@@ -295,6 +301,7 @@ class TestValidatePipeline:
             PaneDef,
             SplitAnimationDef,
         )
+
         pipeline = PipelineDefinition(
             source=SourceDef(file="/data/case.vtk"),
             pipeline=[],
@@ -302,10 +309,16 @@ class TestValidatePipeline:
                 type="split_animation",
                 split_animation=SplitAnimationDef(
                     panes=[
-                        PaneDef(type="graph", row=0, col=0,
-                                graph_pane=GraphPaneDef(series=[
+                        PaneDef(
+                            type="graph",
+                            row=0,
+                            col=0,
+                            graph_pane=GraphPaneDef(
+                                series=[
                                     GraphSeriesDef(field="p", stat="mean"),
-                                ])),
+                                ]
+                            ),
+                        ),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
                 ),
@@ -326,9 +339,7 @@ class TestCompileVideo:
         from viznoir.pipeline.engine import compile_video
 
         monkeypatch.setattr(_shutil, "which", lambda _cmd: None)
-        video_bytes, error = await compile_video(
-            {"frame_000000.png": b"fake"}, fps=24.0
-        )
+        video_bytes, error = await compile_video({"frame_000000.png": b"fake"}, fps=24.0)
         assert video_bytes is None
         assert error is not None
         assert "ffmpeg not found" in error
@@ -338,9 +349,7 @@ class TestCompileVideo:
         """compile_video should return error when no frame files found."""
         from viznoir.pipeline.engine import compile_video
 
-        video_bytes, error = await compile_video(
-            {"result.json": b"{}"}, fps=24.0
-        )
+        video_bytes, error = await compile_video({"result.json": b"{}"}, fps=24.0)
         assert video_bytes is None
         assert error is not None
         assert "No frame files" in error or "ffmpeg not found" in error
@@ -420,9 +429,7 @@ class TestCompileVideo:
             img.save(buf, format="PNG")
             frames[f"frame_{i:06d}.png"] = buf.getvalue()
 
-        video_bytes, error = await compile_video(
-            frames, fps=10.0, text_overlay="Test Case"
-        )
+        video_bytes, error = await compile_video(frames, fps=10.0, text_overlay="Test Case")
         # May fail if ffmpeg doesn't support drawtext, so allow either outcome
         assert video_bytes is not None or error is not None
 
@@ -574,7 +581,9 @@ class TestExecutePipeline:
         )
 
         run_result = RunResult(
-            exit_code=0, stdout="", stderr="",
+            exit_code=0,
+            stdout="",
+            stderr="",
             output_file_data={"frame_000000.png": b"\x89PNG", "frame_000001.png": b"\x89PNG"},
             json_result={"effective_fps": 10.0},
         )
@@ -596,9 +605,7 @@ class TestExecutePipeline:
             new_callable=AsyncMock,
             return_value=(b"fake_video_data", None),
         ):
-            result = await execute_pipeline(
-                pipeline, mock_runner, mock_compiler, mock_output
-            )
+            result = await execute_pipeline(pipeline, mock_runner, mock_compiler, mock_output)
         assert result.image_bytes == b"fake_video_data"
         assert result.json_data["video_format"] == "mp4"
 
@@ -623,7 +630,9 @@ class TestExecutePipeline:
         )
 
         run_result = RunResult(
-            exit_code=0, stdout="", stderr="",
+            exit_code=0,
+            stdout="",
+            stderr="",
             output_file_data={"frame_000000.png": b"x"},
             json_result=None,
         )
@@ -633,7 +642,9 @@ class TestExecutePipeline:
         mock_compiler.compile.return_value = "s"
         mock_output = MagicMock()
         mock_output.parse.return_value = PipelineResult(
-            output_type="animation", image_bytes=None, json_data=None,
+            output_type="animation",
+            image_bytes=None,
+            json_data=None,
         )
 
         with patch(
@@ -641,9 +652,7 @@ class TestExecutePipeline:
             new_callable=AsyncMock,
             return_value=(None, "ffmpeg not found"),
         ):
-            result = await execute_pipeline(
-                pipeline, mock_runner, mock_compiler, mock_output
-            )
+            result = await execute_pipeline(pipeline, mock_runner, mock_compiler, mock_output)
         assert result.json_data["video_error"] == "ffmpeg not found"
 
     @pytest.mark.asyncio
@@ -670,16 +679,16 @@ class TestExecutePipeline:
                 split_animation=SplitAnimationDef(
                     panes=[
                         PaneDef(
-                            type="render", row=0, col=0,
-                            render_pane=RenderPaneDef(
-                                render=RenderDef(field="p")
-                            ),
+                            type="render",
+                            row=0,
+                            col=0,
+                            render_pane=RenderPaneDef(render=RenderDef(field="p")),
                         ),
                         PaneDef(
-                            type="graph", row=0, col=1,
-                            graph_pane=GraphPaneDef(
-                                series=[GraphSeriesDef(field="p", stat="mean")]
-                            ),
+                            type="graph",
+                            row=0,
+                            col=1,
+                            graph_pane=GraphPaneDef(series=[GraphSeriesDef(field="p", stat="mean")]),
                         ),
                     ],
                     layout=LayoutDef(rows=1, cols=2),
@@ -688,7 +697,9 @@ class TestExecutePipeline:
         )
 
         run_result = RunResult(
-            exit_code=0, stdout="", stderr="",
+            exit_code=0,
+            stdout="",
+            stderr="",
             output_file_data={
                 "frame_000000.png": b"\x89PNG",
                 "stats.json": b'{"p_mean": [1.0, 2.0]}',
@@ -710,9 +721,7 @@ class TestExecutePipeline:
             "viznoir.core.compositor.Compositor",
             return_value=mock_compositor,
         ):
-            result = await execute_split_animation(
-                pipeline, mock_runner, mock_compiler
-            )
+            result = await execute_split_animation(pipeline, mock_runner, mock_compiler)
         assert result.output_type == "split_animation"
         assert result.image_bytes == b"GIF89a_fake"
         assert result.json_data["frame_count"] == 1
@@ -773,8 +782,10 @@ class TestCompileVideoEdgeCases:
         async def mock_create(*args, **kwargs):
             return mock_proc
 
-        with patch("shutil.which", return_value="/usr/bin/ffmpeg"), \
-             patch("asyncio.create_subprocess_exec", side_effect=mock_create):
+        with (
+            patch("shutil.which", return_value="/usr/bin/ffmpeg"),
+            patch("asyncio.create_subprocess_exec", side_effect=mock_create),
+        ):
             video_bytes, error = await compile_video(frames, fps=10.0)
 
         assert video_bytes is None
@@ -797,8 +808,10 @@ class TestCompileVideoEdgeCases:
         async def mock_create(*args, **kwargs):
             return mock_proc
 
-        with patch("shutil.which", return_value="/usr/bin/ffmpeg"), \
-             patch("asyncio.create_subprocess_exec", side_effect=mock_create):
+        with (
+            patch("shutil.which", return_value="/usr/bin/ffmpeg"),
+            patch("asyncio.create_subprocess_exec", side_effect=mock_create),
+        ):
             video_bytes, error = await compile_video(frames, fps=10.0)
 
         assert video_bytes is None
@@ -830,7 +843,9 @@ class TestEffectiveFpsFromJsonData:
         )
 
         run_result = RunResult(
-            exit_code=0, stdout="", stderr="",
+            exit_code=0,
+            stdout="",
+            stderr="",
             output_file_data={"frame_000000.png": b"\x89PNG"},
             json_result=None,
         )
@@ -840,7 +855,8 @@ class TestEffectiveFpsFromJsonData:
         mock_compiler.compile.return_value = "s"
         mock_output = MagicMock()
         mock_output.parse.return_value = PipelineResult(
-            output_type="animation", image_bytes=None,
+            output_type="animation",
+            image_bytes=None,
             json_data={"effective_fps": 24.0},
         )
 

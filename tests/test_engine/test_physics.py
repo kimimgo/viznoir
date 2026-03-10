@@ -16,6 +16,7 @@ from viznoir.engine.physics import (
 
 # ── detect_physics ───────────────────────────────────────────────────
 
+
 class TestDetectPhysics:
     def test_pressure_field(self):
         pt = detect_physics("p")
@@ -155,6 +156,7 @@ class TestDetectPhysicsCaseInsensitive:
 
 # ── analyze_camera (View Frustum Analysis) ────────────────────────────
 
+
 class TestAnalyzeCameraDegenerate:
     def test_zero_bounds(self):
         cam = analyze_camera((0, 0, 0, 0, 0, 0))
@@ -259,6 +261,7 @@ class TestAnalyzeCameraPhysicsOverride:
 
 # ── REPRESENTATION_TYPES ──────────────────────────────────────────────
 
+
 class TestRepresentationTypes:
     def test_all_types_present(self):
         expected = {"surface", "surface_with_edges", "wireframe", "points", "point_gaussian"}
@@ -276,6 +279,7 @@ class TestRepresentationTypes:
 
 
 # ── SmartRepresentation dataclass ─────────────────────────────────────
+
 
 class TestSmartRepresentationDataclass:
     def test_default_surface(self):
@@ -296,6 +300,7 @@ class TestSmartRepresentationDataclass:
 
 
 # ── VisualizationTechnique dataclass ──────────────────────────────────
+
 
 class TestVisualizationTechnique:
     def test_glyph_technique(self):
@@ -360,6 +365,7 @@ class TestVisualizationTechnique:
 
 
 # ── SmartDefaults dataclass ───────────────────────────────────────────
+
 
 class TestSmartDefaultsDataclass:
     def test_construction(self):
@@ -713,11 +719,19 @@ class TestSmartRepresentationEdgeCases:
     def test_surface_with_edges_physics(self):
         """Physics with surface_with_edges → edges on."""
         from viznoir.engine.physics import PhysicsType
+
         grid = _make_3d_grid()
         physics = PhysicsType(
-            name="stress", category="scalar", colormap="turbo",
-            diverging=False, log_scale=False, camera_2d="top", camera_3d="isometric",
-            representation="surface_with_edges", warp=False, streamlines=False,
+            name="stress",
+            category="scalar",
+            colormap="turbo",
+            diverging=False,
+            log_scale=False,
+            camera_2d="top",
+            camera_3d="isometric",
+            representation="surface_with_edges",
+            warp=False,
+            streamlines=False,
         )
         rep = smart_representation(grid, physics)
         assert rep.edge_visibility is True
@@ -739,6 +753,7 @@ class TestSmartRepresentationEdgeCases:
         pts.InsertNextPoint(0, 0, 0)
         grid.SetPoints(pts)
         from viznoir.engine.physics import _auto_point_size
+
         assert _auto_point_size(grid) == 5.0
 
 

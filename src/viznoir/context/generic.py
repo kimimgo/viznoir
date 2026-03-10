@@ -1,4 +1,5 @@
 """GenericContextParser — extracts mesh quality from any VTK dataset."""
+
 from __future__ import annotations
 
 from viznoir.context.models import CaseContext, MeshQuality
@@ -42,7 +43,14 @@ class GenericContextParser:
 def _vtk_cell_type_name(cell_type: int) -> str:
     """Map VTK cell type integer to human-readable name."""
     names = {
-        3: "line", 5: "triangle", 8: "pixel", 9: "quad",
-        10: "tetra", 11: "voxel", 12: "hexahedron", 13: "wedge", 14: "pyramid",
+        3: "line",
+        5: "triangle",
+        8: "pixel",
+        9: "quad",
+        10: "tetra",
+        11: "voxel",
+        12: "hexahedron",
+        13: "wedge",
+        14: "pyramid",
     }
     return names.get(cell_type, f"type_{cell_type}")

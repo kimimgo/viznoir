@@ -16,6 +16,7 @@ from viznoir.engine.colormaps import (
 # list_colormaps
 # ---------------------------------------------------------------------------
 
+
 class TestListColormaps:
     def test_returns_sorted_list(self):
         result = list_colormaps()
@@ -24,9 +25,18 @@ class TestListColormaps:
 
     def test_includes_core_presets(self):
         result = list_colormaps()
-        for name in ("viridis", "cool to warm", "plasma", "inferno", "jet",
-                      "magma", "cividis", "twilight",
-                      "blue to red rainbow", "x ray"):
+        for name in (
+            "viridis",
+            "cool to warm",
+            "plasma",
+            "inferno",
+            "jet",
+            "magma",
+            "cividis",
+            "twilight",
+            "blue to red rainbow",
+            "x ray",
+        ):
             assert name in result
 
     def test_count_matches_registry(self):
@@ -40,6 +50,7 @@ class TestListColormaps:
 # ---------------------------------------------------------------------------
 # COLORMAP_REGISTRY
 # ---------------------------------------------------------------------------
+
 
 class TestColormapRegistry:
     def test_all_entries_are_tuples(self):
@@ -67,6 +78,7 @@ class TestColormapRegistry:
 # ---------------------------------------------------------------------------
 # build_lut (requires VTK mock)
 # ---------------------------------------------------------------------------
+
 
 class TestBuildLut:
     @pytest.fixture
@@ -159,9 +171,13 @@ class TestBuildLut:
             assert calls[0][0][0] == pytest.approx(10.0)  # lo + 0.0*(20-10)
             assert calls[1][0][0] == pytest.approx(20.0)  # lo + 1.0*(20-10)
 
-    @pytest.mark.parametrize("name", [
-        "blue to red rainbow", "x ray",
-    ])
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "blue to red rainbow",
+            "x ray",
+        ],
+    )
     def test_build_lut_new_colormaps(self, mock_vtk, name):
         """New colormaps (blue to red rainbow, x ray) build successfully."""
         mock, mock_ctf = mock_vtk

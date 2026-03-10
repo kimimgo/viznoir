@@ -1,4 +1,5 @@
 """L3 CaseContext data models for solver-specific metadata."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -8,6 +9,7 @@ from typing import Any
 @dataclass
 class BoundaryCondition:
     """A boundary condition on a specific patch for a specific field."""
+
     patch_name: str
     field: str
     type: str
@@ -17,6 +19,7 @@ class BoundaryCondition:
 @dataclass
 class TransportProperty:
     """A transport property (e.g., viscosity, density)."""
+
     name: str
     value: float
     unit: str | None = None
@@ -25,6 +28,7 @@ class TransportProperty:
 @dataclass
 class SolverInfo:
     """Solver metadata (name, algorithm, turbulence model)."""
+
     name: str
     algorithm: str | None = None
     turbulence_model: str | None = None
@@ -34,6 +38,7 @@ class SolverInfo:
 @dataclass
 class MeshQuality:
     """Mesh quality metrics extracted from the dataset."""
+
     cell_count: int
     point_count: int
     cell_types: dict[str, int]
@@ -59,6 +64,7 @@ class MeshQuality:
 @dataclass
 class DerivedQuantity:
     """A derived dimensionless quantity (Re, Ma, Pr, etc.)."""
+
     name: str
     value: float
     formula: str
@@ -68,6 +74,7 @@ class DerivedQuantity:
 @dataclass
 class CaseContext:
     """Complete case context from solver-specific metadata."""
+
     mesh_quality: MeshQuality
     boundary_conditions: list[BoundaryCondition] = field(default_factory=list)
     transport_properties: list[TransportProperty] = field(default_factory=list)

@@ -17,6 +17,14 @@ pipeline:
   - changed-files:
     - any-glob-to-any-file: 'src/viznoir/pipeline/**'
 
+context:
+  - changed-files:
+    - any-glob-to-any-file: 'src/viznoir/context/**'
+
+animation:
+  - changed-files:
+    - any-glob-to-any-file: 'src/viznoir/anim/**'
+
 tests:
   - changed-files:
     - any-glob-to-any-file: 'tests/**'

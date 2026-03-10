@@ -81,10 +81,13 @@ class TestFilterRegistry:
         assert result == {}
 
     def test_validate_calculator_params(self):
-        result = validate_filter_params("Calculator", {
-            "expression": "mag(U)",
-            "result_name": "Umag",
-        })
+        result = validate_filter_params(
+            "Calculator",
+            {
+                "expression": "mag(U)",
+                "result_name": "Umag",
+            },
+        )
         assert result["expression"] == "mag(U)"
         assert result["result_name"] == "Umag"
         assert result["association"] == "POINTS"  # default

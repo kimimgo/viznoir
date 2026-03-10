@@ -88,6 +88,7 @@ class TestSSAOEdgeCases:
         """Cover lines 60-61: vtkSSAOPass not available."""
         import sys
         from unittest.mock import MagicMock
+
         # Create a mock vtk module without vtkSSAOPass
         mock_vtk = MagicMock(spec=[])  # empty spec → hasattr returns False
         original = sys.modules.get("vtk")
@@ -103,6 +104,7 @@ class TestSSAOEdgeCases:
         """Cover lines 84-86: exception during SSAO setup."""
         import sys
         from unittest.mock import MagicMock
+
         mock_vtk = MagicMock()
         mock_vtk.vtkRenderStepsPass.side_effect = RuntimeError("test")
         original = sys.modules.get("vtk")
@@ -119,6 +121,7 @@ class TestFXAAEdgeCases:
     def test_fxaa_exception(self, renderer):
         """Cover lines 115-117: FXAA exception."""
         from unittest.mock import MagicMock
+
         bad_renderer = MagicMock()
         bad_renderer.SetUseFXAA.side_effect = RuntimeError("test")
         result = apply_fxaa(bad_renderer)

@@ -225,9 +225,7 @@ class DataReader:
 
         self._reader = reader
         self._timesteps = _extract_timesteps(reader)
-        self._is_multiblock = isinstance(
-            reader.GetOutput(), vtk.vtkMultiBlockDataSet
-        )
+        self._is_multiblock = isinstance(reader.GetOutput(), vtk.vtkMultiBlockDataSet)
 
     def _try_meshio_fallback(self, suffix: str) -> None:
         """Attempt to read the file via meshio and convert to VTK."""
@@ -251,10 +249,7 @@ class DataReader:
             mesh = meshio.read(str(self._path))
         except (ValueError, TypeError, OSError, KeyError, IndexError) as exc:
             available = ", ".join(sorted(_READER_MAP.keys()))
-            msg = (
-                f"Unsupported file format '{suffix}'. Native VTK: {available}. "
-                f"meshio also failed: {exc}"
-            )
+            msg = f"Unsupported file format '{suffix}'. Native VTK: {available}. meshio also failed: {exc}"
             if hint:
                 msg += f" Did you mean '{hint}'?"
             raise FileFormatError(msg) from exc
@@ -279,9 +274,7 @@ class DataReader:
 
         # Enable all cell arrays
         for i in range(reader.GetCellDataArraySelection().GetNumberOfArrays()):
-            reader.GetCellDataArraySelection().EnableArray(
-                reader.GetCellDataArraySelection().GetArrayName(i)
-            )
+            reader.GetCellDataArraySelection().EnableArray(reader.GetCellDataArraySelection().GetArrayName(i))
 
         # Enable all patch arrays
         reader.EnableAllPatchArrays()

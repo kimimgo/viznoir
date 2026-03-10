@@ -57,6 +57,7 @@ def compute_field_stats(dataset: Any, field_name: str) -> dict[str, float]:
     arr, _ = _get_field_array(dataset, field_name)
 
     from vtk.util.numpy_support import vtk_to_numpy
+
     data = _to_scalar(vtk_to_numpy(arr))
 
     return {
@@ -82,6 +83,7 @@ def detect_anomalies(
     arr, location = _get_field_array(dataset, field_name)
 
     from vtk.util.numpy_support import vtk_to_numpy
+
     data = _to_scalar(vtk_to_numpy(arr))
 
     mean, std = float(np.mean(data)), float(np.std(data))
@@ -102,12 +104,14 @@ def detect_anomalies(
     anomalies = []
     for idx in sorted_indices:
         val = float(data[idx])
-        anomalies.append({
-            "type": "local_extremum" if val > mean else "local_minimum",
-            "location": _get_location(dataset, idx, location),
-            "value": round(val, 4),
-            "significance": "high" if deviations[idx] > 3.0 else "medium",
-        })
+        anomalies.append(
+            {
+                "type": "local_extremum" if val > mean else "local_minimum",
+                "location": _get_location(dataset, idx, location),
+                "value": round(val, 4),
+                "significance": "high" if deviations[idx] > 3.0 else "medium",
+            }
+        )
 
     return anomalies
 
@@ -115,11 +119,11 @@ def detect_anomalies(
 # --- Physics context inference ---
 # Case-sensitive exact matches for 1-letter field names (CFD/FEA conventions)
 _EXACT_FIELD_MAP: dict[str, str] = {
-    "U": "velocity",        # OpenFOAM velocity (uppercase)
-    "p": "pressure",        # OpenFOAM pressure (lowercase)
-    "T": "temperature",     # Temperature (uppercase)
+    "U": "velocity",  # OpenFOAM velocity (uppercase)
+    "p": "pressure",  # OpenFOAM pressure (lowercase)
+    "T": "temperature",  # Temperature (uppercase)
     "k": "turbulent_kinetic_energy",
-    "u": "displacement",    # FEA displacement (lowercase)
+    "u": "displacement",  # FEA displacement (lowercase)
     "d": "displacement",
 }
 
@@ -207,24 +211,29 @@ def recommend_views(
         else:
             normal = [1, 0, 0]
 
-        views.append({
-            "type": "slice",
-            "params": {"origin": loc, "normal": normal},
-            "reason": f"{field_name} {anomaly['type']} at ({loc[0]}, {loc[1]}, {loc[2]})",
-        })
+        views.append(
+            {
+                "type": "slice",
+                "params": {"origin": loc, "normal": normal},
+                "reason": f"{field_name} {anomaly['type']} at ({loc[0]}, {loc[1]}, {loc[2]})",
+            }
+        )
 
     if anomalies:
         values = [a["value"] for a in anomalies[:2]]
-        views.append({
-            "type": "contour",
-            "params": {"values": [round(v, 4) for v in values]},
-            "reason": f"Iso-surfaces at {field_name} extrema",
-        })
+        views.append(
+            {
+                "type": "contour",
+                "params": {"values": [round(v, 4) for v in values]},
+                "reason": f"Iso-surfaces at {field_name} extrema",
+            }
+        )
 
     return views
 
 
 # --- Cross-field analysis ---
+
 
 def cross_field_analysis(
     dataset: Any,
@@ -260,12 +269,14 @@ def cross_field_analysis(
                     note += " — Bernoulli-consistent"
                 elif cats == {"temperature", "velocity"}:
                     note += " — convective heat transfer"
-                insights.append({
-                    "type": "correlation",
-                    "fields": [names[i], names[j]],
-                    "correlation": round(corr, 3),
-                    "note": note,
-                })
+                insights.append(
+                    {
+                        "type": "correlation",
+                        "fields": [names[i], names[j]],
+                        "correlation": round(corr, 3),
+                        "note": note,
+                    }
+                )
 
     return insights
 
@@ -350,13 +361,15 @@ def analyze_dataset(
         physics_ctx = infer_physics_context(field_name, stats)
         views = recommend_views(field_name, anomalies, bounds=bounds)
 
-        field_analyses.append({
-            "name": field_name,
-            "stats": stats,
-            "physics_context": physics_ctx,
-            "anomalies": anomalies,
-            "recommended_views": views,
-        })
+        field_analyses.append(
+            {
+                "name": field_name,
+                "stats": stats,
+                "physics_context": physics_ctx,
+                "anomalies": anomalies,
+                "recommended_views": views,
+            }
+        )
 
     return {
         "summary": {

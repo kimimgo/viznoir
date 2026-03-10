@@ -43,25 +43,36 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
 
-  review-hint:
-    name: Review Checklist
+  template-check:
+    name: PR Template
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
     steps:
-      - name: Post review guide
+      - name: Validate PR template
         uses: actions/github-script@v8
         with:
           script: |
             const body = context.payload.pull_request.body || '';
-            const checks = [];
-            if (!body.includes('## Description') || body.includes('<!-- What does this PR do? -->'))
-              checks.push('Add a description of what this PR does');
-            if (!body.includes('## Test Plan') || body.includes('<!-- How was this tested? -->'))
-              checks.push('Describe how you tested the changes');
-            if (checks.length === 0) return;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `### PR Quality Checklist\n\nPlease complete:\n${checks.map(c => '- [ ] ' + c).join('\n')}\n\n---\n*Automated reminder — fill out the PR template.*`
-            });
+            const errors = [];
+            if (!body.includes('## Description') || body.includes('<!-- What does this PR do?'))
+              errors.push('**Description** section is missing or not filled out');
+            if (!body.includes('## Test Plan') || body.includes('<!-- How was this tested?'))
+              errors.push('**Test Plan** section is missing or not filled out');
+            if (errors.length > 0) {
+              const msg = [
+                '### PR Template Incomplete',
+                '',
+                'Please fill out the PR template before this PR can be merged:',
+                '',
+                ...errors.map(e => '- ' + e),
+                '',
+                '---',
+                '*Edit the PR description to fix this.*'
+              ].join('\n');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: msg
+              });
+              core.setFailed('PR template not filled out: ' + errors.join(', '));
+            }

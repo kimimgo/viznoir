@@ -25,7 +25,11 @@ class TestRenderStoryLayout:
         assets = [_make_asset(), _make_asset(color=(0, 255, 0, 255))]
         labels = ["Panel A", "Panel B"]
         result = render_story_layout(
-            assets, labels, title="Test Story", width=800, height=600,
+            assets,
+            labels,
+            title="Test Story",
+            width=800,
+            height=600,
         )
         assert isinstance(result, Image.Image)
         assert result.size == (800, 600)
@@ -37,7 +41,11 @@ class TestRenderStoryLayout:
         assets = [_make_asset()]
         labels = ["Only panel"]
         result = render_story_layout(
-            assets, labels, title="Single", width=800, height=600,
+            assets,
+            labels,
+            title="Single",
+            width=800,
+            height=600,
         )
         assert isinstance(result, Image.Image)
         assert result.size == (800, 600)
@@ -58,7 +66,11 @@ class TestRenderStoryLayout:
         assets = [_make_asset(), _make_asset(), _make_asset()]
         labels = ["Only first"]
         result = render_story_layout(
-            assets, labels, title="Padded", width=800, height=600,
+            assets,
+            labels,
+            title="Padded",
+            width=800,
+            height=600,
         )
         assert isinstance(result, Image.Image)
 
@@ -124,7 +136,10 @@ class TestRenderSlidesLayout:
         assets = [_make_asset(), _make_asset()]
         labels = ["Slide 1", "Slide 2"]
         result = render_slides_layout(
-            assets, labels, width=800, height=600,
+            assets,
+            labels,
+            width=800,
+            height=600,
         )
         assert isinstance(result, list)
         assert len(result) == 2
@@ -230,16 +245,20 @@ class TestGetFont:
 class TestColorConstants:
     def test_bg_color(self):
         from viznoir.anim.compositor import BG_COLOR
+
         assert BG_COLOR == (0x1C, 0x1C, 0x2E, 255)
 
     def test_text_white(self):
         from viznoir.anim.compositor import TEXT_WHITE
+
         assert TEXT_WHITE == (255, 255, 255, 255)
 
     def test_text_dim(self):
         from viznoir.anim.compositor import TEXT_DIM
+
         assert TEXT_DIM == (0x88, 0x92, 0xB0, 255)
 
     def test_accent_teal(self):
         from viznoir.anim.compositor import ACCENT_TEAL
+
         assert ACCENT_TEAL == (0x00, 0xD4, 0xAA, 255)

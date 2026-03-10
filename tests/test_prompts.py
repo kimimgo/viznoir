@@ -26,6 +26,7 @@ class TestCFDGuide:
             def wrapper(fn):
                 captured[fn.__name__] = fn
                 return fn
+
             return wrapper
 
         mcp.prompt = prompt_decorator
@@ -74,6 +75,7 @@ class TestFEAGuide:
             def wrapper(fn):
                 captured[fn.__name__] = fn
                 return fn
+
             return wrapper
 
         mcp.prompt = prompt_decorator
@@ -106,6 +108,7 @@ class TestVisualizationGuide:
             def wrapper(fn):
                 captured[fn.__name__] = fn
                 return fn
+
             return wrapper
 
         mcp.prompt = prompt_decorator

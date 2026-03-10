@@ -100,7 +100,6 @@ class TestValidateFilePath:
         with pytest.raises(FileNotFoundError, match="Did you mean"):
             validate(str(tmp_path / "caviti.vtk"))
 
-
     def test_rejects_symlink_escape(self, tmp_path):
         """Symlink pointing outside data_dir should be rejected."""
         data_dir = tmp_path / "data"

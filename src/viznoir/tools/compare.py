@@ -52,6 +52,7 @@ async def compare_impl(
         shared_range = scalar_range
         if shared_range is None and field_name:
             from viznoir.engine.renderer import _get_scalar_range, _resolve_array, _resolve_renderable
+
             rd_a = _resolve_renderable(data_a)
             rd_b = _resolve_renderable(data_b)
             if rd_a and rd_b:
@@ -96,9 +97,12 @@ async def compare_impl(
 
 
 def _compose_side_by_side(
-    png_a: bytes, png_b: bytes,
-    label_a: str, label_b: str,
-    half_w: int, h: int,
+    png_a: bytes,
+    png_b: bytes,
+    label_a: str,
+    label_b: str,
+    half_w: int,
+    h: int,
 ) -> bytes:
     """Compose two PNG images side by side with labels."""
     import io
@@ -148,11 +152,13 @@ def _compose_diff(data_a: Any, data_b: Any, field_name: str, config: Any) -> byt
 
     if rd_a is None or rd_b is None:
         from viznoir.engine.renderer_cine import cinematic_render as _cine_render
+
         return _cine_render(data_a or data_b, config)
 
     name_a, assoc_a = _resolve_array(rd_a, field_name)
     if name_a is None:
         from viznoir.engine.renderer_cine import cinematic_render as _cine_render
+
         return _cine_render(rd_a, config)
 
     attrs_a = rd_a.GetPointData() if assoc_a == "point" else rd_a.GetCellData()
@@ -163,6 +169,7 @@ def _compose_diff(data_a: Any, data_b: Any, field_name: str, config: Any) -> byt
 
     if arr_a is None or arr_b is None:
         from viznoir.engine.renderer_cine import cinematic_render as _cine_render
+
         return _cine_render(rd_a, config)
 
     np_a = vtk_to_numpy(arr_a)

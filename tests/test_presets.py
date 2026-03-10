@@ -57,6 +57,7 @@ class TestPresetAPI:
 
     def test_get_preset_invalid(self):
         import pytest
+
         with pytest.raises(KeyError, match="nonexistent"):
             get_preset("nonexistent_preset_name")
 

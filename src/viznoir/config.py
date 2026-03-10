@@ -29,24 +29,16 @@ class PVConfig:
 
     data_dir: Path | None = field(default_factory=lambda: _parse_data_dir())
     output_dir: Path = field(default_factory=lambda: Path(os.getenv("VIZNOIR_OUTPUT_DIR", "/output")))
-    python_bin: str = field(
-        default_factory=lambda: os.getenv("VIZNOIR_PYTHON_BIN", sys.executable)
-    )
+    python_bin: str = field(default_factory=lambda: os.getenv("VIZNOIR_PYTHON_BIN", sys.executable))
     vtk_backend: Literal["egl", "osmesa", "auto"] = field(
         default_factory=lambda: _parse_vtk_backend(os.getenv("VIZNOIR_VTK_BACKEND", "auto"))
     )
-    docker_image: str = field(
-        default_factory=lambda: os.getenv("VIZNOIR_DOCKER_IMAGE", "viznoir:latest")
-    )
-    default_timeout: float = field(
-        default_factory=lambda: float(os.getenv("VIZNOIR_TIMEOUT", "600"))
-    )
+    docker_image: str = field(default_factory=lambda: os.getenv("VIZNOIR_DOCKER_IMAGE", "viznoir:latest"))
+    default_timeout: float = field(default_factory=lambda: float(os.getenv("VIZNOIR_TIMEOUT", "600")))
     render_backend: Literal["gpu", "cpu", "auto"] = field(
         default_factory=lambda: _parse_render_backend(os.getenv("VIZNOIR_RENDER_BACKEND", "gpu"))
     )
-    gpu_device: int = field(
-        default_factory=lambda: int(os.getenv("VIZNOIR_GPU_DEVICE", "0"))
-    )
+    gpu_device: int = field(default_factory=lambda: int(os.getenv("VIZNOIR_GPU_DEVICE", "0")))
     default_resolution: tuple[int, int] = (1920, 1080)
 
     @property

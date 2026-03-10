@@ -1,22 +1,29 @@
 """Tests for L3 CaseContext data models."""
+
 from __future__ import annotations
 
 
 class TestBoundaryCondition:
     def test_create_fixed_value(self):
         from viznoir.context.models import BoundaryCondition
+
         bc = BoundaryCondition(
-            patch_name="movingWall", field="U",
-            type="fixedValue", value=[1, 0, 0],
+            patch_name="movingWall",
+            field="U",
+            type="fixedValue",
+            value=[1, 0, 0],
         )
         assert bc.patch_name == "movingWall"
         assert bc.value == [1, 0, 0]
 
     def test_create_noslip(self):
         from viznoir.context.models import BoundaryCondition
+
         bc = BoundaryCondition(
-            patch_name="fixedWalls", field="U",
-            type="noSlip", value=None,
+            patch_name="fixedWalls",
+            field="U",
+            type="noSlip",
+            value=None,
         )
         assert bc.value is None
 
@@ -24,6 +31,7 @@ class TestBoundaryCondition:
 class TestTransportProperty:
     def test_create_with_unit(self):
         from viznoir.context.models import TransportProperty
+
         tp = TransportProperty(name="nu", value=1e-6, unit="m^2/s")
         assert tp.name == "nu"
         assert tp.value == 1e-6
@@ -31,6 +39,7 @@ class TestTransportProperty:
 
     def test_create_without_unit(self):
         from viznoir.context.models import TransportProperty
+
         tp = TransportProperty(name="rho", value=1.225)
         assert tp.unit is None
 
@@ -38,9 +47,12 @@ class TestTransportProperty:
 class TestSolverInfo:
     def test_create(self):
         from viznoir.context.models import SolverInfo
+
         si = SolverInfo(
-            name="icoFoam", algorithm="PISO",
-            turbulence_model=None, steady=False,
+            name="icoFoam",
+            algorithm="PISO",
+            turbulence_model=None,
+            steady=False,
         )
         assert si.name == "icoFoam"
         assert si.steady is False
@@ -49,8 +61,10 @@ class TestSolverInfo:
 class TestMeshQuality:
     def test_create(self):
         from viznoir.context.models import MeshQuality
+
         mq = MeshQuality(
-            cell_count=400, point_count=441,
+            cell_count=400,
+            point_count=441,
             cell_types={"quad": 400},
             bounding_box=[[0, 0, 0], [0.1, 0.1, 0.005]],
         )
@@ -58,8 +72,10 @@ class TestMeshQuality:
 
     def test_dimensions_2d(self):
         from viznoir.context.models import MeshQuality
+
         mq = MeshQuality(
-            cell_count=400, point_count=441,
+            cell_count=400,
+            point_count=441,
             cell_types={"quad": 400},
             bounding_box=[[0, 0, 0], [0.1, 0.1, 0.0005]],
         )
@@ -67,8 +83,10 @@ class TestMeshQuality:
 
     def test_dimensions_3d(self):
         from viznoir.context.models import MeshQuality
+
         mq = MeshQuality(
-            cell_count=1000, point_count=1331,
+            cell_count=1000,
+            point_count=1331,
             cell_types={"hexahedron": 1000},
             bounding_box=[[0, 0, 0], [1, 1, 1]],
         )
@@ -76,8 +94,10 @@ class TestMeshQuality:
 
     def test_dimensions_zero_extent(self):
         from viznoir.context.models import MeshQuality
+
         mq = MeshQuality(
-            cell_count=1, point_count=2,
+            cell_count=1,
+            point_count=2,
             cell_types={"vertex": 1},
             bounding_box=[[0, 0, 0], [0, 0, 0]],
         )
@@ -87,8 +107,10 @@ class TestMeshQuality:
 class TestDerivedQuantity:
     def test_create(self):
         from viznoir.context.models import DerivedQuantity
+
         dq = DerivedQuantity(
-            name="Re", value=100.0,
+            name="Re",
+            value=100.0,
             formula="U_ref * L_ref / nu",
             inputs={"U_ref": 1.0, "L_ref": 0.1, "nu": 1e-3},
         )
@@ -98,9 +120,11 @@ class TestDerivedQuantity:
 class TestCaseContext:
     def test_create_minimal(self):
         from viznoir.context.models import CaseContext, MeshQuality
+
         cc = CaseContext(
             mesh_quality=MeshQuality(
-                cell_count=100, point_count=121,
+                cell_count=100,
+                point_count=121,
                 cell_types={"quad": 100},
                 bounding_box=[[0, 0, 0], [1, 1, 0.1]],
             ),
@@ -110,9 +134,11 @@ class TestCaseContext:
 
     def test_to_dict(self):
         from viznoir.context.models import CaseContext, MeshQuality
+
         cc = CaseContext(
             mesh_quality=MeshQuality(
-                cell_count=100, point_count=121,
+                cell_count=100,
+                point_count=121,
                 cell_types={"quad": 100},
                 bounding_box=[[0, 0, 0], [1, 1, 0.1]],
             ),
@@ -125,9 +151,11 @@ class TestCaseContext:
         import json
 
         from viznoir.context.models import CaseContext, MeshQuality
+
         cc = CaseContext(
             mesh_quality=MeshQuality(
-                cell_count=100, point_count=121,
+                cell_count=100,
+                point_count=121,
                 cell_types={"quad": 100},
                 bounding_box=[[0, 0, 0], [1, 1, 0.1]],
             ),
@@ -144,28 +172,35 @@ class TestCaseContext:
             SolverInfo,
             TransportProperty,
         )
+
         cc = CaseContext(
             mesh_quality=MeshQuality(
-                cell_count=400, point_count=441,
+                cell_count=400,
+                point_count=441,
                 cell_types={"quad": 400},
                 bounding_box=[[0, 0, 0], [0.1, 0.1, 0.005]],
             ),
             boundary_conditions=[
                 BoundaryCondition(
-                    patch_name="movingWall", field="U",
-                    type="fixedValue", value=[1, 0, 0],
+                    patch_name="movingWall",
+                    field="U",
+                    type="fixedValue",
+                    value=[1, 0, 0],
                 ),
             ],
             transport_properties=[
                 TransportProperty(name="nu", value=1e-3, unit="m^2/s"),
             ],
             solver=SolverInfo(
-                name="icoFoam", algorithm="PISO",
-                turbulence_model=None, steady=False,
+                name="icoFoam",
+                algorithm="PISO",
+                turbulence_model=None,
+                steady=False,
             ),
             derived_quantities=[
                 DerivedQuantity(
-                    name="Re", value=100.0,
+                    name="Re",
+                    value=100.0,
                     formula="U_ref * L_ref / nu",
                     inputs={"U_ref": 1.0, "L_ref": 0.1, "nu": 1e-3},
                 ),

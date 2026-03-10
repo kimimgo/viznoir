@@ -24,6 +24,7 @@ def _make_wavelet_file(tmp_path: Path) -> str:
 class TestAnalyzeToComposePipeline:
     def test_analyze_returns_insights(self):
         from viznoir.engine.analysis import analyze_dataset
+
         src = vtk.vtkRTAnalyticSource()
         src.SetWholeExtent(-8, 8, -8, 8, -8, 8)
         src.Update()

@@ -449,17 +449,27 @@ def export_video(
 
     cmd = [
         "ffmpeg",
-        "-y",                       # overwrite
-        "-f", "rawvideo",
-        "-pix_fmt", "rgba",
-        "-s", f"{w}x{h}",
-        "-r", str(fps),
-        "-i", "pipe:0",             # read from stdin
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
-        "-crf", "23",
-        "-preset", preset,
-        "-movflags", "+faststart",
+        "-y",  # overwrite
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "rgba",
+        "-s",
+        f"{w}x{h}",
+        "-r",
+        str(fps),
+        "-i",
+        "pipe:0",  # read from stdin
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-crf",
+        "23",
+        "-preset",
+        preset,
+        "-movflags",
+        "+faststart",
         "--",  # Prevent output_path from being interpreted as option
         output_path,
     ]
@@ -476,9 +486,7 @@ def export_video(
         _, stderr = proc.communicate()
 
     if proc.returncode != 0:
-        raise RuntimeError(
-            f"ffmpeg failed (exit {proc.returncode}): {stderr.decode(errors='replace')}"
-        )
+        raise RuntimeError(f"ffmpeg failed (exit {proc.returncode}): {stderr.decode(errors='replace')}")
 
 
 # ---------------------------------------------------------------------------

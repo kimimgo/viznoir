@@ -259,6 +259,7 @@ class VTKRenderer:
 
         # Opacity transfer function from preset
         from .transfer_functions import build_opacity_function
+
         otf = build_opacity_function(self._config.transfer_preset, (lo, hi), self._config.opacity)
 
         # Volume property

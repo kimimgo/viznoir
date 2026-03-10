@@ -209,8 +209,13 @@ class TestRenderVideo:
         # Mock export_video to avoid ffmpeg dependency
         with patch("viznoir.anim.compositor.export_video") as mock_export:
             result = _render_video(
-                [img1, img2], ["Scene 1", "Scene 2"],
-                None, 320, 240, 10, str(tmp_path),
+                [img1, img2],
+                ["Scene 1", "Scene 2"],
+                None,
+                320,
+                240,
+                10,
+                str(tmp_path),
             )
             assert result["layout"] == "video"
             assert result["scene_count"] == 2
@@ -231,8 +236,13 @@ class TestRenderVideo:
         ]
         with patch("viznoir.anim.compositor.export_video"):
             result = _render_video(
-                [img], ["Label"],
-                scenes, 160, 120, 10, str(tmp_path),
+                [img],
+                ["Label"],
+                scenes,
+                160,
+                120,
+                10,
+                str(tmp_path),
             )
             assert result["scene_count"] == 2
             assert result["duration"] == 2.0

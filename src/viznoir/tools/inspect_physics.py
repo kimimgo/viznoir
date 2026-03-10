@@ -69,7 +69,8 @@ async def inspect_physics_impl(
     topologies: list[dict[str, Any]] = []
     for field_name in all_fields:
         topo = analyze_field_topology(
-            dataset, field_name,
+            dataset,
+            field_name,
             probe_lines=probe_lines,
             vortex_threshold=vortex_threshold,
         )

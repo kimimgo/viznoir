@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 # LaTeX availability detection
 # ---------------------------------------------------------------------------
 
+
 def _has_latex() -> bool:
     """Check if latex and dvisvgm are available on PATH."""
     return shutil.which("latex") is not None and shutil.which("dvisvgm") is not None
@@ -33,6 +34,7 @@ def _has_cairosvg() -> bool:
     """Check if cairosvg is importable."""
     try:
         import cairosvg  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -62,6 +64,7 @@ _LATEX_TEMPLATE = r"""\documentclass[preview,border=1pt]{standalone}
 # Core pipeline: LaTeX → DVI → SVG → PNG
 # ---------------------------------------------------------------------------
 
+
 def _latex_to_dvi(tex_source: str, work_dir: Path) -> Path:
     """Compile LaTeX source to DVI."""
     tex_file = work_dir / "formula.tex"
@@ -75,9 +78,7 @@ def _latex_to_dvi(tex_source: str, work_dir: Path) -> Path:
     )
     dvi_file = work_dir / "formula.dvi"
     if not dvi_file.exists():
-        raise RuntimeError(
-            f"LaTeX compilation failed:\n{result.stdout.decode(errors='replace')[-500:]}"
-        )
+        raise RuntimeError(f"LaTeX compilation failed:\n{result.stdout.decode(errors='replace')[-500:]}")
     return dvi_file
 
 
@@ -88,9 +89,10 @@ def _dvi_to_svg(dvi_file: Path, work_dir: Path) -> str:
     result = subprocess.run(
         [
             "dvisvgm",
-            "--no-fonts",       # convert fonts to paths (portable)
-            "--exact-bbox",     # tight bounding box
-            "-o", str(svg_file),
+            "--no-fonts",  # convert fonts to paths (portable)
+            "--exact-bbox",  # tight bounding box
+            "-o",
+            str(svg_file),
             str(dvi_file),
         ],
         cwd=work_dir,
@@ -98,9 +100,7 @@ def _dvi_to_svg(dvi_file: Path, work_dir: Path) -> str:
         timeout=30,
     )
     if not svg_file.exists():
-        raise RuntimeError(
-            f"dvisvgm failed:\n{result.stderr.decode(errors='replace')}"
-        )
+        raise RuntimeError(f"dvisvgm failed:\n{result.stderr.decode(errors='replace')}")
     return svg_file.read_text()
 
 
@@ -137,9 +137,11 @@ def _svg_to_png(svg_text: str, scale: float = 3.0) -> bytes:
 # Fallback: matplotlib mathtext
 # ---------------------------------------------------------------------------
 
+
 def _render_mathtext(tex_string: str, font_size: float, color: str) -> Image:
     """Fallback renderer using matplotlib mathtext."""
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from PIL import Image as PILImage
@@ -154,11 +156,14 @@ def _render_mathtext(tex_string: str, font_size: float, color: str) -> Image:
         tex_string = f"${tex_string}$"
 
     ax.text(
-        0.5, 0.5, tex_string,
+        0.5,
+        0.5,
+        tex_string,
         transform=ax.transAxes,
         fontsize=font_size * 0.6,  # matplotlib pts differ from LaTeX
         color=f"#{color}",
-        ha="center", va="center",
+        ha="center",
+        va="center",
     )
 
     buf = BytesIO()
@@ -171,6 +176,7 @@ def _render_mathtext(tex_string: str, font_size: float, color: str) -> Image:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def render_latex(
     tex_string: str,
@@ -265,10 +271,7 @@ def render_latex_lines(
     """
     from PIL import Image as PILImage
 
-    images = [
-        render_latex(tex, color=col, scale=scale, preamble=preamble)
-        for tex, col in lines
-    ]
+    images = [render_latex(tex, color=col, scale=scale, preamble=preamble) for tex, col in lines]
 
     total_width = max(img.width for img in images)
     total_height = sum(img.height for img in images) + spacing * (len(images) - 1)

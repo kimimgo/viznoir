@@ -33,9 +33,7 @@ class InProcessExecutor:
         """Execute a script string in-process and return RunResult."""
         managed = output_dir is None
         tmpdir_ctx: tempfile.TemporaryDirectory[str] | None = (
-            tempfile.TemporaryDirectory(prefix="viznoir_ip_", ignore_cleanup_errors=True)
-            if managed
-            else None
+            tempfile.TemporaryDirectory(prefix="viznoir_ip_", ignore_cleanup_errors=True) if managed else None
         )
         effective_output_dir: Path
 
@@ -103,9 +101,7 @@ class InProcessExecutor:
             # Parse result.json if present
             json_file = effective_output_dir / "result.json"
             if json_file.exists():
-                result.json_result = json.loads(
-                    json_file.read_text(encoding="utf-8")
-                )
+                result.json_result = json.loads(json_file.read_text(encoding="utf-8"))
 
             return result
         finally:

@@ -19,6 +19,7 @@ def _mock_pipeline_result(**kwargs):
 # animate_impl
 # ---------------------------------------------------------------------------
 
+
 class TestAnimateImpl:
     @pytest.mark.asyncio
     @patch("viznoir.tools.animate.execute_pipeline")
@@ -113,6 +114,7 @@ class TestAnimateImpl:
 # split_animate_impl
 # ---------------------------------------------------------------------------
 
+
 class TestSplitAnimateImpl:
     @pytest.mark.asyncio
     @patch("viznoir.tools.split_animate.execute_split_animation")
@@ -123,10 +125,8 @@ class TestSplitAnimateImpl:
         runner = MagicMock()
 
         panes = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
-            {"type": "graph", "row": 0, "col": 1,
-             "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
+            {"type": "graph", "row": 0, "col": 1, "graph_pane": {"series": [{"field": "p", "stat": "max"}]}},
         ]
 
         await split_animate_impl(
@@ -153,8 +153,7 @@ class TestSplitAnimateImpl:
         runner = MagicMock()
 
         panes = [
-            {"type": "render", "row": 0, "col": 0,
-             "render_pane": {"render": {"field": "p"}}},
+            {"type": "render", "row": 0, "col": 0, "render_pane": {"render": {"field": "p"}}},
         ]
 
         await split_animate_impl(
@@ -179,6 +178,7 @@ class TestSplitAnimateImpl:
 # ---------------------------------------------------------------------------
 # isosurface_impl
 # ---------------------------------------------------------------------------
+
 
 class TestIsosurfaceImpl:
     @pytest.mark.asyncio
@@ -233,8 +233,11 @@ class TestIsosurfaceImpl:
         output_dir = tmp_path / "out"
 
         result = await pv_isosurface_impl(
-            str(bi4_dir), str(output_dir),
-            vars="+vel", only_type="+all", docker_image="custom:v2",
+            str(bi4_dir),
+            str(output_dir),
+            vars="+vel",
+            only_type="+all",
+            docker_image="custom:v2",
         )
         assert result["count"] == 0  # no iso_*.vtk files created
 
@@ -321,6 +324,7 @@ class TestIsosurfaceImpl:
 # extract impls
 # ---------------------------------------------------------------------------
 
+
 class TestExtractImpls:
     @pytest.mark.asyncio
     @patch("viznoir.tools.extract.execute_pipeline")
@@ -364,6 +368,7 @@ class TestExtractImpls:
 # preview_3d_impl
 # ---------------------------------------------------------------------------
 
+
 class TestPreview3dImpl:
     @pytest.mark.asyncio
     @patch("viznoir.tools.preview3d.export_gltf")
@@ -380,6 +385,7 @@ class TestPreview3dImpl:
         runner = MagicMock()
 
         import os
+
         with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             result = await preview_3d_impl(
                 file_path="/data/case.vtk",
@@ -404,6 +410,7 @@ class TestPreview3dImpl:
         runner = MagicMock()
 
         import os
+
         with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             await preview_3d_impl(
                 file_path="/data/case.vtk",
@@ -425,6 +432,7 @@ class TestPreview3dImpl:
         runner = MagicMock()
 
         import os
+
         with patch.dict(os.environ, {"VIZNOIR_OUTPUT_DIR": str(tmp_path)}):
             await preview_3d_impl(
                 file_path="/data/case.vtk",
@@ -438,6 +446,7 @@ class TestPreview3dImpl:
 # ---------------------------------------------------------------------------
 # slice_impl, streamlines_impl (zoom branch coverage)
 # ---------------------------------------------------------------------------
+
 
 class TestSliceImpl:
     @pytest.mark.asyncio
@@ -518,6 +527,7 @@ class TestStreamlinesImpl:
 # ---------------------------------------------------------------------------
 # render_impl
 # ---------------------------------------------------------------------------
+
 
 class TestRenderImpl:
     @pytest.mark.asyncio
@@ -618,6 +628,7 @@ class TestRenderImpl:
 # ---------------------------------------------------------------------------
 # batch_render_impl
 # ---------------------------------------------------------------------------
+
 
 class TestProbeTimeseriesImpl:
     @pytest.mark.asyncio

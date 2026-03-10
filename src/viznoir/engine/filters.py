@@ -883,10 +883,12 @@ def tube(
 # Pipeline composition
 # ---------------------------------------------------------------------------
 
+
 # Map of filter name → function (for declarative pipeline specs)
 def _normalize_filter_name(name: str) -> str:
     """Normalize filter name: CamelCase → snake_case, then lowercase."""
     import re
+
     # CamelCase → snake_case: insert _ before uppercase letters
     s = re.sub(r"(?<=[a-z0-9])([A-Z])", r"_\1", name)
     return s.lower()

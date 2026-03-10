@@ -34,12 +34,27 @@ class TestMCPToolListing:
         from fastmcp import Client
 
         expected_names = {
-            "inspect_data", "render", "slice", "contour", "clip",
-            "streamlines", "cinematic_render", "compare",
-            "probe_timeseries", "batch_render", "preview_3d",
-            "extract_stats", "plot_over_line", "integrate_surface",
-            "animate", "split_animate", "execute_pipeline", "pv_isosurface",
-            "volume_render", "analyze_data", "compose_assets",
+            "inspect_data",
+            "render",
+            "slice",
+            "contour",
+            "clip",
+            "streamlines",
+            "cinematic_render",
+            "compare",
+            "probe_timeseries",
+            "batch_render",
+            "preview_3d",
+            "extract_stats",
+            "plot_over_line",
+            "integrate_surface",
+            "animate",
+            "split_animate",
+            "execute_pipeline",
+            "pv_isosurface",
+            "volume_render",
+            "analyze_data",
+            "compose_assets",
             "inspect_physics",
         }
         async with Client(mcp) as client:
@@ -225,6 +240,7 @@ class TestMCPTasksSupport:
                 assert "execute_pipeline" in names
 
         import asyncio
+
         asyncio.run(_check())
 
     def test_has_mcp_tasks_with_mock_old_version(self):
@@ -252,8 +268,9 @@ class TestMCPTasksSupport:
                 return fake_docket
             return orig_import(name, *args, **kwargs)
 
-        with patch("importlib.metadata.version", return_value="3.1.0"), patch(
-            "importlib.import_module", side_effect=_import_with_docket
+        with (
+            patch("importlib.metadata.version", return_value="3.1.0"),
+            patch("importlib.import_module", side_effect=_import_with_docket),
         ):
             result = _has_mcp_tasks()
             assert result is True

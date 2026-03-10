@@ -73,24 +73,26 @@ class FieldTopology:
                 return [_convert(v) for v in obj]
             return obj
 
-        return _convert({
-            "field_name": self.field_name,
-            "field_range": self.field_range,
-            "vortices": [
-                {"center": v.center, "strength": v.strength, "rotation": v.rotation, "radius": v.radius}
-                for v in self.vortices
-            ],
-            "critical_points": [
-                {"position": cp.position, "type": cp.type, "velocity_magnitude": cp.velocity_magnitude}
-                for cp in self.critical_points
-            ],
-            "centerline_profiles": [
-                {"start": lp.start, "end": lp.end, "num_points": lp.num_points, "fields": lp.fields}
-                for lp in self.centerline_profiles
-            ],
-            "gradient_stats": self.gradient_stats,
-            "spatial_distribution": self.spatial_distribution,
-        })
+        return _convert(
+            {
+                "field_name": self.field_name,
+                "field_range": self.field_range,
+                "vortices": [
+                    {"center": v.center, "strength": v.strength, "rotation": v.rotation, "radius": v.radius}
+                    for v in self.vortices
+                ],
+                "critical_points": [
+                    {"position": cp.position, "type": cp.type, "velocity_magnitude": cp.velocity_magnitude}
+                    for cp in self.critical_points
+                ],
+                "centerline_profiles": [
+                    {"start": lp.start, "end": lp.end, "num_points": lp.num_points, "fields": lp.fields}
+                    for lp in self.centerline_profiles
+                ],
+                "gradient_stats": self.gradient_stats,
+                "spatial_distribution": self.spatial_distribution,
+            }
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -213,12 +215,14 @@ def detect_vortices(
         strength = float(cluster["strength"])
         omega_z = float(cluster["mean_vorticity"][2])
         rotation = "clockwise" if omega_z < 0 else "counter-clockwise"
-        vortices.append(Vortex(
-            center=center,
-            strength=strength,
-            rotation=rotation,
-            radius=cluster.get("radius"),
-        ))
+        vortices.append(
+            Vortex(
+                center=center,
+                strength=strength,
+                rotation=rotation,
+                radius=cluster.get("radius"),
+            )
+        )
 
     vortices.sort(key=lambda v: v.strength, reverse=True)
     return vortices
@@ -260,12 +264,14 @@ def _cluster_points(
         cluster_dists: np.ndarray = np.linalg.norm(cluster_coords - weighted_center, axis=1)
         cluster_radius = float(np.max(cluster_dists)) if len(cluster_dists) > 1 else radius * 0.5
 
-        clusters.append({
-            "center": weighted_center,
-            "strength": strength,
-            "mean_vorticity": mean_vort,
-            "radius": cluster_radius,
-        })
+        clusters.append(
+            {
+                "center": weighted_center,
+                "strength": strength,
+                "mean_vorticity": mean_vort,
+                "radius": cluster_radius,
+            }
+        )
         remaining[cluster_indices] = False
 
     return clusters
@@ -334,11 +340,13 @@ def _detect_vector_critical_points(
         if too_close:
             continue
 
-        selected.append(CriticalPoint(
-            position=pos.tolist(),
-            type="stagnation",
-            velocity_magnitude=float(mag[idx]),
-        ))
+        selected.append(
+            CriticalPoint(
+                position=pos.tolist(),
+                type="stagnation",
+                velocity_magnitude=float(mag[idx]),
+            )
+        )
         used_positions.append(pos)
         if len(selected) >= 20:
             break
@@ -401,11 +409,13 @@ def _detect_scalar_critical_points(
         if too_close:
             continue
 
-        selected.append(CriticalPoint(
-            position=pos.tolist(),
-            type="stagnation",
-            velocity_magnitude=float(grad_mag[idx]),
-        ))
+        selected.append(
+            CriticalPoint(
+                position=pos.tolist(),
+                type="stagnation",
+                velocity_magnitude=float(grad_mag[idx]),
+            )
+        )
         used_positions.append(pos)
         if len(selected) >= 20:
             break
@@ -489,12 +499,14 @@ def extract_centerline_profiles(
         if not fields:
             continue
 
-        profiles.append(LineProfile(
-            start=start,
-            end=end,
-            num_points=n_probed,
-            fields=fields,
-        ))
+        profiles.append(
+            LineProfile(
+                start=start,
+                end=end,
+                num_points=n_probed,
+                fields=fields,
+            )
+        )
 
     return profiles
 

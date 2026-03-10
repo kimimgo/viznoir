@@ -15,10 +15,18 @@
 All gates are enforced by CI. Check these locally before pushing:
 
 - [ ] `ruff check src/ tests/` — zero lint errors
+- [ ] `ruff format --check src/ tests/` — zero format violations
 - [ ] `mypy src/viznoir/ --ignore-missing-imports` — zero type errors
 - [ ] `pytest --cov=viznoir -q` — all tests pass, coverage >= 80%
+- [ ] New code has corresponding tests (no untested logic)
 - [ ] No secrets or credentials in the diff
 - [ ] CHANGELOG.md updated (if user-facing change)
+
+## Breaking Changes
+
+<!-- Does this PR break existing behavior? If yes, describe the impact. -->
+
+N/A
 
 ## PR Size
 

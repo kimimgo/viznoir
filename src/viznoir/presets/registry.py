@@ -111,7 +111,6 @@ CASE_PRESETS: dict[str, dict[str, Any]] = {
         ],
         "background": [0.32, 0.34, 0.43],
     },
-
     # ── Internal Flow ──
     "internal_flow": {
         "description": "Internal flow — pipes, HVAC, mixing chambers",
@@ -162,7 +161,6 @@ CASE_PRESETS: dict[str, dict[str, Any]] = {
         ],
         "background": [0.32, 0.34, 0.43],
     },
-
     # ── Multiphase / Sloshing ──
     "multiphase": {
         "description": "Multiphase flow — sloshing, wave tanks, free surface",
@@ -229,7 +227,6 @@ CASE_PRESETS: dict[str, dict[str, Any]] = {
         },
         "background": [0.32, 0.34, 0.43],
     },
-
     # ── Thermal / Conjugate Heat Transfer ──
     "thermal": {
         "description": "Thermal analysis — CHT, natural convection, heating",
@@ -282,7 +279,6 @@ CASE_PRESETS: dict[str, dict[str, Any]] = {
         ],
         "background": [0.32, 0.34, 0.43],
     },
-
     # ── Structural FEA ──
     "structural_fea": {
         "description": "Structural FEA — stress, deformation, fatigue",
@@ -341,7 +337,6 @@ CASE_PRESETS: dict[str, dict[str, Any]] = {
         "warp_scale_hint": "Use 10-100x for small deformations, 1x for large",
         "background": [1.0, 1.0, 1.0],  # White for publication
     },
-
     # ── DualSPHysics / SPH Particles ──
     "sph_particles": {
         "description": "SPH particle methods — DualSPHysics, wave tanks, fluid-structure",

@@ -46,16 +46,16 @@ class RunResult:
         if self.exit_code == 0 or not self.output_file_data:
             return False
         crash_sigs = (
-            "free(): invalid pointer", "double free",
-            "munmap_chunk", "vtkXOpenGLRenderWindow",
+            "free(): invalid pointer",
+            "double free",
+            "munmap_chunk",
+            "vtkXOpenGLRenderWindow",
         )
         return any(sig in self.stderr for sig in crash_sigs)
 
     def raise_on_error(self) -> None:
         if not self.ok and not self.is_cleanup_crash:
-            raise RuntimeError(
-                f"VTK script exited with code {self.exit_code}.\nstderr: {self.stderr}"
-            )
+            raise RuntimeError(f"VTK script exited with code {self.exit_code}.\nstderr: {self.stderr}")
 
 
 class VTKRunner:
@@ -104,14 +104,14 @@ class VTKRunner:
                 result = await self._run_inprocess(script, output_dir, timeout)
             else:
                 result = await self._run_docker(
-                    script_path, output_dir, timeout,
+                    script_path,
+                    output_dir,
+                    timeout,
                     extra_mounts=extra_mounts or [],
                 )
 
             # Collect output files and read them into memory before tempdir cleanup
-            result.output_files = [
-                f for f in output_dir.rglob("*") if f.is_file()
-            ]
+            result.output_files = [f for f in output_dir.rglob("*") if f.is_file()]
             for f in result.output_files:
                 try:
                     result.output_file_data[f.name] = f.read_bytes()
@@ -120,7 +120,10 @@ class VTKRunner:
 
             logger.debug(
                 "execute: exit_code=%d stdout=%d stderr=%d files=%d",
-                result.exit_code, len(result.stdout), len(result.stderr), len(result.output_files),
+                result.exit_code,
+                len(result.stdout),
+                len(result.stderr),
+                len(result.output_files),
             )
 
             # Try to parse JSON from a result file or stdout
@@ -135,9 +138,7 @@ class VTKRunner:
 
             return result
 
-    async def _run_local(
-        self, script_path: Path, output_dir: Path, timeout: float
-    ) -> RunResult:
+    async def _run_local(self, script_path: Path, output_dir: Path, timeout: float) -> RunResult:
         """Execute Python/VTK script directly via subprocess."""
         import os
 
@@ -168,9 +169,7 @@ class VTKRunner:
             env=env,
         )
         try:
-            stdout_bytes, stderr_bytes = await asyncio.wait_for(
-                proc.communicate(), timeout=timeout
-            )
+            stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         except asyncio.TimeoutError:
             proc.kill()
             await proc.communicate()
@@ -187,6 +186,7 @@ class VTKRunner:
         """Execute script in-process via InProcessExecutor."""
         if self._executor is None:
             from viznoir.core.worker import InProcessExecutor
+
             self._executor = InProcessExecutor()
 
         env_overrides: dict[str, str] = {}
@@ -205,16 +205,12 @@ class VTKRunner:
         loop = asyncio.get_event_loop()
         try:
             return await asyncio.wait_for(
-                loop.run_in_executor(
-                    None, self._executor.run, script, env_overrides, output_dir
-                ),
+                loop.run_in_executor(None, self._executor.run, script, env_overrides, output_dir),
                 timeout=timeout,
             )
         except asyncio.TimeoutError:
             logger.warning("in-process script timed out after %.0fs", timeout)
-            return RunResult(
-                stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1
-            )
+            return RunResult(stdout="", stderr=f"VTK script timed out after {timeout}s", exit_code=-1)
 
     async def _run_docker(
         self,
@@ -230,9 +226,13 @@ class VTKRunner:
         container_name = f"viznoir_{uuid.uuid4().hex[:12]}"
 
         args = [
-            "docker", "run", "--rm",
-            "--name", container_name,
-            "--user", f"{os.getuid()}:{os.getgid()}",
+            "docker",
+            "run",
+            "--rm",
+            "--name",
+            container_name,
+            "--user",
+            f"{os.getuid()}:{os.getgid()}",
         ]
 
         # GPU mode: expose NVIDIA GPU to container
@@ -245,24 +245,29 @@ class VTKRunner:
         else:
             args.extend(["-e", "VTK_DEFAULT_OPENGL_WINDOW=vtkOSOpenGLRenderWindow"])
 
-        args.extend([
-            "-v", f"{tmpdir}:/work:ro",
-            "-v", f"{output_dir}:/output",
-            *(
-                ["-v", f"{self.config.data_dir.resolve()}:/data:ro"]
-                if self.config.data_dir is not None
-                else []
-            ),
-            "-e", "VIZNOIR_OUTPUT_DIR=/output",
-            "-e", "VIZNOIR_DATA_DIR=/data",
-        ])
+        args.extend(
+            [
+                "-v",
+                f"{tmpdir}:/work:ro",
+                "-v",
+                f"{output_dir}:/output",
+                *(["-v", f"{self.config.data_dir.resolve()}:/data:ro"] if self.config.data_dir is not None else []),
+                "-e",
+                "VIZNOIR_OUTPUT_DIR=/output",
+                "-e",
+                "VIZNOIR_DATA_DIR=/data",
+            ]
+        )
         # Extra host directories mounted at same path inside container
-        for mount_dir in (extra_mounts or []):
+        for mount_dir in extra_mounts or []:
             args.extend(["-v", f"{mount_dir}:{mount_dir}:ro"])
-        args.extend([
-            self.config.docker_image,
-            "python", "/work/pipeline.py",
-        ])
+        args.extend(
+            [
+                self.config.docker_image,
+                "python",
+                "/work/pipeline.py",
+            ]
+        )
 
         proc = await asyncio.create_subprocess_exec(
             *args,
@@ -270,18 +275,14 @@ class VTKRunner:
             stderr=asyncio.subprocess.PIPE,
         )
         try:
-            stdout_bytes, stderr_bytes = await asyncio.wait_for(
-                proc.communicate(), timeout=timeout
-            )
+            stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         except asyncio.TimeoutError:
             proc.kill()
             await proc.communicate()
             # Kill the actual Docker container (proc.kill only kills the CLI)
             await self._stop_container(container_name)
             logger.warning("docker script timed out after %.0fs container=%s", timeout, container_name)
-            return RunResult(
-                stdout="", stderr=f"Docker VTK script timed out after {timeout}s", exit_code=-1
-            )
+            return RunResult(stdout="", stderr=f"Docker VTK script timed out after {timeout}s", exit_code=-1)
 
         return RunResult(
             stdout=stdout_bytes.decode("utf-8", errors="replace"),
@@ -308,7 +309,11 @@ class VTKRunner:
         """Stop any orphaned viznoir_* containers. Returns count removed."""
         try:
             p = await asyncio.create_subprocess_exec(
-                "docker", "ps", "-q", "--filter", "name=viznoir_",
+                "docker",
+                "ps",
+                "-q",
+                "--filter",
+                "name=viznoir_",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.DEVNULL,
             )
@@ -320,7 +325,10 @@ class VTKRunner:
             return 0
         try:
             rm = await asyncio.create_subprocess_exec(
-                "docker", "rm", "-f", *ids,
+                "docker",
+                "rm",
+                "-f",
+                *ids,
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )

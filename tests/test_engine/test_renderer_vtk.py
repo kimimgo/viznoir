@@ -25,6 +25,7 @@ def _sphere() -> vtk.vtkPolyData:
 class TestRenderToPng:
     def test_render_basic(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(width=200, height=150)
         png = render_to_png(_wavelet(), rc)
         assert png[:4] == b"\x89PNG"
@@ -32,14 +33,17 @@ class TestRenderToPng:
 
     def test_render_with_colormap(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(width=200, height=150, colormap="viridis", array_name="RTData")
         png = render_to_png(_wavelet(), rc)
         assert png[:4] == b"\x89PNG"
 
     def test_render_with_scalar_range(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             array_name="RTData",
             scalar_range=(50.0, 200.0),
         )
@@ -48,18 +52,21 @@ class TestRenderToPng:
 
     def test_render_wireframe(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(width=200, height=150, representation="wireframe")
         png = render_to_png(_sphere(), rc)
         assert png[:4] == b"\x89PNG"
 
     def test_render_with_background(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(width=200, height=150, background=(0.1, 0.2, 0.3))
         png = render_to_png(_wavelet(), rc)
         assert png[:4] == b"\x89PNG"
 
     def test_render_different_sizes(self):
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         rc = RenderConfig(width=400, height=300)
         png = render_to_png(_wavelet(), rc)
         assert png[:4] == b"\x89PNG"
@@ -69,6 +76,7 @@ class TestRenderToPng:
         """Test rendering with cell-associated data."""
         from viznoir.engine.filters import point_to_cell
         from viznoir.engine.renderer import RenderConfig, render_to_png
+
         data = point_to_cell(_wavelet())
         rc = RenderConfig(width=200, height=150)
         png = render_to_png(data, rc)
@@ -78,17 +86,20 @@ class TestRenderToPng:
 class TestResolveArray:
     def test_resolve_point_array(self):
         from viznoir.engine.renderer import _resolve_array
+
         name, assoc = _resolve_array(_wavelet(), "RTData")
         assert name == "RTData"
         assert assoc == "point"
 
     def test_resolve_none_returns_first(self):
         from viznoir.engine.renderer import _resolve_array
+
         name, assoc = _resolve_array(_wavelet(), None)
         assert name == "RTData"
 
     def test_resolve_nonexistent(self):
         from viznoir.engine.renderer import _resolve_array
+
         name, assoc = _resolve_array(_wavelet(), "nonexistent_field")
         # Should fall back or return None
         assert name is not None or name is None  # just verify no crash
@@ -97,12 +108,14 @@ class TestResolveArray:
 class TestResolveRenderable:
     def test_resolve_imagedata(self):
         from viznoir.engine.renderer import _resolve_renderable
+
         result = _resolve_renderable(_wavelet())
         assert result is not None
         assert result.GetNumberOfPoints() > 0
 
     def test_resolve_multiblock(self):
         from viznoir.engine.renderer import _resolve_renderable
+
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetBlock(0, _wavelet())
         result = _resolve_renderable(mb)
@@ -110,6 +123,7 @@ class TestResolveRenderable:
 
     def test_resolve_empty(self):
         from viznoir.engine.renderer import _resolve_renderable
+
         empty = vtk.vtkUnstructuredGrid()
         result = _resolve_renderable(empty)
         assert result is None
@@ -118,12 +132,14 @@ class TestResolveRenderable:
 class TestGetScalarRange:
     def test_scalar_range_point(self):
         from viznoir.engine.renderer import _get_scalar_range
+
         lo, hi = _get_scalar_range(_wavelet(), "RTData", "point", component=-1)
         assert lo < hi
         assert lo > 0  # RTData min is ~37
 
     def test_scalar_range_with_component(self):
         from viznoir.engine.renderer import _get_scalar_range
+
         lo, hi = _get_scalar_range(_wavelet(), "RTData", "point", component=0)
         assert lo < hi
 
@@ -131,6 +147,7 @@ class TestGetScalarRange:
 class TestVTKRenderer:
     def test_renderer_class(self):
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         png = renderer.render(_wavelet())
@@ -138,6 +155,7 @@ class TestVTKRenderer:
 
     def test_renderer_with_field(self):
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150, array_name="RTData", colormap="plasma")
         renderer = VTKRenderer(rc)
         png = renderer.render(_wavelet())
@@ -146,8 +164,10 @@ class TestVTKRenderer:
     def test_render_volume(self):
         """Test volume rendering path (lines 222-285)."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             representation="volume",
             array_name="RTData",
             colormap="plasma",
@@ -159,8 +179,10 @@ class TestVTKRenderer:
     def test_render_volume_no_array(self):
         """Volume rendering without explicit array uses defaults."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             representation="volume",
         )
         renderer = VTKRenderer(rc)
@@ -170,6 +192,7 @@ class TestVTKRenderer:
     def test_render_multiple(self):
         """Test render_multiple overlay path (lines 301-357)."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         datasets = [
@@ -182,6 +205,7 @@ class TestVTKRenderer:
     def test_render_multiple_with_colormap(self):
         """render_multiple with scalar mapping."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         datasets = [
@@ -193,6 +217,7 @@ class TestVTKRenderer:
     def test_render_multiple_with_empty_dataset(self):
         """render_multiple skips empty datasets."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         empty = vtk.vtkUnstructuredGrid()
@@ -207,6 +232,7 @@ class TestVTKRenderer:
         """render_multiple with cell-associated data (line 332)."""
         from viznoir.engine.filters import point_to_cell
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         cell_data = point_to_cell(_wavelet())
@@ -219,6 +245,7 @@ class TestVTKRenderer:
     def test_render_multiple_no_array(self):
         """render_multiple with no array → visibility off (line 343)."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         pd = vtk.vtkPolyData()
@@ -233,6 +260,7 @@ class TestVTKRenderer:
         """render_multiple with CameraConfig (line 351)."""
         from viznoir.engine.camera import CameraConfig
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         cam = CameraConfig(position=(10, 10, 10), focal_point=(0, 0, 0), view_up=(0, 1, 0))
         renderer = VTKRenderer(rc)
@@ -259,6 +287,7 @@ class TestVTKRenderer:
     def test_render_with_component_positive(self):
         """L173: component >= 0 rendering path (ColorByArrayComponent)."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150, array_name="RTData", component=0)
         renderer = VTKRenderer(rc)
         png = renderer.render(_wavelet())
@@ -267,6 +296,7 @@ class TestVTKRenderer:
     def test_render_no_array_scalar_visibility_off(self):
         """L188: no array found → scalar visibility off."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         # Request a nonexistent array → _resolve_array returns None → L188 executed
         rc = RenderConfig(width=200, height=150, array_name="does_not_exist")
         renderer = VTKRenderer(rc)
@@ -277,6 +307,7 @@ class TestVTKRenderer:
         """L206: camera_config provided (CameraConfig) → apply_camera called."""
         from viznoir.engine.camera import CameraConfig
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150, array_name="RTData")
         cam = CameraConfig(position=(10, 10, 10), focal_point=(0, 0, 0), view_up=(0, 1, 0))
         renderer = VTKRenderer(rc)
@@ -286,8 +317,10 @@ class TestVTKRenderer:
     def test_render_volume_non_imagedata(self):
         """L230-234: volume rendering with non-ImageData triggers resample path."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             representation="volume",
             array_name="Normals",
         )
@@ -300,6 +333,7 @@ class TestVTKRenderer:
         """L247: volume rendering with no scalar range → fallback to (0.0, 1.0).
         Needs a dataset with no arrays so array_name resolves to None."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         # Create a bare unstructured grid with points but no arrays
         grid = vtk.vtkUnstructuredGrid()
         pts = vtk.vtkPoints()
@@ -310,7 +344,8 @@ class TestVTKRenderer:
         grid.SetPoints(pts)
         # array_name=None, scalar_range=None, no arrays → L244 skipped, L247 hit
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             representation="volume",
             array_name=None,
             scalar_range=None,
@@ -323,6 +358,7 @@ class TestVTKRenderer:
         """L332: render_multiple with cell-associated data."""
         from viznoir.engine.filters import point_to_cell
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         data = point_to_cell(_wavelet())
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
@@ -333,6 +369,7 @@ class TestVTKRenderer:
     def test_render_multiple_no_array_scalar_off(self):
         """L343: render_multiple with no array → scalar visibility off."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         # Use dataset with nonexistent array → scalar visibility off (L343)
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
@@ -346,6 +383,7 @@ class TestVTKRenderer:
         """L351: render_multiple with camera_config provided."""
         from viznoir.engine.camera import CameraConfig
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         cam = CameraConfig(position=(20, 20, 20), focal_point=(0, 0, 0), view_up=(0, 0, 1))
         renderer = VTKRenderer(rc)
@@ -356,6 +394,7 @@ class TestVTKRenderer:
     def test_render_empty_dataset_blank_image(self):
         """L146-147: render_data is None → blank image returned."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         empty = vtk.vtkUnstructuredGrid()  # 0 points → _resolve_renderable returns None
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
@@ -367,8 +406,10 @@ class TestEdgeVisibility:
     def test_render_with_edge_visibility(self):
         """L483-484: edge_visibility=True path in _apply_representation."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(
-            width=200, height=150,
+            width=200,
+            height=150,
             edge_visibility=True,
             edge_color=(1.0, 0.0, 0.0),
         )
@@ -381,6 +422,7 @@ class TestVTKRendererConfig:
     def test_config_property(self):
         """L111: VTKRenderer.config property returns _config."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=300, height=200)
         renderer = VTKRenderer(rc)
         assert renderer.config is rc
@@ -412,6 +454,7 @@ class TestResolveRenderableEdgeCases:
     def test_resolve_empty_multiblock(self):
         """L381: empty multiblock → geometry filter returns 0 points → None."""
         from viznoir.engine.renderer import _resolve_renderable
+
         mb = vtk.vtkMultiBlockDataSet()
         # All empty blocks
         empty = vtk.vtkUnstructuredGrid()
@@ -422,6 +465,7 @@ class TestResolveRenderableEdgeCases:
     def test_resolve_non_dataset_non_multiblock(self):
         """L384: vtkDataObject (not dataset, not multiblock) → None."""
         from viznoir.engine.renderer import _resolve_renderable
+
         obj = vtk.vtkDataObject()
         result = _resolve_renderable(obj)
         assert result is None
@@ -462,6 +506,7 @@ class TestGetScalarRangeEdgeCases:
     def test_scalar_range_array_not_found(self):
         """L453: array not in attrs → returns (0.0, 1.0)."""
         from viznoir.engine.renderer import _get_scalar_range
+
         lo, hi = _get_scalar_range(_wavelet(), "nonexistent", "point", -1)
         assert lo == 0.0
         assert hi == 1.0
@@ -514,6 +559,7 @@ class TestRenderMultiblock:
     def test_multiblock_per_block_style(self):
         """render_multiblock applies per-block styling by index."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         mb = vtk.vtkMultiBlockDataSet()
         # Block 0: wavelet with color
         mb.SetBlock(0, _wavelet())
@@ -532,6 +578,7 @@ class TestRenderMultiblock:
     def test_multiblock_per_block_style_by_name(self):
         """render_multiblock matches block styles by name."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetBlock(0, _wavelet())
         mb.GetMetaData(0).Set(vtk.vtkCompositeDataSet.NAME(), "wavelet")
@@ -550,6 +597,7 @@ class TestRenderMultiblock:
     def test_multiblock_no_styles(self):
         """render_multiblock without styles uses default config."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetBlock(0, _wavelet())
         mb.SetBlock(1, _sphere())
@@ -562,6 +610,7 @@ class TestRenderMultiblock:
     def test_multiblock_with_none_block(self):
         """render_multiblock skips None blocks."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         mb = vtk.vtkMultiBlockDataSet()
         mb.SetNumberOfBlocks(3)
         mb.SetBlock(0, None)
@@ -576,6 +625,7 @@ class TestRenderMultiblock:
     def test_non_multiblock_fallback(self):
         """render_multiblock with non-multiblock falls back to render()."""
         from viznoir.engine.renderer import RenderConfig, VTKRenderer
+
         rc = RenderConfig(width=200, height=150)
         renderer = VTKRenderer(rc)
         png = renderer.render_multiblock(_wavelet())

@@ -80,13 +80,15 @@ def _array_info_list(attrs: vtk.vtkDataSetAttributes | None) -> list[dict[str, A
         arr = attrs.GetArray(i)
         if arr is None:
             continue
-        result.append({
-            "name": name,
-            "components": arr.GetNumberOfComponents(),
-            "tuples": arr.GetNumberOfTuples(),
-            "range": [arr.GetRange(c) for c in range(arr.GetNumberOfComponents())],
-            "type": arr.GetDataTypeAsString(),
-        })
+        result.append(
+            {
+                "name": name,
+                "components": arr.GetNumberOfComponents(),
+                "tuples": arr.GetNumberOfTuples(),
+                "range": [arr.GetRange(c) for c in range(arr.GetNumberOfComponents())],
+                "type": arr.GetDataTypeAsString(),
+            }
+        )
 
     return result
 

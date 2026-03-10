@@ -21,6 +21,7 @@ async def analyze_data_impl(
     def _run() -> dict[str, Any]:
         dataset = read_dataset(file_path)
         from viznoir.engine.analysis import analyze_dataset
+
         return analyze_dataset(dataset, focus=focus, domain=domain)
 
     loop = asyncio.get_event_loop()
