@@ -1,10 +1,7 @@
-name: Release Drafter
+name: Release Drafter (DEPRECATED — use Release Please)
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    types: [opened, reopened, synchronize]
+  workflow_dispatch: # manual only, replaced by release-please
 
 permissions:
   contents: read
