@@ -73,6 +73,7 @@ class FrameConfig:
 # Core render loop (shared by all presets)
 # ---------------------------------------------------------------------------
 
+
 def _render_loop(
     config: FrameConfig,
     setup_fn: Callable[..., tuple[vtk.vtkRenderWindow, vtk.vtkRenderer]],
@@ -124,6 +125,7 @@ def _render_loop(
 # ---------------------------------------------------------------------------
 # Preset: Layer Reveal (TF opacity sweep)
 # ---------------------------------------------------------------------------
+
 
 def layer_reveal(
     dataset: vtk.vtkImageData,
@@ -220,6 +222,7 @@ def layer_reveal(
 # ---------------------------------------------------------------------------
 # Preset: Clip Sweep
 # ---------------------------------------------------------------------------
+
 
 def clip_sweep(
     dataset: vtk.vtkDataSet,
@@ -350,6 +353,7 @@ def clip_sweep(
 # Preset: Iso Sweep
 # ---------------------------------------------------------------------------
 
+
 def iso_sweep(
     dataset: vtk.vtkImageData,
     iso_range: tuple[float, float] | None = None,
@@ -438,6 +442,7 @@ def iso_sweep(
 # ---------------------------------------------------------------------------
 # Preset: Threshold Reveal (volume opacity ramp)
 # ---------------------------------------------------------------------------
+
 
 def threshold_reveal(
     dataset: vtk.vtkImageData,
@@ -545,6 +550,7 @@ def threshold_reveal(
 # Preset: Warp Oscillation
 # ---------------------------------------------------------------------------
 
+
 def warp_oscillation(
     dataset: vtk.vtkDataSet,
     displacement_field: str = "Displacement",
@@ -590,7 +596,11 @@ def warp_oscillation(
         warp = _vtk.vtkWarpVector()
         warp.SetInputData(dataset)
         warp.SetInputArrayToProcess(
-            0, 0, 0, _vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, displacement_field,
+            0,
+            0,
+            0,
+            _vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS,
+            displacement_field,
         )
         warp.SetScaleFactor(0)
 
@@ -650,6 +660,7 @@ def warp_oscillation(
 # ---------------------------------------------------------------------------
 # Preset: Light Orbit (geomorphology oblique illumination)
 # ---------------------------------------------------------------------------
+
 
 def light_orbit(
     dataset: vtk.vtkPolyData,
@@ -738,6 +749,7 @@ def light_orbit(
 # ---------------------------------------------------------------------------
 # Preset: Streamline Growth
 # ---------------------------------------------------------------------------
+
 
 def streamline_growth(
     dataset: vtk.vtkDataSet,

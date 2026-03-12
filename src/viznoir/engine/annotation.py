@@ -280,6 +280,7 @@ def clear_annotations(renderer: vtk.vtkRenderer) -> int:
 # Internal tracking
 # ---------------------------------------------------------------------------
 
+
 def _track(renderer: vtk.vtkRenderer, actor: object) -> None:
     key = id(renderer)
     if key not in _annotation_actors:

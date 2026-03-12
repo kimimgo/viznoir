@@ -304,8 +304,13 @@ class TestPhysicsDocstrings:
     @pytest.mark.parametrize(
         "name",
         [
-            "layer_reveal", "clip_sweep", "iso_sweep", "threshold_reveal",
-            "warp_oscillation", "light_orbit", "streamline_growth",
+            "layer_reveal",
+            "clip_sweep",
+            "iso_sweep",
+            "threshold_reveal",
+            "warp_oscillation",
+            "light_orbit",
+            "streamline_growth",
         ],
     )
     def test_has_physics_explanation(self, name):
