@@ -53,24 +53,18 @@ import CodeBlock from './CodeBlock.astro';
         </div>
       </div>
 
-      <!-- Right column: showcase grid (40%) -->
+      <!-- Right column: showcase image (40%) -->
       <div class="lg:col-span-2">
-        <div class="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border border-border bg-secondary/80 p-2">
-          <div class="rounded-lg overflow-hidden">
-            <img src="/viznoir/showcase/01_skull_annotated.webp" alt="Medical CT volume rendering" class="w-full h-full object-cover" loading="eager" />
-          </div>
-          <div class="rounded-lg overflow-hidden">
-            <img src="/viznoir/showcase/05_drivaerml_annotated.webp" alt="Automotive CFD pressure" class="w-full h-full object-cover" loading="eager" />
-          </div>
-          <div class="rounded-lg overflow-hidden">
-            <img src="/viznoir/showcase/07_aneurism_annotated.webp" alt="Vascular MRA" class="w-full h-full object-cover" loading="eager" />
-          </div>
-          <div class="rounded-lg overflow-hidden">
-            <img src="/viznoir/showcase/08_bennu_annotated.webp" alt="Bennu asteroid" class="w-full h-full object-cover" loading="eager" />
-          </div>
+        <div class="card-hover overflow-hidden">
+          <img
+            src="/viznoir/showcase/cavity_story.webp"
+            alt="Lid-driven cavity flow: physics decomposition with LaTeX equations and cinematic renders"
+            class="w-full rounded-lg"
+            loading="eager"
+          />
         </div>
         <p class="text-[10px] text-text-secondary/30 font-mono text-center mt-2">
-          4 of 10 domains — all from single MCP tool calls
+          One prompt &rarr; physics analysis &rarr; cinematic renders &rarr; LaTeX &rarr; story
         </p>
       </div>
 

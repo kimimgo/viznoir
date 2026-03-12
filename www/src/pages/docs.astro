@@ -1,0 +1,433 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import '../styles/global.css';
+
+const domains = [
+  { src: '/viznoir/showcase/01_skull_annotated.webp', alt: 'CT skull volume rendering', label: 'Medical', detail: 'CT skull volume rendering' },
+  { src: '/viznoir/showcase/02_combustion_annotated.webp', alt: 'Combustion jet streamlines', label: 'CFD', detail: 'Combustion streamlines' },
+  { src: '/viznoir/showcase/03_heatsink_annotated.webp', alt: 'Heatsink thermal gradient', label: 'Thermal', detail: 'Heatsink gradient' },
+  { src: '/viznoir/showcase/04_seismic_annotated.webp', alt: 'Seismic wavefield depth slice', label: 'Geoscience', detail: 'Seismic wavefield' },
+  { src: '/viznoir/showcase/05_drivaerml_annotated.webp', alt: 'DrivAerML automotive CFD Cp', label: 'Automotive', detail: 'DrivAerML Cp · 8.8M cells' },
+  { src: '/viznoir/showcase/06_h2o_annotated.webp', alt: 'H2O electron density isosurface', label: 'Molecular', detail: 'H₂O electron density' },
+  { src: '/viznoir/showcase/07_aneurism_annotated.webp', alt: 'Cerebral aneurysm MRA', label: 'Vascular', detail: 'Cerebral aneurysm MRA' },
+  { src: '/viznoir/showcase/08_bennu_annotated.webp', alt: 'Bennu asteroid surface', label: 'Planetary', detail: 'Bennu · 196K triangles' },
+  { src: '/viznoir/showcase/09_cantilever_annotated.webp', alt: 'Cantilever beam FEA stress', label: 'Structural', detail: 'Cantilever FEA stress' },
+  { src: '/viznoir/showcase/10_combustion_annotated.webp', alt: 'Combustion thermal threshold', label: 'Volume', detail: 'Thermal threshold' },
+];
+
+const tools = [
+  { name: 'inspect_data', desc: 'Explore file metadata — fields, timesteps, bounds' },
+  { name: 'inspect_physics', desc: 'L2 topology analysis + L3 case context parsing' },
+  { name: 'render', desc: 'Single-view 3D rendering → PNG/WebP' },
+  { name: 'slice', desc: 'Plane-cut cross-section rendering' },
+  { name: 'contour', desc: 'Isosurface/isocontour extraction' },
+  { name: 'clip', desc: 'Half-space clipping visualization' },
+  { name: 'streamlines', desc: 'Vector field flow visualization' },
+  { name: 'volume_render', desc: 'Direct volume rendering with transfer functions' },
+  { name: 'pv_isosurface', desc: 'Isosurface extraction with PBR materials' },
+  { name: 'cinematic_render', desc: 'Publication-quality with 3-point lighting, SSAO, FXAA' },
+  { name: 'compare', desc: 'Side-by-side or diff comparison of two results' },
+  { name: 'batch_render', desc: 'Render multiple fields in one call' },
+  { name: 'animate', desc: 'Time series or orbit animation → GIF/MP4' },
+  { name: 'split_animate', desc: 'Multi-pane synchronized animation (2-4 panes)' },
+  { name: 'extract_stats', desc: 'Statistical analysis of field data' },
+  { name: 'plot_over_line', desc: 'Line probe data extraction' },
+  { name: 'integrate_surface', desc: 'Surface integration (flux, area-weighted avg)' },
+  { name: 'probe_timeseries', desc: 'Sample field at a fixed point across timesteps' },
+  { name: 'analyze_data', desc: 'Automated data insights extraction' },
+  { name: 'compose_assets', desc: 'Multi-asset story layout composition' },
+  { name: 'preview_3d', desc: 'Export to glTF/glB for interactive 3D viewing' },
+  { name: 'execute_pipeline', desc: 'Full pipeline DSL for advanced operations' },
+];
+
+const animations = [
+  { name: 'Streamline Growth', physics: 'Lagrangian advection — traces flow paths progressively', preset: 'streamline_growth' },
+  { name: 'Clip Sweep', physics: 'Pressure gradient cross-section reveal', preset: 'clip_sweep' },
+  { name: 'Layer Reveal', physics: 'CT density classification — tissue layers emerge', preset: 'layer_reveal' },
+  { name: 'Iso Sweep', physics: 'Orbital topology — isosurface level traversal', preset: 'iso_sweep' },
+  { name: 'Warp Oscillation', physics: 'Structural mode shape — displacement amplification', preset: 'warp_oscillation' },
+  { name: 'Light Orbit', physics: 'Oblique illumination — surface feature emphasis', preset: 'light_orbit' },
+  { name: 'Threshold Reveal', physics: 'Feature hierarchy — progressive density gating', preset: 'threshold_reveal' },
+];
+
+const layers = [
+  { name: 'MCP Server', items: '22 tools · 12 resources · 4 prompts', desc: 'FastMCP native integration' },
+  { name: 'VTK Engine', items: 'readers · filters · renderer · camera', desc: 'EGL/OSMesa headless · cinematic lighting · PBR' },
+  { name: 'Physics Layer', items: 'topology · context · guard', desc: 'Vortex detection · stagnation points · BC parsing' },
+  { name: 'Animation', items: '7 presets · 17 easings · transitions', desc: 'Physics-driven · timeline · compositor · video' },
+  { name: 'Output', items: 'PNG · WebP · MP4 · GLTF · LaTeX', desc: '50+ input formats via VTK + meshio' },
+];
+
+const envVars = [
+  { name: 'VIZNOIR_DATA_DIR', default: 'None', desc: 'Restrict data directory (Docker security)' },
+  { name: 'VIZNOIR_OUTPUT_DIR', default: '/output', desc: 'Output directory for rendered files' },
+  { name: 'VIZNOIR_RENDER_BACKEND', default: 'gpu', desc: 'gpu / cpu / auto' },
+  { name: 'VIZNOIR_VTK_BACKEND', default: 'auto', desc: 'egl / osmesa / auto' },
+  { name: 'VIZNOIR_TIMEOUT', default: '600', desc: 'Script execution timeout (seconds)' },
+  { name: 'VIZNOIR_ALLOW_PROGRAMMABLE', default: '0', desc: 'Enable ProgrammableFilter (security risk)' },
+  { name: 'VIZNOIR_DOCKER_IMAGE', default: 'viznoir:latest', desc: 'Docker execution mode image' },
+  { name: 'VIZNOIR_GPU_DEVICE', default: '0', desc: 'GPU device index' },
+];
+
+const resources = [
+  { uri: 'viznoir://formats', desc: 'Supported file formats (50+)' },
+  { uri: 'viznoir://filters', desc: 'Available VTK filter registry' },
+  { uri: 'viznoir://colormaps', desc: 'Colormap presets and ranges' },
+  { uri: 'viznoir://cameras', desc: 'Camera preset configurations' },
+  { uri: 'viznoir://cinematic', desc: 'Cinematic rendering parameters' },
+  { uri: 'viznoir://case-presets', desc: 'Domain-specific case presets' },
+  { uri: 'viznoir://pipelines/cfd', desc: 'CFD pipeline templates' },
+  { uri: 'viznoir://pipelines/fea', desc: 'FEA pipeline templates' },
+  { uri: 'viznoir://pipelines/split-animate', desc: 'Split animation templates' },
+  { uri: 'viznoir://storytelling', desc: 'Story composition templates' },
+];
+---
+
+<Layout title="viznoir docs" description="Developer documentation for viznoir — 22 MCP tools, 10 domains, architecture, configuration, and examples.">
+  <main>
+    <!-- Nav bar -->
+    <nav class="sticky top-0 z-50 border-b border-border/50 bg-primary/90 backdrop-blur-md">
+      <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <a href="/viznoir/" class="text-lg font-bold gradient-text">viznoir</a>
+        <div class="flex items-center gap-6">
+          <a href="#domains" class="text-sm text-text-secondary hover:text-accent transition-colors">Domains</a>
+          <a href="#tools" class="text-sm text-text-secondary hover:text-accent transition-colors">Tools</a>
+          <a href="#architecture" class="text-sm text-text-secondary hover:text-accent transition-colors">Architecture</a>
+          <a href="#config" class="text-sm text-text-secondary hover:text-accent transition-colors">Config</a>
+          <a href="https://github.com/kimimgo/viznoir" target="_blank" rel="noopener noreferrer"
+             class="text-sm text-text-secondary hover:text-accent transition-colors">GitHub</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="relative py-16">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tighter mb-4">
+          <span class="gradient-text-white">Documentation</span>
+        </h1>
+        <p class="text-text-secondary max-w-2xl mx-auto">
+          Complete reference for viznoir MCP tools, resources, architecture, and configuration.
+        </p>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="relative py-12">
+      <div class="section-divider mb-12"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-10 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            QUICK START
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            <span class="gradient-text-white">Install &amp; Configure</span>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto fade-up">
+          <div class="card-hover p-6">
+            <h3 class="text-sm font-semibold text-accent mb-3 font-mono">1. Install</h3>
+            <CodeBlock code="pip install mcp-server-viznoir" lang="bash" />
+            <p class="text-xs text-text-secondary/50 mt-3 font-mono">Optional: pip install mcp-server-viznoir[all]</p>
+          </div>
+          <div class="card-hover p-6">
+            <h3 class="text-sm font-semibold text-accent mb-3 font-mono">2. Configure</h3>
+            <CodeBlock code={`{
+  "mcpServers": {
+    "viznoir": {
+      "command": "mcp-server-viznoir"
+    }
+  }
+}`} lang="json" filename=".mcp.json" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 Domains -->
+    <section id="domains" class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            10 DOMAINS
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+            <span class="gradient-text-white">One Pipeline, Every Domain</span>
+          </h2>
+          <p class="text-text-secondary max-w-2xl mx-auto">
+            Every render is a single MCP tool call &mdash; no GUI, no post-processing, no ParaView.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-16 fade-up">
+          {domains.map((d) => (
+            <div class="card-hover overflow-hidden group cursor-default">
+              <div class="relative aspect-[4/3]">
+                <img src={d.src} alt={d.alt}
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-3">
+                  <span class="text-xs font-bold text-accent font-mono">{d.label}</span>
+                  <p class="text-[10px] text-text-secondary/60 mt-0.5">{d.detail}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Science Storytelling -->
+        <div class="text-center mb-8 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            SCIENCE STORYTELLING
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
+            <span class="gradient-text-white">Physics Insights, Not Just Pixels</span>
+          </h2>
+          <p class="text-text-secondary max-w-2xl mx-auto mb-8">
+            Extract physics, render LaTeX equations, compose cinematic story layouts.
+          </p>
+        </div>
+        <div class="max-w-4xl mx-auto card-hover overflow-hidden fade-up">
+          <img src="/viznoir/showcase/cavity_story.webp"
+            alt="Lid-driven cavity flow: physics decomposition with LaTeX equations"
+            class="w-full rounded-lg" loading="lazy" />
+        </div>
+        <p class="text-xs text-text-secondary/40 mt-4 font-mono text-center">
+          inspect_physics &rarr; cinematic_render &times; 4 &rarr; LaTeX equations &rarr; compose_assets
+        </p>
+      </div>
+    </section>
+
+    <!-- 22 MCP Tools -->
+    <section id="tools" class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            22 MCP TOOLS
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+            <span class="gradient-text-white">Tool Reference</span>
+          </h2>
+          <p class="text-text-secondary max-w-2xl mx-auto">
+            Every tool accepts structured JSON parameters and returns structured results.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 fade-up">
+          {tools.map((t) => (
+            <div class="card-hover p-4 cursor-default">
+              <code class="text-sm font-mono text-accent">{t.name}</code>
+              <p class="text-xs text-text-secondary/60 mt-1">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <!-- Resources -->
+        <div class="mt-16 text-center mb-10 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            RESOURCES
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            <span class="gradient-text-white">MCP Resources</span>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl mx-auto fade-up">
+          {resources.map((r) => (
+            <div class="card-hover p-4 cursor-default">
+              <code class="text-xs font-mono text-accent">{r.uri}</code>
+              <p class="text-xs text-text-secondary/60 mt-1">{r.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Physics Animations -->
+    <section class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            PHYSICS ANIMATIONS
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
+            <span class="gradient-text-white">Every Effect Has a Physical Reason</span>
+          </h2>
+          <p class="text-text-secondary max-w-lg mx-auto">
+            Not slideshows &mdash; real VTK frame-by-frame rendering with physics-driven presets.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 fade-up">
+          {animations.map((a) => (
+            <div class="card-hover p-4 cursor-default">
+              <div class="flex items-start gap-3">
+                <div class="w-2 h-2 rounded-full bg-accent mt-1.5 shrink-0"></div>
+                <div>
+                  <p class="text-sm font-semibold text-text-primary">{a.name}</p>
+                  <p class="text-xs text-text-secondary/60 mt-0.5">{a.physics}</p>
+                  <code class="text-[10px] text-accent/50 font-mono">{a.preset}</code>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            ARCHITECTURE
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">
+            <span class="gradient-text-white">5-Layer Stack</span>
+          </h2>
+        </div>
+
+        <div class="max-w-3xl mx-auto space-y-2 fade-up">
+          {layers.map((layer, i) => (
+            <div class={`rounded-xl border border-border/50 p-4 flex items-center gap-4 ${i === 0 ? 'bg-accent/5 border-accent/20' : 'bg-secondary/30'}`}>
+              <div class="shrink-0 w-8 text-center">
+                <span class="text-xs font-mono text-text-secondary/30">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-0.5">
+                  <span class={`text-sm font-semibold ${i === 0 ? 'text-accent' : 'text-text-primary'}`}>{layer.name}</span>
+                  <span class="text-[10px] font-mono text-text-secondary/40">{layer.items}</span>
+                </div>
+                <p class="text-xs text-text-secondary/50">{layer.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Data flow -->
+        <div class="mt-12 max-w-3xl mx-auto fade-up">
+          <h3 class="text-lg font-semibold text-text-primary mb-4 text-center">Data Flow</h3>
+          <div class="card-hover p-6">
+            <pre class="text-xs font-mono text-text-secondary leading-relaxed overflow-x-auto"><code>server.py (MCP tool)
+  → tools/*.py (build PipelineDefinition)
+    → core/compiler.py (PipelineDefinition → Python script)
+      → core/runner.py (in-process executor or Docker)
+        → engine/*.py (VTK direct API)
+          → core/output.py (RunResult → PipelineResult → PNG/WebP/MP4)</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuration -->
+    <section id="config" class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            CONFIGURATION
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">
+            <span class="gradient-text-white">Environment Variables</span>
+          </h2>
+        </div>
+
+        <div class="max-w-4xl mx-auto fade-up">
+          <div class="card-hover overflow-hidden">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border">
+                  <th class="text-left p-4 font-mono text-accent text-xs">Variable</th>
+                  <th class="text-left p-4 font-mono text-text-secondary/40 text-xs">Default</th>
+                  <th class="text-left p-4 text-text-secondary/40 text-xs">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {envVars.map((v) => (
+                  <tr class="border-b border-border/30">
+                    <td class="p-4 font-mono text-xs text-text-primary">{v.name}</td>
+                    <td class="p-4 font-mono text-xs text-text-secondary/50">{v.default}</td>
+                    <td class="p-4 text-xs text-text-secondary/60">{v.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Docker -->
+        <div class="mt-12 max-w-4xl mx-auto fade-up">
+          <h3 class="text-lg font-semibold text-text-primary mb-4 text-center">Docker (GPU EGL headless)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="card-hover p-6">
+              <h4 class="text-sm font-semibold text-accent mb-3 font-mono">Build</h4>
+              <CodeBlock code="docker compose build" lang="bash" />
+            </div>
+            <div class="card-hover p-6">
+              <h4 class="text-sm font-semibold text-accent mb-3 font-mono">Run</h4>
+              <CodeBlock code="docker compose up" lang="bash" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Supported formats -->
+        <div class="mt-12 text-center fade-up">
+          <h3 class="text-lg font-semibold text-text-primary mb-4">Supported File Formats</h3>
+          <p class="text-text-secondary max-w-2xl mx-auto mb-6">
+            50+ formats via VTK native readers + meshio conversion.
+          </p>
+          <div class="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
+            {['VTK', 'VTI', 'VTP', 'VTU', 'VTS', 'VTR', 'OpenFOAM', 'CGNS', 'Plot3D', 'NetCDF', 'Exodus', 'STL', 'OBJ', 'PLY', 'GLTF', 'STEP', 'INP', 'XDMF', 'HDF5', 'PDB'].map((fmt) => (
+              <span class="px-2.5 py-1 rounded-md bg-secondary border border-border text-xs font-mono text-text-secondary/60">
+                {fmt}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prompts -->
+    <section class="relative py-16">
+      <div class="section-divider mb-16"></div>
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 fade-up">
+          <span class="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-mono font-medium tracking-wider mb-4">
+            4 PROMPTS
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            <span class="gradient-text-white">MCP Prompts</span>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl mx-auto fade-up">
+          <div class="card-hover p-4">
+            <code class="text-sm font-mono text-accent">story_planning</code>
+            <p class="text-xs text-text-secondary/60 mt-1">Science storytelling guide with narrative structure</p>
+          </div>
+          <div class="card-hover p-4">
+            <code class="text-sm font-mono text-accent">cfd_workflow</code>
+            <p class="text-xs text-text-secondary/60 mt-1">CFD post-processing best-practice workflow</p>
+          </div>
+          <div class="card-hover p-4">
+            <code class="text-sm font-mono text-accent">fea_workflow</code>
+            <p class="text-xs text-text-secondary/60 mt-1">FEA stress/deformation analysis workflow</p>
+          </div>
+          <div class="card-hover p-4">
+            <code class="text-sm font-mono text-accent">medical_workflow</code>
+            <p class="text-xs text-text-secondary/60 mt-1">Medical imaging visualization workflow</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
