@@ -8,6 +8,7 @@
 [![PyPI](https://img.shields.io/pypi/v/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
 [![Python](https://img.shields.io/pypi/pyversions/mcp-server-viznoir)](https://pypi.org/project/mcp-server-viznoir/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/kimimgo/viznoir/blob/main/LICENSE)
+[![Mentioned in Awesome VTK](https://awesome.re/mentioned-badge.svg)](https://github.com/tkoyama010/awesome-vtk)
 
 <br>
 
