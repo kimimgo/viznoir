@@ -83,10 +83,9 @@ Luego pedir al agente de IA:
 
 | | |
 |---|---|
-| **22** herramientas MCP | **1489+** tests |
-| **12** recursos | **97%** cobertura |
-| **10** dominios | **50+** formatos de archivo |
-| **7** presets de animación | **17** funciones de easing |
+| **22** herramientas MCP | **24** filtros VTK |
+| **10** dominios | **19** formatos de archivo nativos |
+| **6/6** tipos de datos VTK | **50+** formatos vía meshio |
 
 ## Documentación
 

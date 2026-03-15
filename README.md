@@ -84,10 +84,9 @@ Then ask your AI agent:
 
 | | |
 |---|---|
-| **22** MCP tools | **1489+** tests |
-| **12** resources | **97%** coverage |
-| **10** domains | **50+** file formats |
-| **7** animation presets | **17** easing functions |
+| **22** MCP tools | **24** VTK filters |
+| **10** domains | **19** native file formats |
+| **6/6** VTK data types | **50+** formats via meshio |
 
 ## Documentation
 

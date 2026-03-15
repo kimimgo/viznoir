@@ -83,10 +83,9 @@ Dann den KI-Agenten fragen:
 
 | | |
 |---|---|
-| **22** MCP-Werkzeuge | **1489+** Tests |
-| **12** Ressourcen | **97%** Abdeckung |
-| **10** Domänen | **50+** Dateiformate |
-| **7** Animations-Presets | **17** Easing-Funktionen |
+| **22** MCP-Werkzeuge | **24** VTK-Filter |
+| **10** Domänen | **19** native Dateiformate |
+| **6/6** VTK-Datentypen | **50+** Formate über meshio |
 
 ## Dokumentation
 

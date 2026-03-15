@@ -83,10 +83,10 @@ Então peça ao agente de IA:
 
 | | |
 |---|---|
-| **22** ferramentas MCP | **1489+** testes |
-| **12** recursos | **97%** cobertura |
-| **10** domínios | **50+** formatos de arquivo |
-| **7** presets de animação | **17** funções de easing |
+| **22** ferramentas MCP | **24** filtros VTK |
+| **10** domínios | **19** formatos de arquivo nativos |
+| **6/6** tipos de dados VTK | **50+** formatos via meshio |
+| **2 ms** renderização GPU | 720p, RTX 4090 ([benchmark](benchmarks/)) |
 
 ## Documentação
 
