@@ -38,8 +38,9 @@ class SamplingEvaluator:
             max_tokens=1024,
         )
         if result is not None:
-            logger.info("Sampling plan received: %d steps", len(result.result.steps))
-            return result.result
+            plan: VizPlan = result.result
+            logger.info("Sampling plan received: %d steps", len(plan.steps))
+            return plan
 
         # Heuristic fallback
         logger.info("Sampling unavailable, using heuristic plan for domain=%s", domain)
@@ -59,7 +60,8 @@ class SamplingEvaluator:
             max_tokens=512,
         )
         if result is not None:
-            return result.result
+            eval_result: EvalResult = result.result
+            return eval_result
 
         return EvalResult(verdict="done", issues=[], suggestions=[])
 
