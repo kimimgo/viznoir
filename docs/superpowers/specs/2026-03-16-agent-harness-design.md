@@ -33,9 +33,16 @@ native VTK filters for hot-path optimization.
 
 ### Layer Addition
 
-A new Layer 0 (Harness) sits above existing layers without modifying them.
+A new Layer 4 (Harness) sits above existing layers without modifying them.
 Dependency direction: Harness → Tools (one-way). Tools layer has no knowledge
 of Harness.
+
+**FastMCP version requirement**: The harness module requires `fastmcp>=3.0.0`
+for `ctx.sample()`. A runtime version guard (following the existing
+`_has_mcp_tasks()` pattern) makes the harness conditionally available.
+With `fastmcp>=2.0.0`, all existing tools work; the `auto_postprocess` tool
+is simply not registered. The heuristic fallback path (non-sampling) also
+requires 3.x since it still uses `Context` injection.
 
 ```
 Layer 4: Harness (NEW)
@@ -91,13 +98,18 @@ New MCP tool registered in `server.py`.
 ```python
 @mcp.tool()
 async def auto_postprocess(
+    ctx: Context,
     file_path: str,
     goal: Literal["explore", "publish", "compare"] = "explore",
     max_iterations: int = 5,
-    ctx: Context,
 ) -> list[Image]:
     """Autonomous post-processing: inspect → visualize → evaluate → refine."""
 ```
+
+Note: `ctx: Context` must precede defaulted params (Python syntax).
+FastMCP injects `Context` by type annotation — callers do not pass it.
+This tool is only registered when `fastmcp>=3.0.0` is detected (see
+`_has_sampling_support()` guard in Architecture section).
 
 **Execution flow**:
 
@@ -106,8 +118,11 @@ async def auto_postprocess(
 3. Load domain prompt from `prompts/guides.py`
 4. `ctx.sample(messages=..., system_prompt=domain_prompt, result_type=VizPlan)`
    → structured visualization plan
-5. Execute `VizPlan.steps` by calling existing tool functions directly
-   (Python-level, no MCP round-trip)
+5. Execute `VizPlan.steps` by calling `*_impl` functions from `tools/`
+   directly (Python-level, no MCP round-trip). A `_TOOL_DISPATCH` dict
+   maps tool names to impl functions (e.g., `"cinematic_render"` →
+   `cinematic_impl`). The shared `_runner` and `_config` instances from
+   `server.py` are passed to each impl call.
 6. `ctx.sample(messages=[results], result_type=EvalResult)` → pass/refine/done
 7. If `refine` and `iteration < max_iterations`: loop to step 4 with adjustments
 8. Return final images
@@ -121,8 +136,15 @@ async def auto_postprocess(
 ```python
 class VizStep(BaseModel):
     tool: str                    # e.g. "cinematic_render", "slice"
-    params: dict[str, Any]       # tool kwargs
+    params: dict[str, Any]       # tool kwargs (validated against _TOOL_DISPATCH)
     rationale: str               # why this visualization (for logging)
+
+    @model_validator(mode="after")
+    def validate_tool_exists(self) -> "VizStep":
+        """Verify tool name exists in dispatch table."""
+        from viznoir.harness.orchestrator import TOOL_DISPATCH
+        if self.tool not in TOOL_DISPATCH:
+            raise ValueError(f"Unknown tool: {self.tool}")
 
 class VizPlan(BaseModel):
     domain: str                  # "cfd", "fea", "sph", "generic"
@@ -149,9 +171,18 @@ class SamplingEvaluator:
         """Request result evaluation from LLM.
         Falls back to EvalResult(verdict="done") if unavailable."""
 
-    def _has_sampling(self, ctx) -> bool:
-        """Check client sampling capability."""
+    async def _try_sample(self, ctx, **kwargs):
+        """Attempt ctx.sample(); return None on failure (graceful degradation).
+        Uses try/except rather than capability pre-check for robustness."""
+        try:
+            return await ctx.sample(**kwargs)
+        except Exception:
+            return None
 ```
+
+**Error handling**: Per-step execution failures (`ViznoirError` subtypes)
+are caught, logged, and skipped. Failed steps are included in the evaluation
+context so the refine loop can suggest alternatives.
 
 Key behaviors:
 - `max_tokens=1024` for plan, `512` for evaluate
@@ -200,8 +231,12 @@ Optional dependency: `pip install mcp-server-viznoir[native]`
 | Component | Current | Native | Expected Speedup |
 |-----------|---------|--------|-----------------|
 | VortexDetect | `topology.py` (numpy) | C++ with SIMD + OpenMP | 10-50x on 1M+ cells |
-| FieldSimilarity | N/A | C++ diff + threshold | New capability |
-| AdaptiveSampler | N/A | C++ LOD extraction | New capability |
+
+Future candidates (design TBD, not in v0.8.0 scope):
+- **FieldSimilarity**: Timestep-to-timestep field diff with significance
+  threshold. Use case: evaluator asks "what changed?" between iterations.
+- **AdaptiveSampler**: Curvature-aware point decimation for LOD.
+  Use case: reduce 10M-point dataset to visually representative 100K subset.
 
 **Build**: CMake + pybind11 + VTK::CommonDataModel
 
@@ -216,8 +251,8 @@ except ImportError:
 def vortex_detect_auto(dataset, method="q_criterion"):
     if HAS_NATIVE:
         return vortex_detect(dataset, method)
-    from viznoir.engine.topology import compute_vortex_field
-    return compute_vortex_field(dataset, method)
+    from viznoir.engine.topology import detect_vortices
+    return detect_vortices(dataset, field_name="velocity", threshold=0.0)
 ```
 
 CI runs Python-only fallback tests. C++ build has a separate workflow.
@@ -338,7 +373,8 @@ Deliverables:
 3. Non-sampling client: heuristic 1-pass fallback produces reasonable results
    (80% quality vs manual tool calls)
 4. User-added custom skill → orchestrator reflects domain knowledge via sampling
-5. CI green: test count +50, coverage >= 80%
+5. CI green: test count +50 (orchestrator ~15, evaluator ~10, domain_hints ~10,
+   models ~8, integration ~7), coverage >= 80%
 6. (P3) VortexDetect C++ vs numpy: 10x+ speedup on 1M+ cell datasets
 
 ## Risks and Mitigations
@@ -351,12 +387,15 @@ Deliverables:
 | C++ build complexity deters contributors | Medium | Optional dep, Python fallback, separate CI |
 | Skill proliferation clutters plugin | Low | Clear naming convention, README index |
 
+## Resolved Questions
+
+1. **MCP Tasks for progress**: Yes. Use `task=True if _TASKS_AVAILABLE else None`
+   consistent with existing `animate`/`split_animate`/`execute_pipeline` tools.
+   `auto_postprocess` with up to 5 iterations is clearly long-running.
+
 ## Open Questions
 
-1. Should `auto_postprocess` return intermediate results (progress updates)
-   or only final results? FastMCP 3.x supports MCP Tasks for long-running
-   operations — worth using?
-2. Should the evaluator accept image inputs in `ctx.sample()` (multimodal)?
+1. Should the evaluator accept image inputs in `ctx.sample()` (multimodal)?
    Depends on client support for image content in sampling messages.
-3. VortexDetect C++ filter: should it be a standalone PyPI package
+2. VortexDetect C++ filter: should it be a standalone PyPI package
    (`viznoir-native`) or bundled in the main package with build isolation?
