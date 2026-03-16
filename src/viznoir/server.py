@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 from fastmcp.utilities.types import Image
 
 from viznoir.config import PVConfig
+from viznoir.core.profiles import resolve_profile
 from viznoir.core.runner import VTKRunner
 from viznoir.logging import get_logger
 
@@ -133,8 +134,9 @@ async def render(
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
     scalar_range: list[float] | None = None,
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
     blocks: list[str] | None = None,
     output_filename: str = "render.png",
@@ -148,13 +150,15 @@ async def render(
         colormap: Color map preset (e.g., "Cool to Warm", "Viridis", "Jet")
         camera: Camera preset — isometric, top, front, right, left, back
         scalar_range: [min, max] for color scale, None for auto
-        width: Image width in pixels
-        height: Image height in pixels
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         timestep: Specific timestep, "latest", or None for first
         blocks: Multiblock region names to include
         output_filename: Output PNG filename (e.g., "snapshot_press.png")
     """
     file_path = _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.render: start file=%s field=%s", file_path, field_name)
     t0 = time.monotonic()
     from viznoir.tools.render import render_impl
@@ -167,8 +171,8 @@ async def render(
         colormap=colormap,
         camera=camera,
         scalar_range=scalar_range,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
         blocks=blocks,
         output_filename=output_filename,
@@ -187,8 +191,9 @@ async def slice(
     normal: list[float] | None = None,
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
 ) -> Image:
     """Create a slice (cut plane) visualization.
@@ -200,11 +205,13 @@ async def slice(
         normal: Slice plane normal [nx, ny, nz]
         colormap: Color map preset
         camera: Camera preset
-        width: Image width
-        height: Image height
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         timestep: Timestep selection
     """
     file_path = _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.slice: start file=%s field=%s", file_path, field_name)
     t0 = time.monotonic()
     from viznoir.tools.filters import slice_impl
@@ -217,8 +224,8 @@ async def slice(
         normal=normal,
         colormap=colormap,
         camera=camera,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
     )
     logger.debug("tool.slice: done in %.2fs", time.monotonic() - t0)
@@ -234,8 +241,9 @@ async def contour(
     isovalues: list[float],
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
 ) -> Image:
     """Create an iso-surface (contour) visualization.
@@ -246,11 +254,13 @@ async def contour(
         isovalues: List of iso-values to extract
         colormap: Color map preset
         camera: Camera preset
-        width: Image width
-        height: Image height
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         timestep: Timestep selection
     """
     file_path = _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.contour: start file=%s field=%s isovalues=%s", file_path, field_name, isovalues)
     t0 = time.monotonic()
     from viznoir.tools.filters import contour_impl
@@ -262,8 +272,8 @@ async def contour(
         _runner,
         colormap=colormap,
         camera=camera,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
     )
     logger.debug("tool.contour: done in %.2fs", time.monotonic() - t0)
@@ -281,8 +291,9 @@ async def clip(
     invert: bool = False,
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
 ) -> Image:
     """Create a clipped visualization.
@@ -295,11 +306,13 @@ async def clip(
         invert: If True, keep the other side
         colormap: Color map preset
         camera: Camera preset
-        width: Image width
-        height: Image height
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         timestep: Timestep selection
     """
     file_path = _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.clip: start file=%s field=%s", file_path, field_name)
     t0 = time.monotonic()
     from viznoir.tools.filters import clip_impl
@@ -313,8 +326,8 @@ async def clip(
         invert=invert,
         colormap=colormap,
         camera=camera,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
     )
     logger.debug("tool.clip: done in %.2fs", time.monotonic() - t0)
@@ -333,8 +346,9 @@ async def streamlines(
     max_length: float = 1.0,
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
 ) -> Image:
     """Create a streamline visualization for vector fields.
@@ -348,11 +362,13 @@ async def streamlines(
         max_length: Maximum streamline length
         colormap: Color map preset
         camera: Camera preset
-        width: Image width
-        height: Image height
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         timestep: Timestep selection
     """
     file_path = _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.streamlines: start file=%s vector_field=%s", file_path, vector_field)
     t0 = time.monotonic()
     from viznoir.tools.filters import streamlines_impl
@@ -367,8 +383,8 @@ async def streamlines(
         max_length=max_length,
         colormap=colormap,
         camera=camera,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
     )
     logger.debug("tool.streamlines: done in %.2fs", time.monotonic() - t0)
@@ -872,8 +888,9 @@ async def compare(
     mode: Literal["side_by_side", "diff"] = "side_by_side",
     colormap: str = "Cool to Warm",
     quality: Literal["draft", "standard", "cinematic"] = "standard",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     scalar_range: list[float] | None = None,
     timestep: float | str | None = None,
     label_a: str = "A",
@@ -897,8 +914,9 @@ async def compare(
         mode: Comparison mode — "side_by_side" or "diff"
         colormap: Color map preset for both panels
         quality: Rendering quality (draft/standard/cinematic)
-        width: Total image width (each panel gets half)
-        height: Image height
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override total width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
         scalar_range: Shared [min, max] for consistent coloring (None for auto)
         timestep: Specific timestep, "latest", or None for first
         label_a: Label for first panel (displayed top-left)
@@ -907,6 +925,7 @@ async def compare(
     """
     file_a = _validate_file_path(file_a)
     file_b = _validate_file_path(file_b)
+    profile = resolve_profile(purpose, width, height)
     logger.debug("tool.compare: start a=%s b=%s mode=%s", file_a, file_b, mode)
     t0 = time.monotonic()
     from viznoir.tools.compare import compare_impl
@@ -919,8 +938,8 @@ async def compare(
         mode=mode,
         colormap=colormap,
         quality=quality,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         scalar_range=scalar_range,
         timestep=timestep,
         label_a=label_a,
@@ -981,8 +1000,9 @@ async def batch_render(
     fields: list[str],
     colormap: str = "Cool to Warm",
     camera: str = "isometric",
-    width: int = 1920,
-    height: int = 1080,
+    purpose: Literal["analyze", "preview", "publish"] = "analyze",
+    width: int | None = None,
+    height: int | None = None,
     timestep: float | str | None = None,
     quality: str = "standard",
 ) -> dict[str, Any]:
@@ -990,10 +1010,22 @@ async def batch_render(
 
     Returns a dict with images list, each containing field name and base64 PNG.
     Useful for comparing pressure, velocity, temperature, etc. side-by-side.
+
+    Args:
+        file_path: Path to simulation file
+        fields: List of field names to render
+        colormap: Color map preset
+        camera: Camera preset
+        purpose: Resolution preset — "analyze" (480p), "preview" (720p), "publish" (1080p)
+        width: Override width in pixels (must set both width and height, or neither)
+        height: Override height in pixels (must set both width and height, or neither)
+        timestep: Timestep selection
+        quality: Rendering quality (draft/standard/cinematic)
     """
     t0 = time.monotonic()
     logger.info("tool.batch_render: file=%s fields=%s", file_path, fields)
     _validate_file_path(file_path)
+    profile = resolve_profile(purpose, width, height)
     from viznoir.tools.batch import batch_render_impl
 
     result = await batch_render_impl(
@@ -1002,8 +1034,8 @@ async def batch_render(
         runner=_runner,
         colormap=colormap,
         camera=camera,
-        width=width,
-        height=height,
+        width=profile.width,
+        height=profile.height,
         timestep=timestep,
         quality=quality,
     )

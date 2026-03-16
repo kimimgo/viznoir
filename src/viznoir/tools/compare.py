@@ -63,8 +63,8 @@ async def compare_impl(
                 shared_range = [min(lo_a, lo_b), max(hi_a, hi_b)]
 
         # Render settings
-        half_w = (width or 1920) // 2
-        h = height or 1080
+        half_w = (width or 854) // 2
+        h = height or 480
 
         rc = RenderConfig(
             width=half_w,
