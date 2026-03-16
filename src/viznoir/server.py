@@ -42,6 +42,19 @@ def _has_mcp_tasks() -> bool:
 
 _TASKS_AVAILABLE = _has_mcp_tasks()
 
+
+def _has_harness_support() -> bool:
+    """Check if FastMCP >= 3.0.0 with Context.sample() is available."""
+    try:
+        from viznoir.harness import HAS_HARNESS
+
+        return HAS_HARNESS
+    except Exception:
+        return False
+
+
+_HARNESS_AVAILABLE = _has_harness_support()
+
 mcp = FastMCP(
     "viznoir",
     instructions=(
@@ -1279,6 +1292,43 @@ def _protect_stdout() -> None:
     raw = io.FileIO(saved_fd, "w", closefd=True)
     buffered = io.BufferedWriter(raw)
     sys.stdout = io.TextIOWrapper(buffered, encoding="utf-8", line_buffering=True)
+
+
+# ---------------------------------------------------------------------------
+# Agent Harness: auto_postprocess (requires FastMCP >= 3.0)
+# ---------------------------------------------------------------------------
+if _HARNESS_AVAILABLE:
+    from fastmcp import Context
+
+    @mcp.tool(task=True if _TASKS_AVAILABLE else None)
+    async def auto_postprocess(
+        ctx: Context,
+        file_path: str,
+        goal: Literal["explore", "publish", "compare"] = "explore",
+        max_iterations: int = 5,
+    ) -> list[Image]:
+        """Autonomous post-processing: inspect → visualize → evaluate → refine.
+
+        Analyzes the file, detects the simulation domain (CFD/FEA/SPH),
+        and produces 3-5 visualizations automatically. With sampling-capable
+        clients, evaluates results and refines parameters iteratively.
+
+        Args:
+            file_path: Path to simulation file (.foam, .vtu, .vtk, etc.)
+            goal: "explore" (overview), "publish" (publication quality), "compare" (multi-field)
+            max_iterations: Maximum refinement iterations (1-5)
+        """
+        file_path = _validate_file_path(file_path)
+        from viznoir.harness.orchestrator import auto_postprocess_impl
+
+        results = await auto_postprocess_impl(
+            ctx=ctx,
+            file_path=file_path,
+            runner=_runner,
+            goal=goal,
+            max_iterations=min(max_iterations, 5),
+        )
+        return [Image(data=r.image_base64, format="png") for r in results if r.image_base64]
 
 
 def main() -> None:
