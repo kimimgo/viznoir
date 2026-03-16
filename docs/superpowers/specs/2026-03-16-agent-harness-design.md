@@ -119,7 +119,7 @@ This tool is only registered when `fastmcp>=3.0.0` is detected (see
 4. `ctx.sample(messages=..., system_prompt=domain_prompt, result_type=VizPlan)`
    → structured visualization plan
 5. Execute `VizPlan.steps` by calling `*_impl` functions from `tools/`
-   directly (Python-level, no MCP round-trip). A `_TOOL_DISPATCH` dict
+   directly (Python-level, no MCP round-trip). A `TOOL_DISPATCH` dict
    maps tool names to impl functions (e.g., `"cinematic_render"` →
    `cinematic_impl`). The shared `_runner` and `_config` instances from
    `server.py` are passed to each impl call.
@@ -136,7 +136,7 @@ This tool is only registered when `fastmcp>=3.0.0` is detected (see
 ```python
 class VizStep(BaseModel):
     tool: str                    # e.g. "cinematic_render", "slice"
-    params: dict[str, Any]       # tool kwargs (validated against _TOOL_DISPATCH)
+    params: dict[str, Any]       # tool kwargs (validated against TOOL_DISPATCH)
     rationale: str               # why this visualization (for logging)
 
     @model_validator(mode="after")
@@ -145,6 +145,7 @@ class VizStep(BaseModel):
         from viznoir.harness.orchestrator import TOOL_DISPATCH
         if self.tool not in TOOL_DISPATCH:
             raise ValueError(f"Unknown tool: {self.tool}")
+        return self
 
 class VizPlan(BaseModel):
     domain: str                  # "cfd", "fea", "sph", "generic"
