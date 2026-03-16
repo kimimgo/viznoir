@@ -24,59 +24,15 @@ calls with good parameters.
 **Always run `inspect_data(file_path)` first.** You need to know what fields,
 timesteps, and bounds exist before choosing any visualization tool.
 
-## 1. Domain Vocabulary → Tool Mapping
+## Domain-Specific Workflows
 
-When the expert says... use this viznoir tool:
+For detailed domain vocabulary and standard sequences, delegate to:
 
-### Flow Visualization (CFD)
+- **CFD** (flow, pressure, streamlines, wake) → see **cfd-workflow** skill
+- **FEA** (stress, deformation, yield, mode shapes) → see **fea-workflow** skill
+- **SPH** (particles, sloshing, fluid filtering) → see **sph-workflow** skill
 
-| Expert says | Tool | Key params |
-|-------------|------|------------|
-| "wake", "후류" | `streamlines` | vector_field="U", seed downstream of body |
-| "recirculation", "재순환" | `streamlines` | seed in low-velocity region |
-| "유선", "flow pattern" | `streamlines` | vector_field="U", seed_resolution=30 |
-| "pressure drop", "압력강하" | `plot_over_line` | field="p", point1=inlet, point2=outlet |
-| "free surface", "자유수면" | `contour` | field="alpha.water", isovalues=[0.5] |
-| "vortex", "와류" | `streamlines` or `contour` | Q-criterion via execute_pipeline |
-| "boundary layer", "경계층" | `slice` + `plot_over_line` | wall-normal direction |
-| "열전달", "heat transfer" | `slice` | field="T", colormap="Inferno" |
-| "단면", "cross-section" | `slice` | origin=bbox center, normal=main flow axis |
-| "pressure distribution" | `cinematic_render` | field="p", colormap="Cool to Warm" |
-| "velocity field" | `slice` or `cinematic_render` | field="U", colormap="Viridis" |
-| "wall shear" | `cinematic_render` | field="wallShearStress", colormap="Plasma" |
-| "turbulence" | `cinematic_render` or `slice` | field="k" or "nut", colormap="Turbo" |
-
-### Structural Analysis (FEA)
-
-| Expert says | Tool | Key params |
-|-------------|------|------------|
-| "응력 집중", "stress" | `cinematic_render` | field="von_mises_stress" |
-| "변형", "deformation" | `execute_pipeline` | WarpByVector + render |
-| "항복 초과", "yield" | `execute_pipeline` | Threshold(von_mises > yield_stress) |
-| "displacement" | `cinematic_render` | field="displacement" |
-
-For WarpByVector deformation visualization:
-```json
-{
-  "source": {"file": "FILE_PATH"},
-  "pipeline": [
-    {"filter": "WarpByVector", "params": {"vector": "displacement", "scale_factor": 10.0}}
-  ],
-  "output": {"type": "image", "render": {"field": "von_mises_stress", "colormap": "Cool to Warm"}}
-}
-```
-Scale factor: 10-100x for small deformations, 1x for large.
-
-### Particle Methods (SPH/DualSPHysics)
-
-| Expert says | Tool | Key params |
-|-------------|------|------------|
-| "입자 분포", "particles" | `render` | field="Velocity" |
-| "fluid only" | `execute_pipeline` | Threshold(Type, 0, 0) to filter boundary |
-| "wave", "파도" | `animate` | field="Velocity", mode="timesteps" |
-| "isosurface mesh" | `pv_isosurface` | bi4_dir, output_dir |
-
-### Universal
+## Universal Vocabulary → Tool Mapping
 
 | Expert says | Tool | Key params |
 |-------------|------|------------|
@@ -94,7 +50,7 @@ Scale factor: 10-100x for small deformations, 1x for large.
 | "빨리", "quick" | `render` | (use render instead of cinematic) |
 | "orbit", "회전" | `animate` | mode="orbit" |
 
-## 2. Visualization Ideas from inspect_data
+## Visualization Ideas from inspect_data
 
 After running `inspect_data`, use these rules to suggest visualizations:
 
@@ -125,7 +81,7 @@ After running `inspect_data`, use these rules to suggest visualizations:
 After delivering what the expert asked, briefly suggest 1-2 additional
 visualizations that might be useful. Keep it short — they're the expert.
 
-## 3. Aesthetic Guide
+## Aesthetic Guide
 
 ### Default: Cinematic First
 
@@ -172,11 +128,11 @@ Always check `viznoir://case-presets` resource for domain-specific field names,
 colormaps, camera positions, and recommended filters. Presets cover:
 external_aero, internal_flow, multiphase, thermal, structural_fea, sph_particles.
 
-## 4. Execution Pattern
+## Execution Pattern
 
 ```
 1. inspect_data(file_path) — always first
-2. Match expert's request to vocabulary table
+2. Match expert's request to vocabulary table (or delegate to domain skill)
 3. Check viznoir://case-presets for matching domain preset
 4. Execute tool (cinematic_render preferred)
 5. Suggest 1-2 additional ideas from the data
