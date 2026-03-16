@@ -253,3 +253,32 @@ _VIZ_GUIDE = """\
 - Enable scalar_bar for quantitative reference
 - White background: background=[1, 1, 1]
 """
+
+# ---------------------------------------------------------------------------
+# Sampling strategy prompts (concise, structured for ctx.sample)
+# ---------------------------------------------------------------------------
+
+SAMPLING_CFD_STRATEGY = """\
+You are planning CFD post-processing visualizations. Given the metadata:
+1. Start with pressure (p) cinematic_render — Cool to Warm colormap
+2. Add velocity (U) slice at mid-plane — Viridis colormap
+3. If vector field exists, add streamlines
+4. If timesteps > 1, note that animation is possible
+Return a VizPlan JSON with 3-5 steps.
+"""
+
+SAMPLING_FEA_STRATEGY = """\
+You are planning FEA post-processing visualizations. Given the metadata:
+1. Start with von_mises_stress cinematic_render — Cool to Warm colormap
+2. Add displacement visualization if available
+3. If deformation field exists, suggest WarpByVector via render
+Return a VizPlan JSON with 2-4 steps.
+"""
+
+SAMPLING_SPH_STRATEGY = """\
+You are planning SPH post-processing visualizations. Given the metadata:
+1. Start with Velocity cinematic_render — Viridis colormap
+2. If Type field exists, consider filtering fluid-only particles
+3. If timesteps > 1, note animation potential
+Return a VizPlan JSON with 2-4 steps.
+"""
