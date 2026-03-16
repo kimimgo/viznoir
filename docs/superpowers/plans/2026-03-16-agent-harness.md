@@ -10,6 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-03-16-agent-harness-design.md`
 
+**P3 (C++ Native) is deferred to v0.9.0** — this plan covers P1 + P2 only.
+
+**Key implementation notes:**
+- Tool impl return types are heterogeneous: `PipelineResult` (render/slice/contour/clip/streamlines), `bytes` (cinematic/compare/volume), `dict` (batch). `_execute_step` must normalize all to `PipelineResult`.
+- `goal` parameter maps to `purpose` for adaptive resolution: `"explore"→"analyze"`, `"publish"→"publish"`, `"compare"→"preview"`.
+- Version check uses tuple comparison (no `packaging` dependency): `tuple(int(x) for x in ver.split(".")[:2]) >= (3, 0)`.
+
 ---
 
 ## File Map
@@ -79,6 +86,13 @@ import pytest
 from pydantic import ValidationError
 
 from viznoir.harness.models import EvalResult, VizPlan, VizStep
+
+
+@pytest.fixture(autouse=True)
+def mock_tool_dispatch(monkeypatch):
+    """Mock TOOL_DISPATCH so model tests don't depend on orchestrator."""
+    fake_dispatch = {"render": lambda: None, "cinematic_render": lambda: None, "slice": lambda: None}
+    monkeypatch.setattr("viznoir.harness.orchestrator.TOOL_DISPATCH", fake_dispatch)
 
 
 class TestVizStep:
@@ -164,8 +178,8 @@ def _check_harness_support() -> bool:
     """Check if FastMCP >= 3.0.0 is available (required for ctx.sample)."""
     try:
         from importlib.metadata import version as get_version
-        from packaging.version import parse
-        return parse(get_version("fastmcp")) >= parse("3.0.0")
+        ver = get_version("fastmcp")
+        return tuple(int(x) for x in ver.split(".")[:2]) >= (3, 0)
     except Exception:
         return False
 
@@ -219,7 +233,7 @@ Note: `VizStep.validate_tool_exists` imports `TOOL_DISPATCH` lazily to avoid cir
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_harness/test_models.py -v`
-Expected: Most tests PASS, but `test_unknown_tool_raises` and valid tool tests may fail because `TOOL_DISPATCH` doesn't exist yet. That's OK — they'll pass after Task 3.
+Expected: ALL PASS (TOOL_DISPATCH is mocked via monkeypatch fixture)
 
 - [ ] **Step 5: Commit**
 
@@ -977,11 +991,59 @@ def _load_domain_prompts() -> dict[str, str]:
     return _DOMAIN_PROMPTS
 
 
-async def _execute_step(step: VizStep, runner: VTKRunner) -> PipelineResult:
-    """Execute a single VizStep by dispatching to the correct impl function."""
+_GOAL_TO_PURPOSE = {"explore": "analyze", "publish": "publish", "compare": "preview"}
+
+
+async def _execute_step(step: VizStep, runner: VTKRunner, goal: str = "explore") -> PipelineResult:
+    """Execute a single VizStep, normalizing heterogeneous return types.
+
+    Return types vary: PipelineResult (render/slice/contour/clip/streamlines),
+    bytes (cinematic/compare/volume), dict (batch). All normalized to PipelineResult.
+    """
+    import base64
+    from viznoir.core.runner import RunResult
+
     impl_fn = TOOL_DISPATCH[step.tool]
     params = {**step.params, "runner": runner}
-    return await impl_fn(**params)
+
+    # Inject purpose for adaptive resolution
+    purpose = _GOAL_TO_PURPOSE.get(goal, "preview")
+    if "purpose" not in params and step.tool in ("render", "cinematic_render", "slice", "contour", "clip", "streamlines", "batch_render"):
+        params["purpose"] = purpose
+
+    result = await impl_fn(**params)
+
+    # Normalize return types
+    if isinstance(result, PipelineResult):
+        return result
+    if isinstance(result, bytes):
+        return PipelineResult(
+            output_type="image",
+            image_bytes=result,
+            image_base64=base64.b64encode(result).decode(),
+            json_data=None,
+            raw=RunResult(stdout="", stderr="", exit_code=0),
+        )
+    if isinstance(result, dict):
+        # batch_render returns dict with per-field results
+        # Extract first image if available
+        for v in result.values():
+            if isinstance(v, bytes):
+                return PipelineResult(
+                    output_type="image",
+                    image_bytes=v,
+                    image_base64=base64.b64encode(v).decode(),
+                    json_data=result,
+                    raw=RunResult(stdout="", stderr="", exit_code=0),
+                )
+        return PipelineResult(
+            output_type="data",
+            image_bytes=None,
+            image_base64=None,
+            json_data=result,
+            raw=RunResult(stdout="", stderr="", exit_code=0),
+        )
+    raise TypeError(f"Unexpected return type from {step.tool}: {type(result)}")
 
 
 async def auto_postprocess_impl(
@@ -1021,7 +1083,7 @@ async def auto_postprocess_impl(
         for i, step in enumerate(plan.steps):
             try:
                 logger.info("  Step %d/%d: %s — %s", i + 1, len(plan.steps), step.tool, step.rationale)
-                result = await _execute_step(step, runner)
+                result = await _execute_step(step, runner, goal=goal)
                 iteration_results.append(result)
                 field = step.params.get("field_name", "")
                 if field:
@@ -1233,15 +1295,138 @@ git commit -m "feat(harness): add sampling-optimized domain strategy prompts"
 
 - [ ] **Step 1: Create CFD workflow skill**
 
-Extract CFD-specific content from `cae-postprocess/SKILL.md` into a dedicated skill. Include: flow visualization vocabulary, streamlines/pressure drop/boundary layer patterns, recommended colormaps (Viridis for velocity, Cool to Warm for pressure), camera conventions, and the cinematic-first principle.
+Write `.claude-plugin/skills/cfd-workflow/SKILL.md`:
+
+````markdown
+---
+name: cfd-workflow
+description: >-
+  CFD post-processing workflow skill. Guides AI agents through computational
+  fluid dynamics visualization: pressure/velocity fields, streamlines, wall
+  shear stress, boundary layers, and pressure drop analysis. Maps CFD domain
+  vocabulary (Korean/English) to viznoir MCP tool calls. Triggers: CFD,
+  flow visualization, pressure drop, streamlines, boundary layer, wake,
+  recirculation, wall shear, 유동, 압력강하, 유선, 경계층, 후류
+---
+
+# CFD Post-Processing Workflow
+
+## Standard Sequence
+1. `inspect_data` → identify velocity (U), pressure (p), turbulence (k, epsilon)
+2. `cinematic_render(field="p", colormap="Cool to Warm")` → pressure overview
+3. `cinematic_render(field="U", colormap="Viridis")` or `slice` at mid-plane
+4. `streamlines(vector_field="U")` → flow patterns, wake, recirculation
+5. `plot_over_line` → pressure drop (inlet→outlet), velocity profiles
+6. `extract_stats` → quantitative summary (min/max/mean)
+
+## Vocabulary → Tool Mapping
+| Expert says | Tool | Params |
+|-------------|------|--------|
+| wake, 후류 | streamlines | seed downstream of body |
+| pressure drop, 압력강하 | plot_over_line | field="p", point1=inlet, point2=outlet |
+| boundary layer, 경계층 | slice + plot_over_line | wall-normal direction |
+| wall shear | cinematic_render | field="wallShearStress", colormap="Plasma" |
+| recirculation, 재순환 | streamlines | seed in low-velocity region |
+| turbulence | slice | field="k" or "nut", colormap="Turbo" |
+
+## Colormaps
+- Pressure: Cool to Warm (diverging)
+- Velocity: Viridis (sequential)
+- Temperature: Inferno (thermal)
+- Wall shear: Plasma (high contrast)
+- Turbulence: Turbo (structure emphasis)
+````
 
 - [ ] **Step 2: Create FEA workflow skill**
 
-Cover: WarpByVector deformation visualization, von Mises stress mapping, yield threshold detection, modal analysis mode shapes, scale factor guidance (10-100x for small deformations), and Cool to Warm colormap for stress.
+Write `.claude-plugin/skills/fea-workflow/SKILL.md`:
+
+````markdown
+---
+name: fea-workflow
+description: >-
+  FEA post-processing workflow skill. Guides AI agents through finite element
+  analysis visualization: stress distribution, deformation, mode shapes, and
+  yield detection. Maps FEA domain vocabulary to viznoir MCP tool calls.
+  Triggers: FEA, structural, stress, deformation, displacement, von Mises,
+  yield, mode shape, 응력, 변형, 항복, 모드 형상
+---
+
+# FEA Post-Processing Workflow
+
+## Standard Sequence
+1. `inspect_data` → identify displacement, stress, strain fields
+2. `cinematic_render(field="von_mises_stress", colormap="Cool to Warm")` → stress overview
+3. `execute_pipeline` with WarpByVector → deformation visualization
+4. `execute_pipeline` with Threshold(von_mises > yield) → critical regions
+5. `extract_stats` → max stress, max displacement values
+
+## WarpByVector Pattern
+```json
+{
+  "source": {"file": "FILE_PATH"},
+  "pipeline": [
+    {"filter": "WarpByVector", "params": {"vector": "displacement", "scale_factor": 10.0}}
+  ],
+  "output": {"type": "image", "render": {"field": "von_mises_stress", "colormap": "Cool to Warm"}}
+}
+```
+Scale factor: 10-100x for small deformations, 1x for large.
+
+## Vocabulary → Tool Mapping
+| Expert says | Tool | Params |
+|-------------|------|--------|
+| stress, 응력 집중 | cinematic_render | field="von_mises_stress" |
+| deformation, 변형 | execute_pipeline | WarpByVector + render |
+| yield exceeded, 항복 | execute_pipeline | Threshold(von_mises > yield_stress) |
+| mode shape | cinematic_render | per-timestep displacement |
+````
 
 - [ ] **Step 3: Create SPH workflow skill**
 
-Cover: DualSPHysics particle filtering (Type field), fluid-only extraction, sloshing animation patterns, isosurface mesh generation via `pv_isosurface`, and Viridis/Turbo colormaps for velocity/pressure.
+Write `.claude-plugin/skills/sph-workflow/SKILL.md`:
+
+````markdown
+---
+name: sph-workflow
+description: >-
+  SPH/DualSPHysics post-processing workflow skill. Guides AI agents through
+  particle method visualization: fluid filtering, sloshing animations,
+  isosurface mesh extraction, and particle distribution analysis. Maps SPH
+  domain vocabulary to viznoir MCP tool calls. Triggers: SPH, DualSPHysics,
+  particles, sloshing, fluid, Type field, bi4, 입자, 슬로싱, 유체
+---
+
+# SPH Post-Processing Workflow
+
+## Standard Sequence
+1. `inspect_data` → identify Velocity, Pressure, Type fields, timestep count
+2. `cinematic_render(field="Velocity", colormap="Viridis")` → particle overview
+3. `execute_pipeline` with Threshold(Type, 0, 0) → fluid-only particles
+4. `animate(mode="timesteps")` → time evolution
+5. `pv_isosurface` → smooth surface mesh from particles (if needed)
+
+## Fluid-Only Filtering
+DualSPHysics uses Type field: 0=fluid, >0=boundary. To show fluid only:
+```json
+{
+  "source": {"file": "FILE_PATH"},
+  "pipeline": [
+    {"filter": "Threshold", "params": {"field": "Type", "range": [0, 0]}}
+  ],
+  "output": {"type": "image", "render": {"field": "Velocity", "colormap": "Viridis"}}
+}
+```
+
+## Vocabulary → Tool Mapping
+| Expert says | Tool | Params |
+|-------------|------|--------|
+| particles, 입자 | render or cinematic_render | field="Velocity" |
+| fluid only | execute_pipeline | Threshold(Type, 0, 0) |
+| sloshing, 슬로싱 | animate | mode="timesteps", field="Velocity" |
+| wave, 파도 | animate | mode="timesteps" |
+| isosurface mesh | pv_isosurface | bi4_dir, output_dir |
+````
 
 - [ ] **Step 4: Slim down cae-postprocess**
 
@@ -1272,11 +1457,94 @@ git commit -m "feat(skills): add domain workflow skills (cfd, fea, sph)"
 
 - [ ] **Step 1: Create dev-pipeline skill**
 
-Content: viznoir-specific development checklist (dual registry, CI skip rules, test naming, benchmark patterns), golden-loop integration, TDD cycle for harness/engine/tools layers, PR template compliance.
+Write `.claude-plugin/skills/dev-pipeline/SKILL.md`:
+
+````markdown
+---
+name: dev-pipeline
+description: >-
+  viznoir development automation skill. Guides the TDD cycle for viznoir-specific
+  concerns: dual filter registry, CI auto-skip rules, benchmark patterns,
+  and PR quality gates. Triggers: viznoir development, new filter, new tool,
+  TDD, benchmark, PR review, dual registry, CI skip
+---
+
+# viznoir Dev Pipeline
+
+## Workflow
+Issue → Explore → Plan → TDD (Red→Green→Refactor) → Benchmark → PR → Review
+
+## viznoir-Specific Checklist
+
+### New Filter
+1. Register in `core/registry.py` (PascalCase key, VTK class + param schema)
+2. Register in `engine/filters.py` (snake_case key, VTK filter function)
+3. Add to `TOOL_DISPATCH` in `harness/orchestrator.py` if image-producing
+4. Test in `tests/test_engine/test_filters.py`
+
+### New Tool
+1. Create `tools/{name}.py` with `{name}_impl()` function
+2. Register `@mcp.tool()` in `server.py`
+3. Test in `tests/test_tools/`
+4. Add to `TOOL_DISPATCH` if image-producing
+
+### VTK Rendering Test
+- Name file `*_vtk.py` (auto-skipped in CI) OR
+- Add to `conftest.py` skip list
+
+### Benchmark
+- Write `bench_*.py` following `bench_comparison.py` pattern
+- Update `REPORT.md` with results
+
+### PR Quality Gate
+- Test count >= CI guard (currently 1430)
+- Coverage >= 80%
+- `ruff check src/ tests/` clean
+- `mypy src/viznoir/` clean
+````
 
 - [ ] **Step 2: Create oss-workflow skill**
 
-Content: 4 sub-workflows (contributor onboarding, release management, issue triage, showcase curation), external contributor history, Release Please integration, PyPI trusted publisher, awesome-ai-cae connection.
+Write `.claude-plugin/skills/oss-workflow/SKILL.md`:
+
+````markdown
+---
+name: oss-workflow
+description: >-
+  Open-source project success workflow for viznoir. Codifies contributor
+  onboarding, release management (Release Please + PyPI), issue triage,
+  and showcase curation. Triggers: release, contributor, onboarding,
+  PyPI publish, issue triage, showcase, CHANGELOG, good first issue
+---
+
+# OSS Workflow
+
+## 1. Contributor Onboarding
+- New issue/PR → label `good-first-issue` if appropriate
+- Review with friendly, educational tone
+- After merge → thank-you comment + mention in CHANGELOG
+- Track contributors: Shirish-12105 (#11), himax12 (#7)
+
+## 2. Release Management
+1. Check CHANGELOG.md for completeness
+2. Release Please auto-creates version bump PR on main push
+3. Merge Release Please PR → GitHub Release auto-published
+4. PyPI publish via `publish.yml` (OIDC trusted publisher)
+5. Update README badges if needed
+- **Note**: PyPI Trusted Publisher must be configured at pypi.org
+
+## 3. Issue Triage
+- Categorize: bug / feature / question / showcase
+- Assess reproducibility for bugs
+- Label priority: P0 (critical) / P1 (important) / P2 (nice-to-have)
+- Assign to milestone (v0.8.0, v0.9.0, backlog)
+
+## 4. Showcase Curation
+- New domain data → `inspect_data` → `cinematic_render`
+- Add to README showcase gallery
+- Datasets at `/mnt/dataset/viznoir-showcase/` (4.1GB, 16 domains)
+- Connection: awesome-ai-cae list for viznoir exposure
+````
 
 - [ ] **Step 3: Commit**
 
