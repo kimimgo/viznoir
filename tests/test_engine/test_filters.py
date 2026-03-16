@@ -195,6 +195,68 @@ class TestShrink:
         assert "shrink" in _FILTER_REGISTRY
 
 
+class TestAutoCellToPoint:
+    """Tests for _auto_cell_to_point helper in filters.py."""
+
+    def test_cell_only_converts(self):
+        """If vectors exist only in cell data, auto-convert to point data."""
+        from viznoir.engine.filters import _auto_cell_to_point
+
+        # Create a dataset with vectors only in cell data
+        src = vtk.vtkRTAnalyticSource()
+        src.Update()
+        data = src.GetOutput()
+
+        # Add a vector array to cell data only
+        import numpy as np
+        from vtkmodules.util.numpy_support import numpy_to_vtk
+
+        n_cells = data.GetNumberOfCells()
+        vectors = np.random.rand(n_cells, 3).astype(np.float64)
+        vtk_arr = numpy_to_vtk(vectors)
+        vtk_arr.SetName("Velocity")
+        data.GetCellData().AddArray(vtk_arr)
+
+        # Ensure not in point data
+        assert data.GetPointData().GetArray("Velocity") is None
+
+        result = _auto_cell_to_point(data, "Velocity")
+        assert result.GetPointData().GetArray("Velocity") is not None
+
+    def test_point_already_exists_noop(self):
+        """If vectors already exist in point data, return dataset unchanged."""
+        from viznoir.engine.filters import _auto_cell_to_point
+
+        src = vtk.vtkRTAnalyticSource()
+        src.Update()
+        data = src.GetOutput()
+
+        # Add a vector array to point data
+        import numpy as np
+        from vtkmodules.util.numpy_support import numpy_to_vtk
+
+        n_points = data.GetNumberOfPoints()
+        vectors = np.random.rand(n_points, 3).astype(np.float64)
+        vtk_arr = numpy_to_vtk(vectors)
+        vtk_arr.SetName("Velocity")
+        data.GetPointData().AddArray(vtk_arr)
+
+        result = _auto_cell_to_point(data, "Velocity")
+        # Should return the same object (no conversion needed)
+        assert result is data
+
+    def test_missing_field_noop(self):
+        """If vectors field doesn't exist anywhere, return dataset unchanged."""
+        from viznoir.engine.filters import _auto_cell_to_point
+
+        src = vtk.vtkRTAnalyticSource()
+        src.Update()
+        data = src.GetOutput()
+
+        result = _auto_cell_to_point(data, "NonExistentField")
+        assert result is data
+
+
 class TestTube:
     def test_adds_tube_to_lines(self):
         line = _make_line()

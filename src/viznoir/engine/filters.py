@@ -52,6 +52,48 @@ class FilterSpec(Protocol):
 
 
 # ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+
+def _auto_cell_to_point(
+    data: vtk.vtkDataObject,
+    field_name: str,
+) -> vtk.vtkDataObject:
+    """Auto-convert cell data to point data if field exists only in cell data.
+
+    Used by streamlines() and glyph() which require point-associated vectors.
+    If the field already exists in point data, or doesn't exist at all, the
+    dataset is returned unchanged.
+
+    Args:
+        data: Input VTK dataset.
+        field_name: Name of the vector/scalar array to check.
+
+    Returns:
+        Original dataset or converted dataset with point data.
+    """
+    if not hasattr(data, "GetPointData") or not hasattr(data, "GetCellData"):
+        return data
+
+    # Already in point data — no conversion needed
+    if data.GetPointData().GetArray(field_name) is not None:
+        return data
+
+    # Not in cell data either — nothing to convert
+    if data.GetCellData().GetArray(field_name) is None:
+        return data
+
+    # Field exists only in cell data — convert
+    import vtk
+
+    filt = vtk.vtkCellDataToPointData()
+    filt.SetInputData(data)
+    filt.Update()
+    return filt.GetOutput()
+
+
+# ---------------------------------------------------------------------------
 # Individual filter functions
 # ---------------------------------------------------------------------------
 
@@ -311,6 +353,9 @@ def streamlines(
         num_seeds = seed_resolution
     if direction is not None and integration_direction == "both":
         integration_direction = direction.lower()
+
+    # Auto cell-to-point: streamlines requires point-associated vectors
+    data = _auto_cell_to_point(data, array_name)
 
     # Auto-compute seed points from data bounds if not specified
     if seed_point1 is None or seed_point2 is None:
@@ -661,6 +706,9 @@ def glyph(
         Polydata with glyphs.
     """
     import vtk
+
+    # Auto cell-to-point: glyph requires point-associated vectors
+    data = _auto_cell_to_point(data, array_name)
 
     # Mask to limit glyph count
     num_points = data.GetNumberOfPoints() if hasattr(data, "GetNumberOfPoints") else 0
