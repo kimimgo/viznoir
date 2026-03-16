@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from viznoir.harness.orchestrator import TOOL_DISPATCH
+from viznoir.harness.registry import TOOL_DISPATCH
 
 
 class TestToolDispatch:

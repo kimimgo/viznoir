@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import base64
-from collections.abc import Callable, Coroutine
 from typing import Any
 
 from viznoir.core.output import PipelineResult
@@ -12,6 +11,7 @@ from viznoir.errors import ViznoirError
 from viznoir.harness.domain_hints import detect_domain
 from viznoir.harness.evaluator import SamplingEvaluator
 from viznoir.harness.models import VizStep
+from viznoir.harness.registry import TOOL_DISPATCH
 from viznoir.logging import get_logger
 from viznoir.tools.batch import batch_render_impl
 from viznoir.tools.cinematic import cinematic_render_impl
@@ -23,9 +23,8 @@ from viznoir.tools.volume import volume_render_impl
 
 logger = get_logger("harness.orchestrator")
 
-# Map tool names → impl functions.
-# Only image-producing tools are included (orchestrator generates visualizations).
-TOOL_DISPATCH: dict[str, Callable[..., Coroutine[Any, Any, Any]]] = {
+# Populate the shared registry (used by models.py for validation).
+TOOL_DISPATCH.update({
     "render": render_impl,
     "cinematic_render": cinematic_render_impl,
     "slice": slice_impl,
@@ -35,7 +34,7 @@ TOOL_DISPATCH: dict[str, Callable[..., Coroutine[Any, Any, Any]]] = {
     "compare": compare_impl,
     "batch_render": batch_render_impl,
     "volume_render": volume_render_impl,
-}
+})
 
 # Map goal → purpose for adaptive resolution
 _GOAL_TO_PURPOSE = {"explore": "analyze", "publish": "publish", "compare": "preview"}
@@ -173,6 +172,17 @@ async def auto_postprocess_impl(
             logger.info("Evaluation: %s — finishing", eval_result.verdict)
             break
         if eval_result.verdict == "refine" and eval_result.suggestions:
-            logger.info("Evaluation: refine — %d suggestions", len(eval_result.suggestions))
+            logger.info("Evaluation: refine — executing %d suggestions", len(eval_result.suggestions))
+            for i, step in enumerate(eval_result.suggestions):
+                try:
+                    result = await _execute_step(step, runner, goal=goal)
+                    all_results.append(result)
+                    field = step.params.get("field_name", "")
+                    if field:
+                        rendered_fields.append(field)
+                except ViznoirError as exc:
+                    logger.warning("  Suggestion %d failed: %s — skipping", i + 1, exc)
+                except Exception as exc:
+                    logger.error("  Suggestion %d unexpected error: %s — skipping", i + 1, exc)
 
     return all_results

@@ -15,7 +15,7 @@ class VizStep(BaseModel):
 
     @model_validator(mode="after")
     def validate_tool_exists(self) -> VizStep:
-        from viznoir.harness.orchestrator import TOOL_DISPATCH
+        from viznoir.harness.registry import TOOL_DISPATCH
         if self.tool not in TOOL_DISPATCH:
             raise ValueError(f"Unknown tool: {self.tool}")
         return self

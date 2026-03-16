@@ -11,7 +11,7 @@ from viznoir.harness.models import EvalResult, VizPlan, VizStep
 def mock_tool_dispatch(monkeypatch):
     """Mock TOOL_DISPATCH so model tests don't depend on orchestrator."""
     fake_dispatch = {"render": lambda: None, "cinematic_render": lambda: None, "slice": lambda: None}
-    monkeypatch.setattr("viznoir.harness.orchestrator.TOOL_DISPATCH", fake_dispatch)
+    monkeypatch.setattr("viznoir.harness.registry.TOOL_DISPATCH", fake_dispatch)
 
 
 class TestVizStep:
