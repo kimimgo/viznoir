@@ -44,9 +44,7 @@ def resolve_profile(
         ValueError: One-sided override, out-of-bounds, or unknown purpose.
     """
     if (width is None) != (height is None):
-        raise ValueError(
-            f"Specify both width and height, or neither. Got width={width}, height={height}"
-        )
+        raise ValueError(f"Specify both width and height, or neither. Got width={width}, height={height}")
     if width is not None and height is not None:
         if not (1 <= width <= 8192 and 1 <= height <= 8192):
             raise ValueError(f"width and height must be 1-8192. Got {width}x{height}")
