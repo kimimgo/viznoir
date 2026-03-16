@@ -41,6 +41,7 @@ class RenderConfig:
     point_size: float = 2.0
     line_width: float = 1.0
     transfer_preset: str = "generic"
+    png_compress_level: int = 6
 
 
 # ---------------------------------------------------------------------------
@@ -145,7 +146,7 @@ class VTKRenderer:
         if render_data is None:
             # Empty dataset, return blank image
             rw.Render()
-            return _capture_png(rw)
+            return _capture_png(rw, self._config.png_compress_level)
 
         # Find array and association
         array_name, association = _resolve_array(render_data, self._config.array_name)
@@ -210,7 +211,7 @@ class VTKRenderer:
             renderer.ResetCameraClippingRange()
 
         rw.Render()
-        return _capture_png(rw)
+        return _capture_png(rw, self._config.png_compress_level)
 
     def _render_volume(
         self,
@@ -353,7 +354,7 @@ class VTKRenderer:
             renderer.ResetCameraClippingRange()
 
         rw.Render()
-        return _capture_png(rw)
+        return _capture_png(rw, self._config.png_compress_level)
 
     def render_multiblock(
         self,
@@ -562,7 +563,7 @@ def _build_scalar_bar(
     return bar
 
 
-def _capture_png(rw: vtk.vtkRenderWindow) -> bytes:
+def _capture_png(rw: vtk.vtkRenderWindow, compress_level: int = 6) -> bytes:
     """Capture render window to PNG bytes (no temp file)."""
     import vtk
     from vtkmodules.util.numpy_support import vtk_to_numpy
@@ -574,6 +575,7 @@ def _capture_png(rw: vtk.vtkRenderWindow) -> bytes:
     w2i.Update()
 
     writer = vtk.vtkPNGWriter()
+    writer.SetCompressionLevel(compress_level)
     writer.SetInputConnection(w2i.GetOutputPort())
     writer.WriteToMemoryOn()
     writer.Write()

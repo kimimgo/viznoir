@@ -59,3 +59,13 @@ class TestRenderConfig:
     def test_volume_representation(self):
         config = RenderConfig(representation="volume")
         assert config.representation == "volume"
+
+
+class TestRenderConfigCompressLevel:
+    def test_default_compress_level_is_6(self):
+        config = RenderConfig()
+        assert config.png_compress_level == 6
+
+    def test_custom_compress_level(self):
+        config = RenderConfig(png_compress_level=1)
+        assert config.png_compress_level == 1
