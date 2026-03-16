@@ -9,7 +9,7 @@ tools: Read, Glob, Grep, Bash
 model: sonnet
 permissionMode: default
 skills:
-  - cfd-postprocess
+  - cae-postprocess
 mcpServers:
   - viznoir
 ---
