@@ -1,4 +1,5 @@
 """Pydantic models for orchestrator plans and evaluation results."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -16,6 +17,7 @@ class VizStep(BaseModel):
     @model_validator(mode="after")
     def validate_tool_exists(self) -> VizStep:
         from viznoir.harness.registry import TOOL_DISPATCH
+
         if self.tool not in TOOL_DISPATCH:
             raise ValueError(f"Unknown tool: {self.tool}")
         return self

@@ -3,6 +3,7 @@
 Simple heuristic: file extension + field names → domain string.
 Complex inference is delegated to LLM via sampling.
 """
+
 from __future__ import annotations
 
 from pathlib import PurePosixPath

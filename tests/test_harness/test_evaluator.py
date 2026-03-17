@@ -1,5 +1,6 @@
 # tests/test_harness/test_evaluator.py
 """Tests for SamplingEvaluator — mocked ctx.sample()."""
+
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
@@ -39,11 +40,13 @@ class TestSamplingEvaluatorPlan:
         """When sampling succeeds, return the LLM's VizPlan."""
         expected_plan = VizPlan(
             domain="cfd",
-            steps=[VizStep(
-                tool="render",
-                params={"file_path": "/data/case.foam", "field_name": "p"},
-                rationale="pressure overview",
-            )],
+            steps=[
+                VizStep(
+                    tool="render",
+                    params={"file_path": "/data/case.foam", "field_name": "p"},
+                    rationale="pressure overview",
+                )
+            ],
             key_fields=["p"],
         )
         mock_result = MagicMock()

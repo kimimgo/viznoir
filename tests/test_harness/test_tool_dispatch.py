@@ -1,4 +1,5 @@
 """Tests for TOOL_DISPATCH — verify all image-producing tools are registered."""
+
 from __future__ import annotations
 
 import pytest

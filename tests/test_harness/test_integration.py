@@ -47,9 +47,7 @@ def _make_ctx_no_sampling():
 
 class TestAutoPostprocessIntegration:
     @pytest.mark.asyncio
-    async def test_cfd_heuristic_produces_multiple_views(
-        self, full_cfd_metadata, mock_pipeline_result
-    ):
+    async def test_cfd_heuristic_produces_multiple_views(self, full_cfd_metadata, mock_pipeline_result):
         """CFD file with p, U, k fields should produce 3 views via heuristic."""
         ctx = _make_ctx_no_sampling()
         runner = AsyncMock()
@@ -106,9 +104,7 @@ class TestAutoPostprocessIntegration:
                 return_value=mock_pipeline_result,
             ),
         ):
-            results = await auto_postprocess_impl(
-                ctx=ctx, file_path="/data/result.vtu", runner=runner
-            )
+            results = await auto_postprocess_impl(ctx=ctx, file_path="/data/result.vtu", runner=runner)
 
         assert len(results) >= 1
 
@@ -141,9 +137,7 @@ class TestAutoPostprocessIntegration:
                 return_value=mock_pipeline_result,
             ),
         ):
-            results = await auto_postprocess_impl(
-                ctx=ctx, file_path="/data/Part0001.bi4", runner=runner
-            )
+            results = await auto_postprocess_impl(ctx=ctx, file_path="/data/Part0001.bi4", runner=runner)
 
         assert len(results) >= 1
 
@@ -172,9 +166,7 @@ class TestAutoPostprocessIntegration:
                 return_value=mock_pipeline_result,
             ),
         ):
-            results = await auto_postprocess_impl(
-                ctx=ctx, file_path="/data/mesh.stl", runner=runner
-            )
+            results = await auto_postprocess_impl(ctx=ctx, file_path="/data/mesh.stl", runner=runner)
 
         assert len(results) >= 1
 

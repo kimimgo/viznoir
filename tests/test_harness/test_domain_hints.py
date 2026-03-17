@@ -1,4 +1,5 @@
 """Tests for mechanical domain detection from file metadata."""
+
 from __future__ import annotations
 
 from viznoir.harness.domain_hints import detect_domain

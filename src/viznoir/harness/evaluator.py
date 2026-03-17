@@ -1,5 +1,6 @@
 # src/viznoir/harness/evaluator.py
 """SamplingEvaluator — wraps ctx.sample() with graceful degradation."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -82,28 +83,34 @@ class SamplingEvaluator:
         # Pick primary field based on domain
         primary = self._pick_primary_field(field_names, domain)
         if primary:
-            steps.append(VizStep(
-                tool="cinematic_render",
-                params={"file_path": file_path, "field_name": primary},
-                rationale=f"Primary field overview: {primary}",
-            ))
+            steps.append(
+                VizStep(
+                    tool="cinematic_render",
+                    params={"file_path": file_path, "field_name": primary},
+                    rationale=f"Primary field overview: {primary}",
+                )
+            )
 
         # Add secondary visualizations
         secondary = self._pick_secondary_fields(field_names, domain, primary)
         for field in secondary[:2]:
-            steps.append(VizStep(
-                tool="render",
-                params={"file_path": file_path, "field_name": field},
-                rationale=f"Secondary field: {field}",
-            ))
+            steps.append(
+                VizStep(
+                    tool="render",
+                    params={"file_path": file_path, "field_name": field},
+                    rationale=f"Secondary field: {field}",
+                )
+            )
 
         # If no fields found, still produce a geometry render
         if not steps:
-            steps.append(VizStep(
-                tool="render",
-                params={"file_path": file_path, "field_name": field_names[0] if field_names else ""},
-                rationale="Geometry overview (no domain-specific fields detected)",
-            ))
+            steps.append(
+                VizStep(
+                    tool="render",
+                    params={"file_path": file_path, "field_name": field_names[0] if field_names else ""},
+                    rationale="Geometry overview (no domain-specific fields detected)",
+                )
+            )
 
         return VizPlan(
             domain=domain,

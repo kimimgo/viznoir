@@ -1,4 +1,5 @@
 """Agent Harness — autonomous post-processing orchestration layer."""
+
 from __future__ import annotations
 
 __all__ = ["HAS_HARNESS"]

@@ -24,17 +24,19 @@ from viznoir.tools.volume import volume_render_impl
 logger = get_logger("harness.orchestrator")
 
 # Populate the shared registry (used by models.py for validation).
-TOOL_DISPATCH.update({
-    "render": render_impl,
-    "cinematic_render": cinematic_render_impl,
-    "slice": slice_impl,
-    "contour": contour_impl,
-    "clip": clip_impl,
-    "streamlines": streamlines_impl,
-    "compare": compare_impl,
-    "batch_render": batch_render_impl,
-    "volume_render": volume_render_impl,
-})
+TOOL_DISPATCH.update(
+    {
+        "render": render_impl,
+        "cinematic_render": cinematic_render_impl,
+        "slice": slice_impl,
+        "contour": contour_impl,
+        "clip": clip_impl,
+        "streamlines": streamlines_impl,
+        "compare": compare_impl,
+        "batch_render": batch_render_impl,
+        "volume_render": volume_render_impl,
+    }
+)
 
 # Map goal → purpose for adaptive resolution
 _GOAL_TO_PURPOSE = {"explore": "analyze", "publish": "publish", "compare": "preview"}
