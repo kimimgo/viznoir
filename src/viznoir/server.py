@@ -1328,7 +1328,7 @@ if _HARNESS_AVAILABLE:
             goal=goal,
             max_iterations=min(max_iterations, 5),
         )
-        return [Image(data=r.image_base64, format="png") for r in results if r.image_base64]
+        return [Image(data=r.image_bytes, format="png") for r in results if r.image_bytes]
 
 
 def main() -> None:
