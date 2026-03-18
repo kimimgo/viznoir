@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0](https://github.com/kimimgo/viznoir/compare/v0.6.0...v0.7.0) (2026-03-18)
+
+
+### Features
+
+* adaptive render resolution — purpose parameter + PNG compression + auto cell-to-point ([#17](https://github.com/kimimgo/viznoir/issues/17)) ([25ed4e1](https://github.com/kimimgo/viznoir/commit/25ed4e1dce3858771d6158d4db9aa27bf3836fab))
+* agent harness — auto_postprocess meta-tool with MCP sampling ([7aec383](https://github.com/kimimgo/viznoir/commit/7aec38367327541b375cbb41de6e056ef15f3f0e))
+* slim README + landing page, add /docs developer documentation ([1a08ed1](https://github.com/kimimgo/viznoir/commit/1a08ed18030b12aa9048d3370af92a0c4db3df25))
+* v0.6 showcase rebrand — 10 domains, physics animations ([c04b19b](https://github.com/kimimgo/viznoir/commit/c04b19b9fc32e1fdfde9b69c389afed999a6f007))
+* VTK-native annotations + physics-driven animation presets ([a5bee06](https://github.com/kimimgo/viznoir/commit/a5bee06b103f580c96c12292c50a0fb667609ed0))
+* **www:** add GEO content — UseCases, Comparison table, FAQ with schema markup ([ba9c006](https://github.com/kimimgo/viznoir/commit/ba9c006933baec28efc0c9594b016cf1d1719c7f))
+* **www:** add GEO optimization — robots.txt, llms.txt, sitemap.xml, JSON-LD schema, citability block ([528d8ed](https://github.com/kimimgo/viznoir/commit/528d8ed547cb02a6ede1e2e1d9f973e4181919cf))
+
+
+### Bug Fixes
+
+* compositor grid labels, auto-cols, list mutation, negative dimension guard ([6e19c20](https://github.com/kimimgo/viznoir/commit/6e19c20614f814200aefc38f83903dbfff375beb))
+* guard cols=0 on empty assets, add list mutation regression tests ([1174bf8](https://github.com/kimimgo/viznoir/commit/1174bf865f81b70e92b9d2a4f3a56dcfd4874b2c))
+* move mcp import to module level in test_story_prompt (flaky CI fix) ([33d0247](https://github.com/kimimgo/viznoir/commit/33d0247a021774ec9789539fd47a6bfcbe4a0e41))
+* pin mcp&lt;1.26 (3.11 regression) + exclude GPU modules from CI coverage ([75904f0](https://github.com/kimimgo/viznoir/commit/75904f0c943c4319489ba5efd9e6ff163957a791))
+* resolve ruff lint errors in test files (F401, I001, E501) ([87ea7e8](https://github.com/kimimgo/viznoir/commit/87ea7e83964665b6ee46a27f11b648e866d0d8ea))
+
+
+### Documentation
+
+* add 7-language README translations for viznoir ([8784131](https://github.com/kimimgo/viznoir/commit/87841315d45fffb89de2828addacb57968364e55))
+* add Awesome AI-CAE featured badge ([879d504](https://github.com/kimimgo/viznoir/commit/879d50464e7c1b75e9238efbca2ab859f1a04923))
+* add global showcase gallery + country tutorials (14 countries, 22 tools) ([3a03b7a](https://github.com/kimimgo/viznoir/commit/3a03b7a840064b8a2280a9f2526bef3233081541))
+* add Mentioned in Awesome VTK badge ([#16](https://github.com/kimimgo/viznoir/issues/16)) ([8576313](https://github.com/kimimgo/viznoir/commit/8576313679da81c518f3b0a3565767c054b739b4))
+* enhance README — add What it does, Capabilities table, Works with ([d3d8b9d](https://github.com/kimimgo/viznoir/commit/d3d8b9dcca166184d2ff1512fa25021e01d77bae))
+* redesign README in Paperclip style — 3-step flow, feature grid, comparison table ([#19](https://github.com/kimimgo/viznoir/issues/19)) ([d273577](https://github.com/kimimgo/viznoir/commit/d273577daf8f30bf08a775106b09ec61b51f98cd))
+* update roadmap v0.7.0→v1.0.0 — PyPI at v1.0 only ([e942ce1](https://github.com/kimimgo/viznoir/commit/e942ce1747f60bf594b606c92d9272bbc9e1a8a3))
+* viznoir roadmap v0.6.1 → v1.0.0 ([477ce81](https://github.com/kimimgo/viznoir/commit/477ce817a7bb94e814357b57131e4edaead8ad4e))
+
 ## [Unreleased]
 
 ## [0.6.0] - 2026-03-11
