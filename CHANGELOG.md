@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1](https://github.com/kimimgo/viznoir/compare/v0.7.0...v0.7.1) (2026-03-19)
+
+
+### Documentation
+
+* add Glama MCP server badge ([#20](https://github.com/kimimgo/viznoir/issues/20)) ([1e89bd7](https://github.com/kimimgo/viznoir/commit/1e89bd73fc2056bd480a3b0e4ef2e9f6cf31f563))
+
 ## [0.7.0](https://github.com/kimimgo/viznoir/compare/v0.6.0...v0.7.0) (2026-03-18)
 
 
