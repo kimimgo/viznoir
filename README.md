@@ -20,6 +20,8 @@
   <a href="https://github.com/kimimgo/viznoir/stargazers"><img src="https://img.shields.io/github/stars/kimimgo/viznoir?style=flat" alt="Stars"></a>
 </p>
 
+[![viznoir MCP server](https://glama.ai/mcp/servers/kimimgo/viznoir/badges/card.svg)](https://glama.ai/mcp/servers/kimimgo/viznoir)
+
 ---
 
 ## What is viznoir?
