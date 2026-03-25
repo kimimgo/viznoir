@@ -6,7 +6,8 @@
   <img src="https://raw.githubusercontent.com/kimimgo/viznoir/main/www/public/showcase/cavity_story.webp" alt="viznoir showcase" width="720" />
   <br>
   <strong>VTK is all you need.</strong><br>
-  Cinema-quality science visualization for AI agents.
+  Autonomous engineering analysis for AI agents.<br>
+  <sub>Traditional post-processors show what you ask for. viznoir tells you what you need to see.</sub>
 </p>
 
 <p align="center">
@@ -26,7 +27,7 @@
 
 ## What is viznoir?
 
-An MCP server that gives AI agents full access to VTK's rendering pipeline — no ParaView GUI, no Jupyter notebooks, no display server. Your agent reads simulation data, applies physics filters, renders cinema-quality images, and exports animations. **All headless.**
+An MCP server that gives AI agents **autonomous engineering analysis** — not just rendering. The agent inspects your simulation data, reasons about the physics, identifies what matters, and delivers actionable engineering insights with cinema-quality visuals. No ParaView GUI, no Jupyter notebooks, no display server. **All headless.**
 
 ---
 
@@ -35,22 +36,54 @@ An MCP server that gives AI agents full access to VTK's rendering pipeline — n
 <table>
 <tr>
 <td align="center" width="33%">
-<h3>01</h3>
+<h3>01 &mdash; Inspect</h3>
 <b>Point to your data</b><br><br>
-<code>inspect_data("cavity.foam")</code>
+<code>inspect_data("beam.vtu")</code><br>
+<sub>AI discovers fields, topology, physics context</sub>
 </td>
 <td align="center" width="33%">
-<h3>02</h3>
-<b>Ask in natural language</b><br><br>
-<em>"Render pressure with cinematic lighting"</em>
+<h3>02 &mdash; Reason</h3>
+<b>AI decides what matters</b><br><br>
+<em>"Found stress tensor + displacement. Computing von Mises, safety factor, detecting hotspots..."</em>
 </td>
 <td align="center" width="33%">
-<h3>03</h3>
-<b>Get cinema-quality output</b><br><br>
-PNG &middot; MP4 &middot; glTF &middot; LaTeX
+<h3>03 &mdash; Deliver</h3>
+<b>Engineering insights + cinema visuals</b><br><br>
+SF maps &middot; hotspot annotations &middot; deformation overlays &middot; publication figures
 </td>
 </tr>
 </table>
+
+---
+
+## The Autoresearch Pattern
+
+Inspired by [Karpathy's autoresearch](https://github.com/karpathy/autoresearch) — AI agents that autonomously research, iterate, and build.
+
+**Traditional post-processing:**
+```
+Engineer opens ParaView → selects field → adjusts colormap → positions camera → exports image
+                          ↑ repeat for every view ↑
+```
+
+**viznoir autoresearch:**
+```
+Engineer: "Analyze this FEA result"
+    → AI inspects data (fields, topology, mesh quality)
+    → AI reasons (stress tensor → principal stresses, safety factor, failure criterion)
+    → AI identifies hotspots, yield regions, critical load paths
+    → AI renders publication figures with engineering annotations
+    → AI delivers: "Max von Mises 342 MPa at node 12847, SF = 1.46. Two regions below SF 1.5."
+```
+
+This works because viznoir is built in two layers:
+
+| Layer | Role | Analogy |
+|-------|------|---------|
+| **Engine** (L1) | Computation primitives — tensor decomposition, failure criteria, safety factor, deformation analysis | The hands |
+| **Harness** (L3) | AI skill that reasons about data, selects the right analysis, composes primitives into workflows | The brain |
+
+The engine provides **what** to compute. The harness decides **when** and **why**.
 
 ---
 
@@ -67,16 +100,17 @@ PNG &middot; MP4 &middot; glTF &middot; LaTeX
 </tr>
 </table>
 
-<p align="center"><em>If it speaks MCP, it renders.</em></p>
+<p align="center"><em>If it speaks MCP, it reasons.</em></p>
 
 ---
 
 ## Right for you if
 
-- ✅ You run CFD/FEA simulations and want automated post-processing
+- ✅ You run CFD/FEA simulations and want **autonomous** post-processing
+- ✅ You're an ME engineer who wants AI to analyze stress, deformation, and safety — not just render them
 - ✅ You want cinema-quality renders without learning ParaView
 - ✅ You need headless visualization in CI/CD pipelines
-- ✅ You want one prompt to go from raw data to publication figures
+- ✅ You want one prompt to go from raw data to engineering insights + publication figures
 - ✅ You process 50+ file formats (OpenFOAM, CGNS, Exodus, STL, ...)
 
 ---
@@ -91,7 +125,7 @@ PNG &middot; MP4 &middot; glTF &middot; LaTeX
 </td>
 <td align="center" width="33%">
 <h3>🔬 Physics Analysis</h3>
-Vortex detection, stagnation points, gradient stats, Reynolds number.
+Vortex detection, tensor decomposition, principal stresses, safety factor, failure criteria.
 </td>
 <td align="center" width="33%">
 <h3>📊 Data Extraction</h3>
@@ -108,8 +142,8 @@ Line plots, surface integrals, time-series probes, statistical summaries.
 OpenFOAM, VTK, CGNS, Exodus, STL, glTF, NetCDF, PLOT3D, and more.
 </td>
 <td align="center" width="33%">
-<h3>🤖 Agent Harness</h3>
-<code>auto_postprocess</code> meta-tool with MCP sampling for full autonomy.
+<h3>🤖 Autoresearch Harness</h3>
+AI reasons about your data, selects analysis, delivers engineering insights autonomously.
 </td>
 </tr>
 <tr>
@@ -153,6 +187,14 @@ EGL/OSMesa rendering, Docker support, no display server needed.
 <td>❌ Manual camera placement, lighting, colormap tuning</td>
 <td>✅ PCA auto-camera, 3-point lighting, adaptive resolution</td>
 </tr>
+<tr>
+<td>❌ Manually compute safety factor, find hotspots, check yield regions</td>
+<td>✅ AI inspects data → computes SF, detects hotspots, reports critical regions</td>
+</tr>
+<tr>
+<td>❌ Post-processor shows what you ask for — you must know what to look for</td>
+<td>✅ viznoir tells you what you need to see — autonomous engineering analysis</td>
+</tr>
 </table>
 
 ---
@@ -188,7 +230,7 @@ Add to your MCP client config:
 
 Then ask your AI agent:
 
-> *"Open cavity.foam, render the pressure field with cinematic lighting, then create a physics decomposition story."*
+> *"Analyze beam.vtu — find stress concentrations, compute safety factor against 250 MPa yield, and show me the critical regions."*
 
 ---
 
@@ -236,5 +278,5 @@ ruff check src/ tests/
 ---
 
 <p align="center">
-  <em>Open source under MIT. Built for engineers who'd rather prompt than click.</em>
+  <em>Open source under MIT. Built for engineers who'd rather reason than click.</em>
 </p>
