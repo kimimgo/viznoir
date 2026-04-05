@@ -1,6 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0a0a0a;
+  --color-secondary: #111111;
+  --color-tertiary: #1a1a1a;
+  --color-accent: #00d4ff;
+  --color-accent-hover: #33ddff;
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #a0a0a0;
+  --color-border: #2a2a2a;
+
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
 
 @layer base {
   html {
@@ -24,92 +36,90 @@
   }
 }
 
-@layer components {
-  /* Glow effects */
-  .glow-accent {
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.12), 0 0 60px rgba(0, 212, 255, 0.06);
-  }
+/* Glow effects */
+.glow-accent {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.12), 0 0 60px rgba(0, 212, 255, 0.06);
+}
 
-  .glow-accent-strong {
-    box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), 0 0 80px rgba(0, 212, 255, 0.1);
-  }
+.glow-accent-strong {
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), 0 0 80px rgba(0, 212, 255, 0.1);
+}
 
-  /* Gradient text */
-  .gradient-text {
-    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #00d4ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  .gradient-text-white {
-    background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.gradient-text-white {
+  background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  /* Card hover */
-  .card-hover {
-    @apply border border-border bg-secondary rounded-2xl transition-all duration-300;
-  }
-  .card-hover:hover {
-    @apply border-accent/20;
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.08);
-    transform: translateY(-2px);
-  }
+/* Card hover */
+.card-hover {
+  @apply border border-border bg-secondary rounded-2xl transition-all duration-300;
+}
+.card-hover:hover {
+  @apply border-accent/20;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.08);
+  transform: translateY(-2px);
+}
 
-  /* Terminal typing animation */
-  .terminal-line {
-    opacity: 0;
-    animation: terminal-appear 0.3s ease forwards;
-    animation-delay: var(--delay, 0s);
-  }
+/* Terminal typing animation */
+.terminal-line {
+  opacity: 0;
+  animation: terminal-appear 0.3s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
 
-  @keyframes terminal-appear {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes terminal-appear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .typing-cursor {
-    display: inline-block;
-    width: 8px;
-    height: 18px;
-    background: #00d4ff;
-    animation: blink 1s step-end infinite;
-    vertical-align: text-bottom;
-  }
+.typing-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  background: #00d4ff;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
 
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
+@keyframes blink {
+  50% { opacity: 0; }
+}
 
-  /* Bar chart animation */
-  .bar-fill {
-    animation: bar-grow 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transform-origin: left;
-  }
+/* Bar chart animation */
+.bar-fill {
+  animation: bar-grow 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: left;
+}
 
-  @keyframes bar-grow {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
-  }
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 
-  /* Scroll fade-in */
-  .fade-up {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
+/* Scroll fade-in */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
 
-  .fade-up.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-  /* Section divider */
-  .section-divider {
-    @apply w-full h-px;
-    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
-  }
+/* Section divider */
+.section-divider {
+  @apply w-full h-px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
 }
