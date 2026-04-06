@@ -54,6 +54,8 @@ _READER_MAP: dict[str, tuple[str, bool]] = {
     ".e": ("vtkExodusIIReader", False),
     ".exo": ("vtkExodusIIReader", False),
     ".ex2": ("vtkExodusIIReader", False),
+    # ANSYS Fluent
+    ".cas": ("vtkFLUENTReader", False),
     # EnSight
     ".case": ("vtkGenericEnSightReader", False),
     # XDMF

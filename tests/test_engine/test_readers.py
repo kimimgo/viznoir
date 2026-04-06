@@ -68,10 +68,66 @@ class TestReaderMap:
             (".e", "vtkExodusIIReader"),
             (".case", "vtkGenericEnSightReader"),
             (".xdmf", "vtkXdmf3Reader"),
+            (".cas", "vtkFLUENTReader"),
         ],
     )
     def test_format_mapping(self, ext, expected_class):
         assert _READER_MAP[ext][0] == expected_class
+
+    def test_cas_not_xml(self):
+        """ANSYS Fluent .cas files are binary/ASCII, not XML."""
+        assert _READER_MAP[".cas"][1] is False
+
+
+# ---------------------------------------------------------------------------
+# ANSYS Fluent .cas reader
+# ---------------------------------------------------------------------------
+
+
+class TestFluentReader:
+    """Tests for ANSYS Fluent .cas reader support."""
+
+    def test_cas_in_reader_map(self):
+        """.cas extension must be registered in _READER_MAP."""
+        assert ".cas" in _READER_MAP
+
+    def test_cas_maps_to_vtk_fluent_reader(self):
+        """.cas must resolve to vtkFLUENTReader."""
+        assert _READER_MAP[".cas"][0] == "vtkFLUENTReader"
+
+    def test_cas_is_not_xml(self):
+        """vtkFLUENTReader does not use the XML pipeline."""
+        _, is_xml = _READER_MAP[".cas"]
+        assert is_xml is False
+
+    def test_cas_in_supported_extensions(self):
+        """.cas must appear in the public supported_extensions() list."""
+        assert ".cas" in supported_extensions()
+
+    def test_cas_reader_uses_set_file_name(self, tmp_path):
+        """DataReader for .cas files calls SetFileName (not SetCaseFileName)."""
+        from viznoir.engine.readers import DataReader
+
+        cas_file = tmp_path / "mesh.cas"
+        cas_file.write_text('(0 "Fluent mesh")\n')
+
+        mock_reader_instance = MagicMock()
+        mock_output = MagicMock()
+        mock_output.__class__ = MagicMock  # not vtkMultiBlockDataSet
+        mock_reader_instance.GetOutput.return_value = mock_output
+        mock_reader_instance.GetExecutive.return_value = MagicMock()
+        mock_reader_instance.GetExecutive.return_value.GetOutputInformation.return_value = None
+
+        mock_vtk = MagicMock()
+        mock_vtk.vtkFLUENTReader.return_value = mock_reader_instance
+        mock_vtk.vtkMultiBlockDataSet = type("vtkMultiBlockDataSet", (), {})
+
+        reader = DataReader(cas_file)
+        with patch.dict("sys.modules", {"vtk": mock_vtk}):
+            reader._create_reader()
+
+        mock_reader_instance.SetFileName.assert_called_once_with(str(cas_file))
+        mock_reader_instance.SetCaseFileName.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
