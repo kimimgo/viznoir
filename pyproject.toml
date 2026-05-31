@@ -1,6 +1,6 @@
 [project]
-name = "mcp-server-viznoir"
-version = "0.8.0"
+name = "viznoir"
+version = "0.8.1"
 description = "VTK is all you need. Cinema-quality science visualization for AI agents."
 license = "MIT"
 readme = "README.md"
@@ -38,7 +38,7 @@ docs = [
     "mkdocstrings[python]>=0.27",
 ]
 tasks = ["fastmcp[tasks]>=3.0.0"]
-all = ["mcp-server-viznoir[mesh,composite,tasks]"]
+all = ["viznoir[mesh,composite,tasks]"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
