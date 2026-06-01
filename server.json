@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.kimimgo/viznoir",
-  "description": "Cinema-quality science visualization for AI agents. Headless VTK rendering pipeline via MCP — no ParaView GUI, no display server.",
+  "description": "Cinema-quality science visualization for AI agents — headless VTK via MCP.",
   "title": "viznoir",
   "websiteUrl": "https://kimimgo.github.io/viznoir/",
   "repository": {
