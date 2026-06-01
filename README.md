@@ -2,6 +2,8 @@
 
 > VTK is all you need. Cinema-quality science visualization for AI agents.
 
+<!-- mcp-name: io.github.kimimgo/viznoir -->
+
 [![CI](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml/badge.svg)](https://github.com/kimimgo/viznoir/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/viznoir)](https://pypi.org/project/viznoir/)
 [![Python](https://img.shields.io/pypi/pyversions/viznoir)](https://pypi.org/project/viznoir/)

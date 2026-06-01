@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "com.github.kimimgo/viznoir",
+  "name": "io.github.kimimgo/viznoir",
   "description": "Cinema-quality science visualization for AI agents. Headless VTK rendering pipeline via MCP — no ParaView GUI, no display server.",
   "title": "viznoir",
   "websiteUrl": "https://kimimgo.github.io/viznoir/",
@@ -8,13 +8,13 @@
     "url": "https://github.com/kimimgo/viznoir",
     "source": "github"
   },
-  "version": "0.7.0",
+  "version": "0.9.2",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "viznoir",
-      "version": "0.7.0",
+      "version": "0.9.2",
       "transport": {
         "type": "stdio"
       },
