@@ -51,6 +51,15 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            // Bot PRs (dependabot, release-please via github-actions) don't use
+            // the human PR template — pass the check so they aren't permanently
+            // blocked. A skipped job would leave a required check pending; an
+            // early return keeps the check green.
+            const author = context.payload.pull_request.user.login || '';
+            if (author.endsWith('[bot]')) {
+              core.info(`Skipping PR template check for bot author: ${author}`);
+              return;
+            }
             const body = context.payload.pull_request.body || '';
             const errors = [];
 
