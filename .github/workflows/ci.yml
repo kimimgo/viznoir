@@ -5,8 +5,10 @@ on:
     branches: [main]
     paths-ignore: ['www/**', '*.md']
   pull_request:
+    # No paths-ignore here: required checks (Lint & Type Check, Test) must
+    # report on every PR, otherwise branch protection blocks docs/www-only
+    # PRs forever (the contexts never run → stay pending → unmergeable).
     branches: [main]
-    paths-ignore: ['www/**', '*.md']
 
 jobs:
   lint:
