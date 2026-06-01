@@ -60,3 +60,6 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Token auth: set repo secret PYPI_API_TOKEN (scoped to the viznoir project).
+          password: ${{ secrets.PYPI_API_TOKEN }}
