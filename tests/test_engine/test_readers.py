@@ -257,7 +257,7 @@ class TestDataReaderInit:
 
         reader = DataReader(xyz_file)
         with patch.dict("sys.modules", {"meshio": None}):
-            with pytest.raises(FileFormatError, match="pip install mcp-server-viznoir"):
+            with pytest.raises(FileFormatError, match="pip install viznoir"):
                 reader.read()
 
     def test_typo_extension_suggests_match(self, tmp_path):

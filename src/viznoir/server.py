@@ -1349,7 +1349,7 @@ def main() -> None:
     parser.add_argument(
         "--version",
         action="version",
-        version=f"mcp-server-viznoir {version('mcp-server-viznoir')}",
+        version=f"viznoir {version('viznoir')}",
     )
     parser.add_argument(
         "--transport",

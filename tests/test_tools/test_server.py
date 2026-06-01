@@ -177,11 +177,11 @@ class TestMainVersionFlag:
             timeout=10,
         )
         assert result.returncode == 0
-        assert "mcp-server-viznoir" in result.stdout
+        assert "viznoir" in result.stdout
         # Version string should match importlib.metadata
         from importlib.metadata import version
 
-        pkg_version = version("mcp-server-viznoir")
+        pkg_version = version("viznoir")
         assert pkg_version in result.stdout
 
     def test_python_m_viznoir_version(self):
@@ -196,7 +196,7 @@ class TestMainVersionFlag:
             timeout=10,
         )
         assert result.returncode == 0
-        assert "mcp-server-viznoir" in result.stdout
+        assert "viznoir" in result.stdout
 
     def test_main_module_imports_and_calls_main(self):
         """__main__.py should import and call main()."""
