@@ -76,6 +76,7 @@ exclude = [
     "/paper",
     "/scripts",
     "/benchmarks",
+    "/tests",
     "/assets",
     "/.github",
     "/.claude*",

@@ -3,6 +3,10 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
+  # Manual escape hatch: release-please creates Releases as the bot, and
+  # bot-created Releases do NOT trigger workflows. Dispatch this on main to
+  # publish the version currently in pyproject.
+  workflow_dispatch:
 
 permissions:
   id-token: write
