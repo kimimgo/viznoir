@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0](https://github.com/kimimgo/viznoir/compare/v0.8.0...v0.9.0) (2026-06-01)
+
+
+### Features
+
+* add DualSPHysics SPH context parser ([cd93043](https://github.com/kimimgo/viznoir/commit/cd93043aea9e7b71b70b6dac759af48c4bfd4405))
+* add MRC/MAP reader for cryoEM electron density maps ([a9af47d](https://github.com/kimimgo/viznoir/commit/a9af47dedd47fceceac6bb08038ee47645c8a89e))
+
 ## [0.8.0](https://github.com/kimimgo/viznoir/compare/v0.7.2...v0.8.0) (2026-04-07)
 
 
