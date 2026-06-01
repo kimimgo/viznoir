@@ -244,7 +244,7 @@ class DataReader:
             available = ", ".join(sorted(_READER_MAP.keys()))
             msg = (
                 f"Unsupported file format '{suffix}'. Supported: {available}. "
-                f"For more formats: pip install mcp-server-viznoir[mesh]"
+                f"For more formats: pip install viznoir[mesh]"
             )
             if hint:
                 msg += f" Did you mean '{hint}'?"

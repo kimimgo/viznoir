@@ -2,7 +2,7 @@
   "packages": {
     ".": {
       "release-type": "python",
-      "package-name": "mcp-server-viznoir",
+      "package-name": "viznoir",
       "bump-minor-pre-major": true,
       "extra-files": [
         "src/viznoir/__init__.py"

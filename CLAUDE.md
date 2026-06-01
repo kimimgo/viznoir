@@ -10,7 +10,7 @@ VTK is all you need. Cinema-quality science visualization for AI agents.
 - **Repo**: kimimgo/viznoir
 - **Language**: Python 3.10+
 - **MCP SDK**: fastmcp>=2.0.0
-- **PyPI**: mcp-server-viznoir
+- **PyPI**: viznoir
 - **Entry point**: `mcp-server-viznoir` → `viznoir.server:main`
 
 ## Development Commands
@@ -19,7 +19,7 @@ VTK is all you need. Cinema-quality science visualization for AI agents.
 # Install (editable with dev deps)
 pip install -e ".[dev]"
 
-# Run all tests (1439 tests, async mode=auto)
+# Run all tests (1650+ tests, async mode=auto)
 pytest --cov=viznoir --cov-report=term-missing -q
 
 # Run a single test file
@@ -65,7 +65,7 @@ Layer 3: Skills (자연어 인터페이스)        ← .claude-plugin/skills/
 Layer 2: Agents (전문 서브에이전트)        ← agents/
   viz-agent (sonnet), mesh-agent (haiku)
 
-Layer 1: MCP Server (mcp-server-viznoir)  ← src/viznoir/
+Layer 1: MCP Server (viznoir)  ← src/viznoir/
   VTK direct API → 헤드리스 렌더링 (ParaView 불필요)
   meshio → 50+ 형식 변환, trimesh → STL/OBJ/PLY 분석
 ```
@@ -158,7 +158,8 @@ server.py (MCP tool)
 | 항목 | 값 |
 |------|-----|
 | Python package | `viznoir` |
-| PyPI name | `mcp-server-viznoir` |
+| PyPI name | `viznoir` |
+| CLI command | `mcp-server-viznoir` |
 | MCP server name | `viznoir` |
 | Resource URI scheme | `viznoir://` |
 | ENV prefix | `VIZNOIR_*` |
@@ -167,11 +168,11 @@ server.py (MCP tool)
 
 | 항목 | 수량 |
 |------|------|
-| Tools | 22 |
+| Tools | 23 |
 
 | Resources | 12 |
 | Prompts | 4 |
-| Tests | 1439+ |
+| Tests | 1650+ |
 
 ## Test Structure
 
