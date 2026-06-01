@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1](https://github.com/kimimgo/viznoir/compare/v0.9.0...v0.9.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* **release:** exclude /tests from sdist (&lt;1MB) + add publish workflow_dispatch ([#76](https://github.com/kimimgo/viznoir/issues/76)) ([a5d3f61](https://github.com/kimimgo/viznoir/commit/a5d3f61466e4453889b215219fd65cf8f494d1b2))
+
 ## [0.9.0](https://github.com/kimimgo/viznoir/compare/v0.8.0...v0.9.0) (2026-06-01)
 
 
