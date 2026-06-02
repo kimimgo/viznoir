@@ -13,7 +13,7 @@ jobs:
       id-token: write # OIDC auth to the MCP Registry (no secrets needed)
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install mcp-publisher
         run: |
