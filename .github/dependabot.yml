@@ -4,13 +4,30 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      python:
+        patterns: ["*"]
 
   - package-ecosystem: npm
     directory: /www
     schedule:
       interval: monthly
+    groups:
+      www:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /video/viznoir-intro
+    schedule:
+      interval: monthly
+    groups:
+      video:
+        patterns: ["*"]
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
