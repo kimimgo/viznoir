@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **ci:** bump deploy Node 20 -&gt; 22 for Astro 6.4 ([#89](https://github.com/kimimgo/viznoir/issues/89)) ([d8945ef](https://github.com/kimimgo/viznoir/commit/d8945effe843249136207c2e9bb291d2173d8bbc))
 * **registry:** shorten server.json description to &lt;=100 chars ([#82](https://github.com/kimimgo/viznoir/issues/82)) ([2d8fd16](https://github.com/kimimgo/viznoir/commit/2d8fd1625fec841b54a2ca46b184a2ccb166d6fb))
 
+
+### Documentation
+
+* fix install commands mcp-server-viznoir -&gt; viznoir + PyPI URLs ([#90](https://github.com/kimimgo/viznoir/issues/90)) ([4070bee](https://github.com/kimimgo/viznoir/commit/4070bee4fc6c0306f118a19310a217f2c8bdcd26))
+
 ## [0.10.0](https://github.com/kimimgo/viznoir/compare/v0.9.1...v0.10.0) (2026-06-01)
 
 
