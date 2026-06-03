@@ -43,7 +43,7 @@ It's **not** a ParaView wrapper. It uses VTK's Python API directly with GPU EGL 
 ### Setup
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 Add to your AI assistant's MCP config:

@@ -225,7 +225,7 @@ benefits indirectly — when the LLM has user's skill context loaded,
 
 ### 6. C++ Native Filters
 
-Optional dependency: `pip install mcp-server-viznoir[native]`
+Optional dependency: `pip install viznoir[native]`
 
 **Initial target**: VortexDetect (Q-criterion + lambda-2)
 

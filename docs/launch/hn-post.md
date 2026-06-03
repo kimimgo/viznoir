@@ -20,7 +20,7 @@ I built viznoir because I got tired of opening ParaView every time I needed to c
 **Install:**
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 **Try it:**

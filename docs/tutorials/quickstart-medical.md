@@ -20,7 +20,7 @@
 ## Step 1: 설치 및 MCP 설정
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 `.mcp.json` 설정 (Claude Code / Cursor 공통):

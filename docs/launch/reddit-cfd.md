@@ -49,7 +49,7 @@ The AI reads the .foam file, calls `render` and `slice`, returns PNG images inli
 ### Install
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 Works with Claude Code (as a plugin), Cursor, Codex CLI, or any MCP-compatible client.

@@ -145,7 +145,7 @@ export VIZNOIR_OUTPUT_DIR=/mnt/large-disk/viznoir-output
 **Solution**:
 ```bash
 # Install the package
-pip install mcp-server-viznoir
+pip install viznoir
 
 # Verify the entry point works
 mcp-server-viznoir --version

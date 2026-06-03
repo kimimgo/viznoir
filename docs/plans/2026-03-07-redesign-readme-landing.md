@@ -165,7 +165,7 @@ MIT
 
 **설치 우선순위:**
 1. `claude install kimimgo/viznoir` (Claude Code 사용자)
-2. `pip install mcp-server-viznoir` (범용)
+2. `pip install viznoir` (범용)
 3. `docker compose up` (격리 환경)
 
 **비교표 (사실 기반):**
