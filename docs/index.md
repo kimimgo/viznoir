@@ -19,4 +19,4 @@ Headless CAE post-processing MCP server for AI coding assistants.
 - [Tools Overview](tools/overview.md)
 - [API Reference](api/server.md)
 - [GitHub](https://github.com/kimimgo/viznoir)
-- [PyPI](https://pypi.org/project/mcp-server-viznoir/)
+- [PyPI](https://pypi.org/project/viznoir/)

@@ -3,20 +3,20 @@
 ## pip (recommended)
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 ### Optional dependencies
 
 ```bash
 # Mesh format conversion (meshio + trimesh)
-pip install "mcp-server-viznoir[mesh]"
+pip install "viznoir[mesh]"
 
 # Split-pane animations (Pillow + matplotlib)
-pip install "mcp-server-viznoir[composite]"
+pip install "viznoir[composite]"
 
 # Everything
-pip install "mcp-server-viznoir[all]"
+pip install "viznoir[all]"
 ```
 
 ## Claude Code Plugin

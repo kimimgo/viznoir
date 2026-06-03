@@ -7,13 +7,13 @@
 | Field | Value |
 |-------|-------|
 | Name | viznoir |
-| PyPI | mcp-server-viznoir |
+| PyPI | viznoir |
 | Description | Headless CAE post-processing MCP server for AI coding assistants |
 | Long Description | Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. VTK-based headless rendering, 50+ mesh formats, no ParaView required. |
 | GitHub | https://github.com/kimimgo/viznoir |
 | Landing Page | https://kimimgo.github.io/viznoir |
 | License | MIT |
-| Install | `pip install mcp-server-viznoir` |
+| Install | `pip install viznoir` |
 | Categories | Science, Engineering, Visualization, Simulation, CAE, CFD, FEA |
 | Stats | 13 tools, 10 resources, 3 prompts, 331 tests |
 
@@ -58,7 +58,7 @@ Headless CAE post-processing MCP server for AI coding assistants.
 
 GitHub: https://github.com/kimimgo/viznoir
 Landing: https://kimimgo.github.io/viznoir
-PyPI: https://pypi.org/project/mcp-server-viznoir/
+PyPI: https://pypi.org/project/viznoir/
 ```
 
 ---
@@ -105,7 +105,7 @@ After publish, check: `https://smithery.ai/server/viznoir`
 | Description | Headless CAE post-processing MCP server for AI coding assistants. Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. |
 | GitHub URL | https://github.com/kimimgo/viznoir |
 | Website | https://kimimgo.github.io/viznoir |
-| Install Command | pip install mcp-server-viznoir |
+| Install Command | pip install viznoir |
 | Categories | Science, Engineering, Data Visualization |
 | Tags | vtk, cfd, cae, simulation, visualization, post-processing |
 | License | MIT |
@@ -126,7 +126,7 @@ After publish, check: `https://smithery.ai/server/viznoir`
 | Short Description | Headless CAE post-processing MCP server for AI coding assistants |
 | Long Description | Visualize CFD/FEA simulation results through 13 tools — render, slice, contour, clip, streamlines, animate, and more. VTK-based headless rendering with GPU (EGL) or CPU (OSMesa) support. 50+ mesh formats via meshio. No ParaView dependency required. |
 | Categories | Science & Research, Engineering, Data Visualization |
-| Install | pip install mcp-server-viznoir |
+| Install | pip install viznoir |
 | Website | https://kimimgo.github.io/viznoir |
 
 ---
@@ -144,7 +144,7 @@ After publish, check: `https://smithery.ai/server/viznoir`
 | Description | Headless CAE post-processing MCP server for AI coding assistants. 13 tools for CFD/FEA visualization: render, slice, contour, clip, streamlines, animate. VTK-based, 50+ mesh formats, GPU/CPU headless rendering. |
 | GitHub URL | https://github.com/kimimgo/viznoir |
 | Homepage | https://kimimgo.github.io/viznoir |
-| Install | pip install mcp-server-viznoir |
+| Install | pip install viznoir |
 | Category | Science & Research |
 | License | MIT |
 

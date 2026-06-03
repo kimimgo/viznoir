@@ -20,7 +20,7 @@ viznoir으로 변형 형상, 응력 분포, 내부 단면을 시각화하고 보
 ## Step 1: 설치 및 MCP 설정
 
 ```bash
-pip install mcp-server-viznoir
+pip install viznoir
 ```
 
 `.mcp.json` 설정:

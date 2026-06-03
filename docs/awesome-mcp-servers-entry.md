@@ -42,6 +42,6 @@ Science (simulation post-processing / scientific visualization)
 ## Links
 
 - **Repository**: https://github.com/kimimgo/viznoir
-- **PyPI**: https://pypi.org/project/mcp-server-viznoir/
+- **PyPI**: https://pypi.org/project/viznoir/
 - **Docs**: https://kimimgo.github.io/viznoir/docs/
 ```
