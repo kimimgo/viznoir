@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1](https://github.com/kimimgo/viznoir/compare/v0.10.0...v0.10.1) (2026-06-03)
+
+
+### Bug Fixes
+
+* **ci:** bump deploy Node 20 -&gt; 22 for Astro 6.4 ([#89](https://github.com/kimimgo/viznoir/issues/89)) ([d8945ef](https://github.com/kimimgo/viznoir/commit/d8945effe843249136207c2e9bb291d2173d8bbc))
+* **registry:** shorten server.json description to &lt;=100 chars ([#82](https://github.com/kimimgo/viznoir/issues/82)) ([2d8fd16](https://github.com/kimimgo/viznoir/commit/2d8fd1625fec841b54a2ca46b184a2ccb166d6fb))
+
 ## [0.10.0](https://github.com/kimimgo/viznoir/compare/v0.9.1...v0.10.0) (2026-06-01)
 
 
