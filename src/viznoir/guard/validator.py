@@ -5,9 +5,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from .rules import _ORDER, ALL_RULES, GuardContext, RuleResult, Status
+from .rules import ALL_RULES, GuardContext, RuleResult, Status
 
 Rule = Callable[[GuardContext], RuleResult | None]
+
+# Severity ordering for picking the worst verdict (FAIL > WARN > PASS).
+_ORDER = {Status.PASS: 0, Status.WARN: 1, Status.FAIL: 2}
 
 
 @dataclass

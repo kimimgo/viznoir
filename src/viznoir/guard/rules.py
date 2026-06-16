@@ -20,14 +20,11 @@ from enum import Enum
 
 
 class Status(Enum):
-    """Verdict severity. Ordered PASS < WARN < FAIL via :data:`_ORDER`."""
+    """Verdict severity, ordered PASS < WARN < FAIL (see ``validator._ORDER``)."""
 
     PASS = "pass"
     WARN = "warn"
     FAIL = "fail"
-
-
-_ORDER = {Status.PASS: 0, Status.WARN: 1, Status.FAIL: 2}
 
 
 @dataclass
