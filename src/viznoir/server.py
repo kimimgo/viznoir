@@ -1146,6 +1146,59 @@ async def inspect_physics(
 
 
 # ---------------------------------------------------------------------------
+# validate_render — physics guard on a render spec (pass/warn/fail)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def validate_render(
+    file_path: str,
+    field_name: str,
+    association: Literal["POINTS", "CELLS"] = "POINTS",
+    colormap: str = "Cool to Warm",
+    scalar_range: list[float] | None = None,
+    filter_type: str | None = None,
+    isovalue: float | None = None,
+    camera_position: list[float] | None = None,
+) -> dict[str, Any]:
+    """Physics-check a render spec against the data — pass/warn/fail + fixes.
+
+    Catches hallucinated visualization choices before they mislead: a sequential
+    colormap on signed pressure, a range that hides the zero crossing, an
+    isovalue outside the data range, a temperature below absolute zero, or a
+    camera that doesn't frame the data. Returns a verdict, per-rule results with
+    fix suggestions, and the field's actual range.
+
+    Args:
+        file_path: Path to the VTK/OpenFOAM/CGNS simulation file
+        field_name: Field the render colors by
+        association: POINTS or CELLS
+        colormap: Colormap chosen for the render
+        scalar_range: [min, max] color range (None = full data range)
+        filter_type: Filter applied, e.g. "contour" (enables empty-isosurface check)
+        isovalue: Isovalue for a contour filter (checked against the data range)
+        camera_position: Explicit [x, y, z] camera position (checked vs data bounds)
+    """
+    file_path = _validate_file_path(file_path)
+    logger.debug("tool.validate_render: start file=%s field=%s", file_path, field_name)
+    t0 = time.monotonic()
+    from viznoir.tools.validate_render import validate_render_impl
+
+    result = await validate_render_impl(
+        file_path,
+        field_name,
+        association=association,
+        colormap=colormap,
+        scalar_range=scalar_range,
+        filter_type=filter_type,
+        isovalue=isovalue,
+        camera_position=camera_position,
+    )
+    logger.debug("tool.validate_render: done in %.2fs", time.monotonic() - t0)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # analyze_data — VTK data insight extraction [DEPRECATED: use inspect_physics]
 # ---------------------------------------------------------------------------
 

@@ -39,6 +39,7 @@ def _get_tool_functions() -> dict:
         "probe_timeseries",
         "batch_render",
         "preview_3d",
+        "validate_render",
     ]
     tools = {}
     for name in names:
@@ -83,7 +84,7 @@ class TestToolCompliance:
 
     def test_tool_count_matches_expected(self):
         """Guard against accidentally dropping or adding tools."""
-        assert len(_get_tool_functions()) == 18
+        assert len(_get_tool_functions()) == 19
 
     def test_docstrings_are_unique(self):
         """No two tools should have the same first-line docstring."""

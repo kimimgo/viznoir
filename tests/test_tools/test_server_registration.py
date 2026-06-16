@@ -36,6 +36,7 @@ class TestServerRegistration:
             "batch_render",
             "preview_3d",
             "compose_assets",
+            "validate_render",
         ]
         for name in tool_funcs:
             assert hasattr(server, name), f"Missing tool function: {name}"
