@@ -14,6 +14,9 @@ from viznoir.core.compiler import ScriptCompiler
 # ---------------------------------------------------------------------------
 
 _IS_CI = bool(os.environ.get("CI"))
+# Opt-in to run the GPU rendering tests even under CI — set on a self-hosted
+# runner that actually has a GPU/EGL (e.g. the oliveeelab RTX 4090 runner).
+_RUN_GPU = bool(os.environ.get("VIZNOIR_RUN_GPU_TESTS"))
 
 # Test files/classes that require VTK GPU rendering (segfault in CI).
 # All *_vtk.py files are also auto-skipped via endswith("_vtk.py") pattern below.
@@ -31,8 +34,11 @@ _RENDERING_TEST_CLASSES = {
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    """Auto-skip VTK rendering tests in CI (no GPU/EGL/OSMesa)."""
-    if not _IS_CI:
+    """Auto-skip VTK rendering tests in CI (no GPU/EGL/OSMesa).
+
+    A self-hosted runner with a real GPU sets VIZNOIR_RUN_GPU_TESTS=1 to run them.
+    """
+    if not _IS_CI or _RUN_GPU:
         return
 
     skip_render = pytest.mark.skip(reason="VTK rendering requires GPU (not available in CI)")

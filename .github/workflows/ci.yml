@@ -13,7 +13,7 @@ on:
 jobs:
   lint:
     name: Lint & Type Check
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v6
 
@@ -36,7 +36,7 @@ jobs:
 
   test:
     name: Test (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: lint
     strategy:
       fail-fast: false
@@ -56,7 +56,11 @@ jobs:
 
       - name: Test (pytest)
         env:
-          VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+          # Self-hosted oliveeelab runner has an RTX 4090 — use EGL (OSMesa
+          # segfaults here) and run the GPU rendering tests on 3.12 (the
+          # coverage-gate version), which lifts coverage from ~86% to ~95%.
+          VTK_DEFAULT_OPENGL_WINDOW: vtkEGLRenderWindow
+          VIZNOIR_RUN_GPU_TESTS: ${{ matrix.python-version == '3.12' && '1' || '' }}
         run: pytest --cov=viznoir --cov-report=term-missing --cov-report=xml -q
 
       - name: Coverage threshold check
