@@ -65,7 +65,9 @@ jobs:
 
       - name: Coverage threshold check
         if: matrix.python-version == '3.12'
-        run: coverage report --fail-under=80
+        # 90% — reachable now that the self-hosted GPU runner runs the rendering
+        # tests (engine/export, filters, etc.) that GitHub-hosted CI must skip.
+        run: coverage report --fail-under=90
 
       - name: Test count regression guard
         if: matrix.python-version == '3.12'
