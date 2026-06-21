@@ -12,8 +12,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@remotion/cli": "^4.0.471",
-    "@remotion/renderer": "^4.0.471",
+    "@remotion/cli": "^4.0.479",
+    "@remotion/renderer": "^4.0.479",
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.7",
