@@ -51,13 +51,14 @@ class TestRealSocketRoundtrip:
         server = asyncio.create_task(serve(host="127.0.0.1", port=port))
         try:
             # wait for the server to accept connections
+            conn = None
             for _ in range(50):
                 try:
                     conn = await websockets.connect(f"ws://127.0.0.1:{port}")
                     break
                 except OSError:
                     await asyncio.sleep(0.1)
-            else:
+            if conn is None:
                 pytest.fail("remote render server did not start")
 
             async with conn:
@@ -78,4 +79,4 @@ class TestRealSocketRoundtrip:
             try:
                 await server
             except asyncio.CancelledError:
-                pass
+                pass  # expected — we cancelled the server task

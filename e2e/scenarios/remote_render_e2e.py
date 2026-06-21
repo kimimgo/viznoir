@@ -45,12 +45,15 @@ async def main() -> int:
     frames: list[bytes] = []
     done = None
     try:
+        conn = None
         for _ in range(50):
             try:
                 conn = await websockets.connect(f"ws://127.0.0.1:{port}")
                 break
             except OSError:
                 await asyncio.sleep(0.1)
+        if conn is None:
+            raise RuntimeError("remote render server did not start")
         async with conn:
             await conn.send(json.dumps({"file_path": path, "field_name": "RTData", "frames": 3}))
             while True:
@@ -65,7 +68,7 @@ async def main() -> int:
         try:
             await server
         except asyncio.CancelledError:
-            pass
+            pass  # expected — we cancelled the server task
 
     print(f"received {len(frames)} frame(s), sizes={[len(f) for f in frames]} bytes")
     print(f"done message: {done}")
