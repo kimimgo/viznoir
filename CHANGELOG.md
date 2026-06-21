@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0](https://github.com/kimimgo/viznoir/compare/v0.10.1...v0.11.0) (2026-06-21)
+
+
+### Features
+
+* **api:** add SemVer + deprecation policy with an enforced deprecation helper ([#101](https://github.com/kimimgo/viznoir/issues/101)) ([3eec38a](https://github.com/kimimgo/viznoir/commit/3eec38aa6f0321516a972469aeee6cfa396989b8)), closes [#64](https://github.com/kimimgo/viznoir/issues/64)
+* **autoexp:** add modify-&gt;render-&gt;measure-&gt;keep/revert ratchet (pilot) ([#96](https://github.com/kimimgo/viznoir/issues/96)) ([be7a3ea](https://github.com/kimimgo/viznoir/commit/be7a3ea5cbde9f51e660e9781c64c36fb0029727)), closes [#61](https://github.com/kimimgo/viznoir/issues/61)
+* **guard:** physics-aware render validation (rules + validator) ([#94](https://github.com/kimimgo/viznoir/issues/94)) ([9811f9a](https://github.com/kimimgo/viznoir/commit/9811f9aa325e9580ae2bbffa43b6a5c92a0d4d40))
+* **plugins:** entry-point plugin system for filters/parsers/presets ([#103](https://github.com/kimimgo/viznoir/issues/103)) ([e3255c0](https://github.com/kimimgo/viznoir/commit/e3255c0d2c5bbbc009c56930b889907a026c4bea)), closes [#66](https://github.com/kimimgo/viznoir/issues/66)
+* **quality:** add render quality metrics (contrast, edge entropy, field coverage) ([#93](https://github.com/kimimgo/viznoir/issues/93)) ([1883692](https://github.com/kimimgo/viznoir/commit/188369207f1e75270b9e343c61a2b30fe4cf4d15)), closes [#60](https://github.com/kimimgo/viznoir/issues/60)
+* **tools:** add validate_render MCP tool (physics guard on render specs) ([#95](https://github.com/kimimgo/viznoir/issues/95)) ([3353a8d](https://github.com/kimimgo/viznoir/commit/3353a8d6599e6f800f009ef8b557c55b24f780e5)), closes [#59](https://github.com/kimimgo/viznoir/issues/59)
+
 ## [0.10.1](https://github.com/kimimgo/viznoir/compare/v0.10.0...v0.10.1) (2026-06-03)
 
 
