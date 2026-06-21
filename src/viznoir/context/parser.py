@@ -36,6 +36,16 @@ class ContextParserRegistry:
         return None
 
 
+# Parsers registered by plugins (viznoir.parsers entry points). Checked after the
+# built-in specific parsers but before the Generic catch-all fallback.
+_PLUGIN_PARSERS: list[ContextParser] = []
+
+
+def register_plugin_parser(parser: ContextParser) -> None:
+    """Register a context parser contributed by a plugin (see viznoir.plugins)."""
+    _PLUGIN_PARSERS.append(parser)
+
+
 def get_default_registry() -> ContextParserRegistry:
     """Create registry with built-in parsers (OpenFOAM first, Generic as fallback)."""
     from viznoir.context.cgns import CGNSContextParser
@@ -48,6 +58,9 @@ def get_default_registry() -> ContextParserRegistry:
     registry.register(OpenFOAMContextParser())
     registry.register(CGNSContextParser())
     registry.register(DualSPHysicsContextParser())
+    # Plugin parsers — after built-ins, before the Generic catch-all
+    for parser in _PLUGIN_PARSERS:
+        registry.register(parser)
     # Generic is fallback — always returns True for can_parse
     registry.register(GenericContextParser())
     return registry
