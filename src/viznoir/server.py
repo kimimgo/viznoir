@@ -1431,6 +1431,17 @@ def main() -> None:
 
     # Resources and prompts are already registered at module level above.
 
+    # Discover and register third-party plugins (filters/parsers/presets).
+    try:
+        from viznoir.plugins import load_plugins
+
+        loaded = load_plugins()
+        n = sum(len(v) for v in loaded.values())
+        if n:
+            logger.info("loaded %d plugin(s): %s", n, loaded)
+    except Exception:  # noqa: BLE001 — plugin discovery must never block startup
+        logger.warning("plugin discovery failed", exc_info=True)
+
     if args.transport == "stdio":
         mcp.run()
     elif args.transport == "sse":

@@ -454,3 +454,8 @@ def get_preset(case_type: str) -> dict[str, Any]:
 def list_presets() -> dict[str, str]:
     """Return {case_type: description} for all available presets."""
     return {k: v["description"] for k, v in CASE_PRESETS.items()}
+
+
+def register_preset(case_type: str, preset: dict[str, Any]) -> None:
+    """Register a case preset (e.g. from a plugin — see viznoir.plugins)."""
+    CASE_PRESETS[case_type] = preset

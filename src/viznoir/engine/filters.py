@@ -1025,3 +1025,13 @@ def apply_filters(
 def list_filters() -> list[str]:
     """Return sorted list of available filter names."""
     return sorted(_FILTER_REGISTRY.keys())
+
+
+def register_filter(name: str, func: object) -> None:
+    """Register a filter function (e.g. from a plugin — see viznoir.plugins).
+
+    ``func`` must accept ``(data, **kwargs)`` and return a VTK dataset, matching
+    the built-in filters. The name is normalized so CamelCase/snake_case both
+    resolve via :func:`apply_filter`.
+    """
+    _FILTER_REGISTRY[_normalize_filter_name(name)] = func
