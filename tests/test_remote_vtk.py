@@ -8,10 +8,10 @@ GPU runner.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 
 import numpy as np
-import pytest
 import vtk
 from vtk.util.numpy_support import numpy_to_vtk
 
@@ -59,7 +59,7 @@ class TestRealSocketRoundtrip:
                 except OSError:
                     await asyncio.sleep(0.1)
             if conn is None:
-                pytest.fail("remote render server did not start")
+                raise RuntimeError("remote render server did not start in time")
 
             async with conn:
                 await conn.send(json.dumps({"file_path": path, "field_name": "RTData", "frames": 2}))
@@ -76,7 +76,5 @@ class TestRealSocketRoundtrip:
             assert all(f[:4] == b"\x89PNG" for f in frames)
         finally:
             server.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await server
-            except asyncio.CancelledError:
-                pass  # expected — we cancelled the server task
